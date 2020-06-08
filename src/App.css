@@ -1,0 +1,103 @@
+body {
+  margin: 0px;
+}
+
+header {
+  margin-left: 10px;
+  margin-top: 10px;
+  font-size: large;
+}
+
+button {
+  color: white;
+  background-color: #373d47;
+  border-width: 0px;
+  display: block;
+  margin: 10px;
+}
+
+.App {
+  width: 100vw;
+  height: 100vh;
+  background-color: #282c34;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.leaflet-container {
+  width: 80vw;
+  height: 100vh;
+}
+
+.Menu {
+  width: 20vw;
+  height: 100vh;
+  color: white;
+  overflow: scroll;
+}
+
+
+
+/* -----------TOOLTIP-----------*/
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/*-----------TOOLTIP END-------------*/
+
+/*-----------DropDown Styling---------*/
+
+.dd-wrapper {
+  background-color: #373d47;
+  margin: 10px;
+  margin-right: 20px;
+}
+
+.dd-list {
+  list-style-type: none;
+  padding-inline-start: 20px;
+}
+
