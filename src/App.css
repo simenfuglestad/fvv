@@ -16,6 +16,10 @@ button {
   margin: 10px;
 }
 
+.removeFilter{
+  display: inline;
+}
+
 .App {
   width: 100vw;
   height: 100vh;

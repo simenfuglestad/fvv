@@ -1,23 +1,12 @@
 import React, { Component } from 'react';
 import DropDown from './DropDown';
 
-
 class Menu extends Component {
     constructor(props) {
         super(props);
         this.state = {
             meny: 'MainMenu',
-            chosenMunicipalities: [],
-            chosenRoadObjects: [],
         }
-
-        this.choices = this.choices.bind(this);
-    }
-
-    choices(kommune){
-        console.log(this);
-        this.state.chosenMunicipalities.push(kommune);
-        this.props.onClick(kommune.nummer);
     }
 
     render(){
@@ -39,17 +28,9 @@ class Menu extends Component {
                      <DropDown
                      title='Velg kommune'
                      list={this.props.data}
-                     onClick={this.choices}
+                     handleFilters={this.props.handleFilters}
                     /> 
-                    : 'Fetching data...'}
-
-                    {
-                        this.state.chosenMunicipalities.map((item) => {
-                            return(
-                                <div>{item.navn}</div>
-                            )
-                        })
-                    }        
+                    : 'Fetching data...'}     
                 </div>
             );
         }

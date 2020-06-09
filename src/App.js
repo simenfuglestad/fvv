@@ -16,7 +16,7 @@ class App extends Component {
     }
 
     //bind functions that need a reference to this instance
-    this.handleclick = this.handleclick.bind(this);
+    this.handleFilters = this.handleFilters.bind(this);
   }
 
   render() {
@@ -24,7 +24,7 @@ class App extends Component {
       <div className="App">
         <Menu 
           data={this.state.data.menu}
-          onClick={this.handleclick}
+          handleFilters={this.handleFilters}
         />
         <MapView
           data={this.state.data.map}
@@ -42,10 +42,14 @@ class App extends Component {
     this.setState({data: {menu: data, map: this.state.data.map}});
   }
 
-  async handleclick(kommune) {
+  async handleFilters(kommune) {
     console.log(kommune)
+    let kommuner = '';
+    kommune.forEach(element => {
+      kommuner += element.nummer + ',';
+    });
     try {
-      const res = await axios.get('https://nvdbapiles-v3.utv.atlas.vegvesen.no/vegobjekter/79?inkluder=geometri,metadata&srid=4326&kommune=' + kommune, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}})
+      const res = await axios.get('https://nvdbapiles-v3.utv.atlas.vegvesen.no/vegobjekter/79?inkluder=geometri,metadata&srid=4326&antall=10000&kommune=' + kommuner, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}})
 
       const data = res.data;
       console.log(data)
