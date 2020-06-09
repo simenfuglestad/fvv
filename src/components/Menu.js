@@ -6,6 +6,7 @@ class Menu extends Component {
         super(props);
         this.state = {
             meny: 'MainMenu',
+            vegobjekter: []
         }
     }
 
@@ -15,24 +16,10 @@ class Menu extends Component {
             return(
                 <div className='Menu'>
                     <header>Hoved Meny</header>
-                    <button onClick={() => {this.setState({meny: 'Mapfilter'})}}>Filter valg</button>
                     <button>Registrer objekt</button>
                 </div>
             );
 
-        } else if(this.state.meny === 'Mapfilter'){
-            return (
-                <div className='Menu'>
-                    <button className='backButton' onClick={() =>{this.setState({meny: 'MainMenu'})}}>tilbake</button>
-                    {this.props.data ? 
-                     <DropDown
-                     title='Velg kommune'
-                     list={this.props.data}
-                     handleFilters={this.props.handleFilters}
-                    /> 
-                    : 'Fetching data...'}     
-                </div>
-            );
         }
         
     }

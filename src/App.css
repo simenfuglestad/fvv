@@ -40,6 +40,25 @@ button {
   overflow: scroll;
 }
 
+.mapfilter-container {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 100px;
+  height: 100px;
+  transition: width 0.2s linear, height 0.2s linear;
+  background-color: #282c34;
+  color: white;
+  z-index: 2000;
+}
+
+.mapfilter-toggle {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: -1;
+}
+
 
 
 /* -----------TOOLTIP-----------*/
@@ -101,7 +120,13 @@ button {
 }
 
 .dd-list {
+  height: 200px;
   list-style-type: none;
   padding-inline-start: 20px;
+  overflow: scroll;
+}
+
+.dd-list::-webkit-scrollbar {
+  display: none;
 }
 
