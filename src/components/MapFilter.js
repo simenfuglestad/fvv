@@ -44,6 +44,7 @@ class MapFilter extends Component {
     }
 
     render(){
+        console.log(this.state.municipalities)
         return(
             <div className='mapfilter-container' style={{height: this.state.height, width: this.state.width}}>
                 {this.state.expanded &&

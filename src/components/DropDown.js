@@ -27,9 +27,27 @@ class DropDown extends Component {
         }));
     }
 
+    addFilter(filter){
+        this.setState(prevState => {
+            this.props.addFilter(filter);
+            return {selected: prevState.selected.concat(filter)}
+        });
+    }
+
+    removeFilter(filter){
+        this.setState(prevState => {
+            this.props.removeFilter(filter);
+            return {selected: prevState.selected.filter((i) => i !== filter)}
+        });
+    }
+
     render(){
         const{list} = this.props
         const{listOpen, headerTitle} = this.state
+
+        //console.log(this.props.selected)
+        //console.log('---')
+        //console.log(this.state.selected)
         
 
         return(
@@ -38,7 +56,7 @@ class DropDown extends Component {
 
                     {this.state.selected.length ?
                     this.state.selected.map((item) =>(
-                        <div className='test' key={item.nummer}>{item.navn}<button className='removeFilter' onClick={() => this.props.removeFilter(item)}>X</button></div>
+                        <div className='test' key={item.nummer}>{item.navn}<button className='removeFilter' onClick={() => this.removeFilter(item)}>X</button></div>
                     ))
                     :
                     <div className="dd-header-title">{headerTitle}</div>
@@ -46,7 +64,7 @@ class DropDown extends Component {
                 </div>
                 {listOpen && <ul className="dd-list">
                     {list.map((item) => (
-                        <li className="dd-list-item" key={item.nummer} onClick={() => this.props.addFilter(item)} >{item.navn}</li>
+                        <li className="dd-list-item" key={item.nummer} onClick={() => this.addFilter(item)} >{item.navn}</li>
                     ))}
                 </ul>}
             </div>

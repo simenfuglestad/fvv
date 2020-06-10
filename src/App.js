@@ -23,7 +23,6 @@ class App extends Component {
       <div className="App">
         <Menu 
           data={this.state.menu}
-          handleFilters={this.handleFilters}
         />
         <MapView
           data={this.state.map}
