@@ -7,17 +7,19 @@ class MapView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentLocation: { lat: 60.390461, lng: 5.328283 },
-      zoom: 12,
+      zoom: 15,
     }
+
   }
 
+
+
+
   render() {
-    const { currentLocation, zoom } = this.state;
 
     return (
       this.props.data.objekter ?
-      <Map center={currentLocation} zoom={zoom}>
+      <Map center={this.props.currentLocation} zoom={this.state.zoom}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -26,18 +28,23 @@ class MapView extends Component {
           {
             this.props.data.objekter.map((data, index) => {
               try{
-                //console.log('cake!')
               var parse = require('wellknown')
               const geoJSON = parse(data.geometri.wkt)
-              const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
+              if(geoJSON.type === 'Point'){
+                const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
             
-              return (
-                <Marker position={point} key={index} icon={VenueLocationIcon} >
-                  <Popup>
-                    <span>{data.metadata.type.navn} ID: {data.id}</span>
-                  </Popup>
-                </Marker>
-              );
+                return (
+                  <Marker position={point} key={index} icon={VenueLocationIcon} >
+                    <Popup>
+                      <span>{data.metadata.type.navn} ID: {data.id}</span>
+                    </Popup>
+                  </Marker>
+                );
+              } else {
+                console.log('Invalid geoJSON: ' + geoJSON.type);
+                return null;
+              }
+
               } catch(err) {
                 console.log(data);
                 return null;
@@ -48,7 +55,7 @@ class MapView extends Component {
 
         </Map>
       :
-      <Map center={currentLocation} zoom={zoom}>
+      <Map center={this.props.currentLocation} zoom={this.state.zoom}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
