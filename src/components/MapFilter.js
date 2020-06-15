@@ -12,8 +12,8 @@ class MapFilter extends Component {
             roadObjects: [],
         }
         this.toggleWindow = this.toggleWindow.bind(this);
-        this.addMunicipalityFilter = this.addMunicipalityFilter.bind(this);
-        this.removeMunicipalityFilter = this.removeMunicipalityFilter.bind(this);
+        this.addFilter = this.addFilter.bind(this);
+        this.removeFilter = this.removeFilter.bind(this);
     }
 
     toggleWindow() {
@@ -28,38 +28,31 @@ class MapFilter extends Component {
           }));
     }
 
-    addMunicipalityFilter(item){
+    addFilter(item){
         this.setState(prevState => {
-            this.props.handleFilters(prevState.municipalities.concat(item));
-            return{municipalities: prevState.municipalities.concat(item)};  
+            this.props.handleFilters(prevState.roadObjects.concat(item.nummer));
+            return{roadObjects: prevState.roadObjects.concat(item.nummer)};  
         });
         
     }
 
-    removeMunicipalityFilter(item){
+    removeFilter(item){
         this.setState(prevState => {
-            this.props.handleFilters(prevState.municipalities.filter((i) => i !== item));
-            return{municipalities: prevState.municipalities.filter((i) => i !== item)};
+            this.props.handleFilters(prevState.roadObjects.filter((i) => i !== item.nummer));
+            return{roadObjects: prevState.roadObjects.filter((i) => i !== item.nummer)};
         });
     }
 
     render(){
-        console.log(this.state.municipalities)
         return(
             <div className='mapfilter-container' style={{height: this.state.height, width: this.state.width}}>
-                {this.state.expanded &&
-                <DropDown
-                    title='Velg kommune'
-                    list={this.props.data}
-                    selected={this.state.municipalities}
-                    addFilter={this.addMunicipalityFilter}
-                    removeFilter={this.removeMunicipalityFilter}
-                />}
                 {this.state.expanded && 
                 <DropDown
                     title='Velg vegobjekt'
-                    list={[]}
+                    list={[{navn: 'Stikkrenne/kulvert', nummer: 79}, {navn: 'Kum', nummer: 83}, {navn: 'Belysningspunkt', nummer: 87}]}
                     selected={this.state.roadObjects}
+                    addFilter={this.addFilter}
+                    removeFilter={this.removeFilter}
                 />}
                 <button className='mapfilter-toggle' onClick={this.toggleWindow}>{this.state.expanded ? '>' : '<'}</button>
             </div>
