@@ -15,6 +15,7 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
+    console.log(objects)
     return(
       objects.map((item, index) => {
         try{

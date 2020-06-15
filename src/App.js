@@ -4,7 +4,6 @@ import MapView from './components/MapView';
 import Menu from './components/Menu';
 import MapFilter from './components/MapFilter';
 import ApiGateway from './ApiGateway'
-
 import './App.css';
 
 class App extends Component {
@@ -46,6 +45,7 @@ class App extends Component {
     );
   }
 
+  /*
   //ISSUE: longitude gets squished
   getPolygonString(center, offset=0.02){
     return(
@@ -61,8 +61,52 @@ class App extends Component {
       center.lng
     );
   }
+  */
 
-  //ISSUE: does not work when response contains more than 1000 objects
+  getPolygonString(polygon) {
+    let result = '';
+    polygon.forEach(point => {
+      result = result + point.lat + ' ' + point.lng + ',';
+    });
+    return result.slice(0, -1);
+  }
+
+  /**
+   * Returns a collection of lat,lng points that form a circle around center
+   * @param {center point of circle in lat,lng} center 
+   * @param {radius of circle in km} radius 
+   * @param {how many points on the circle to return} verts 
+   */
+  getCircle(center, radius=5, verts=10){
+    let headings = [];
+    let low = 0;
+    let step = (2*Math.PI - low) / verts;
+    for (let index = 0; index < verts; index++) {
+      headings.push(low);
+      low += step;
+    }
+
+    radius = radius / 6371;
+    center = {lat: center.lat*(Math.PI/180), lng: center.lng*(Math.PI/180)}
+    let points = []
+
+    headings.forEach(heading => {
+      let lng;
+      let lat = Math.asin(Math.sin(center.lat)*Math.cos(radius)+Math.cos(center.lat)*Math.sin(radius)*Math.cos(heading));
+      //let lat = Math.asin(Math.sin(center.lat)*Math.cos(radius)+Math.cos(center.lat)*Math.sin(radius)*Math.cos(heading))
+
+      if(Math.cos(lat) === 0){
+        lng = center.lng;
+      } else {
+        lng = ((center.lng-Math.asin(Math.sin(heading)*Math.sin(radius)/Math.cos(lat))+Math.PI)%(2*Math.PI))-Math.PI;
+      }
+      points.push({lat: lat*(180/Math.PI), lng: lng*(180/Math.PI)})
+    });
+
+    points.push(points[0]);
+    return points;
+  }
+
   async apiCall(request){
     let res = await axios.get(request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
 
@@ -84,7 +128,8 @@ class App extends Component {
   }
 
   async handleFilters(filters) {
-    const poly = this.getPolygonString(this.state.currentLocation)
+    const poly = this.getPolygonString(this.getCircle(this.state.currentLocation))
+    console.log(poly)
     let promises = [];
     this.setState({filters: filters})
 
