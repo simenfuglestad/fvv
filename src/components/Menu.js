@@ -16,6 +16,7 @@ class Menu extends Component {
                 <div className='Menu'>
                     <header>Hoved Meny</header>
                     <button>Registrer objekt</button>
+                    <button>Registrer hendelse</button>
                 </div>
             );
 

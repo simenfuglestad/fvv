@@ -1,59 +1,92 @@
 import React, { Component } from 'react';
-import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Map, TileLayer, Marker, Popup, Polyline, Polygon } from 'react-leaflet';
 import {VenueLocationIcon} from './VenueLocationIcon';
+import {RedMarker} from './RedMarker';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
+import 'react-leaflet-markercluster/dist/styles.min.css';
 
 class MapView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentLocation: { lat: 60.390461, lng: 5.328283 },
-      zoom: 12,
+      zoom: 15,
     }
   }
 
-  render() {
-    const { currentLocation, zoom } = this.state;
+  drawMapObjects(objects){
+    console.log(objects)
+    return(
+      objects.map((item, index) => {
+        try{
+          if(!this.props.filters.includes(item.metadata.type.id)){
+            return null;
+          }
 
+          var parse = require('wellknown')
+          const geoJSON = parse(item.geometri.wkt)
+          if(geoJSON.type === 'Point'){
+            const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
+            let icon = VenueLocationIcon;
+            return (
+              <Marker position={point} key={index} icon={this.getIcon(item.metadata.type.id)} >
+              </Marker>
+            );
+          } else if(geoJSON.type === 'LineString') {
+            let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
+            return (
+              <Polyline color='red' positions= {latLngList} key={index}>
+              </Polyline>
+            );
+          } else if(geoJSON.type === 'Polygon') {
+            let latLngList = geoJSON.coordinates;
+            return (
+              <Polygon color='red' positions= {latLngList} key={index}>
+              </Polygon>
+            );
+          } else {
+            console.log('Invalid geoJSON: ' + geoJSON.type);
+            console.log(geoJSON);
+            return null;
+          }
+  
+        } catch(err) {
+            console.log(item);
+            console.log(err)
+            return null;
+        }
+      })
+    );
+  }
+
+  drawRoads(objects){
+    let result = []
+    objects.forEach(element => {
+      result.push(Array.from(this.drawMapObjects(element.veglenker)))
+    });
+    return result;
+  }
+
+  getIcon(id){
+    const icons = {79: RedMarker, 83: VenueLocationIcon, 87: VenueLocationIcon}
+    return icons[id];
+  }
+
+  render() {
     return (
-      this.props.data.objekter ?
-      <Map center={currentLocation} zoom={zoom}>
+      <Map center={this.props.currentLocation} zoom={this.state.zoom} maxZoom={19}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
           />
-
-          {
-            this.props.data.objekter.map((data, index) => {
-              try{
-                //console.log('cake!')
-              var parse = require('wellknown')
-              const geoJSON = parse(data.geometri.wkt)
-              const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
-            
-              return (
-                <Marker position={point} key={index} icon={VenueLocationIcon} >
-                  <Popup>
-                    <span>{data.metadata.type.navn} ID: {data.id}</span>
-                  </Popup>
-                </Marker>
-              );
-              } catch(err) {
-                console.log(data);
-                return null;
-              }
-              
-            })
-          }
+          
+          <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18}>
+           {this.props.filters.length !== 0 && this.drawMapObjects(this.props.data)}
+          </MarkerClusterGroup>
+          
+          {this.drawRoads(this.props.roads)}
 
         </Map>
-      :
-      <Map center={currentLocation} zoom={zoom}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-        />
-      </Map>
     );
   }
 }
