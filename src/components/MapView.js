@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Map, TileLayer, Marker, Popup, Polyline, Polygon } from 'react-leaflet';
 import {VenueLocationIcon} from './VenueLocationIcon';
 import {RedMarker} from './RedMarker';
+import ContextMenu from './ContextMenu';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
@@ -11,6 +12,7 @@ class MapView extends Component {
     super(props);
     this.state = {
       zoom: 15,
+      contextMenu: false,
     }
   }
 
@@ -72,19 +74,28 @@ class MapView extends Component {
     return icons[id];
   }
 
+  handleClick(event) {
+    console.log(event)
+  }
+
   render() {
     return (
-      <Map center={this.props.currentLocation} zoom={this.state.zoom} maxZoom={19}>
+      <Map 
+        center={this.props.currentLocation} 
+        zoom={this.state.zoom} maxZoom={19}
+        onclick={this.handleClick}
+      >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
           />
-          
+
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18}>
            {this.props.filters.length !== 0 && this.drawMapObjects(this.props.data)}
+           {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
           
-          {this.drawRoads(this.props.roads)}
+          
 
         </Map>
     );
