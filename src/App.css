@@ -13,14 +13,14 @@ button {
   background-color: #373d47;
   border-width: 0px;
   display: block;
-  margin: 10px;
+  margin: 1px;
 }
 
 .removeFilter{
   display: inline;
 }
 
-.App {
+.Container {
   width: 100vw;
   height: 100vh;
   background-color: #282c34;
@@ -29,15 +29,46 @@ button {
 }
 
 .leaflet-container {
-  width: 80vw;
+  width: 100vw;
   height: 100vh;
 }
 
 .Menu {
-  width: 20vw;
   height: 100vh;
   color: white;
-  overflow: scroll;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.main-menu {
+  border-style: none solid none none;
+}
+
+.ContextMenu {
+  position: absolute;
+  background-color: #282c34;
+  color: white;
+  z-index: 2000;
+}
+
+.issueRegistration {
+  height: 100vh;
+}
+
+.issueRegistration-form{
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  padding: 10px;
+}
+
+.issueRegistration-form-label{
+  grid-column-start: 1;
+  padding: 10px;
+}
+
+.issueRegistration-form-input{
+  grid-column-start: 2;
+  margin: 10px;
 }
 
 .mapfilter-container {

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import MapView from './components/MapView';
-import Menu from './components/Menu';
-import MapFilter from './components/MapFilter';
 import ApiGateway from './ApiGateway'
+import Container from './components/Container'
 import './App.css';
 
 class App extends Component {
@@ -11,7 +9,7 @@ class App extends Component {
     super(props)
     this.state = {
       currentLocation: { lat: 60.0084857, lng:11.0648648 },
-      menu: [],
+      menu: 'mainMenu',
       map: [],
       filters: [],
       roads: [],
@@ -24,44 +22,21 @@ class App extends Component {
     this.getUserLocation = this.getUserLocation.bind(this);
   }
 
+  async componentDidMount() {
+    navigator.geolocation.getCurrentPosition(this.getUserLocation)
+  }
+
   render() {
     return (
-      <div className="App">
-        <Menu 
-          data={this.state.menu}
-        />
-        <MapView
-          currentLocation={this.state.currentLocation}
-          data={this.state.map}
-          filters={this.state.filters}
-          roads={this.state.roads}
-        />
-        <MapFilter
-          data={this.state.menu}
-          handleFilters={this.handleFilters}
-        />
-
-      </div>
+      <Container 
+        currentLocation={this.state.currentLocation}
+        map={this.state.map}
+        filters={this.state.filters}
+        roads={this.state.roads}
+        handleFilters={this.handleFilters}
+      />
     );
   }
-
-  /*
-  //ISSUE: longitude gets squished
-  getPolygonString(center, offset=0.02){
-    return(
-      '' + (center.lat-offset) + ' ' +
-      center.lng + ',' +
-      center.lat + ' ' +
-      (center.lng-offset) + ',' +
-      (center.lat+offset) + ' ' +
-      center.lng + ',' +
-      center.lat + ' ' +
-      (center.lng+offset) + ',' +
-      (center.lat-offset) + ' ' +
-      center.lng
-    );
-  }
-  */
 
   getPolygonString(polygon) {
     let result = '';
@@ -81,6 +56,7 @@ class App extends Component {
     let headings = [];
     let low = 0;
     let step = (2*Math.PI - low) / verts;
+
     for (let index = 0; index < verts; index++) {
       headings.push(low);
       low += step;
@@ -93,7 +69,6 @@ class App extends Component {
     headings.forEach(heading => {
       let lng;
       let lat = Math.asin(Math.sin(center.lat)*Math.cos(radius)+Math.cos(center.lat)*Math.sin(radius)*Math.cos(heading));
-      //let lat = Math.asin(Math.sin(center.lat)*Math.cos(radius)+Math.cos(center.lat)*Math.sin(radius)*Math.cos(heading))
 
       if(Math.cos(lat) === 0){
         lng = center.lng;
@@ -119,17 +94,12 @@ class App extends Component {
     return data;
   }
 
-  async componentDidMount() {
-    navigator.geolocation.getCurrentPosition(this.getUserLocation)
-  }
-
   getUserLocation(position){
     this.setState({currentLocation: {lat: position.coords.latitude, lng: position.coords.longitude}})
   }
 
   async handleFilters(filters) {
     const poly = this.getPolygonString(this.getCircle(this.state.currentLocation))
-    console.log(poly)
     let promises = [];
     this.setState({filters: filters})
 
