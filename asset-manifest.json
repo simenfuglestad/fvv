@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/fvv/static/css/main.e977b38e.chunk.css",
+    "main.js": "/fvv/static/js/main.4edd3a63.chunk.js",
+    "main.js.map": "/fvv/static/js/main.4edd3a63.chunk.js.map",
+    "runtime-main.js": "/fvv/static/js/runtime-main.e3c3eae1.js",
+    "runtime-main.js.map": "/fvv/static/js/runtime-main.e3c3eae1.js.map",
+    "static/css/2.aeec6e59.chunk.css": "/fvv/static/css/2.aeec6e59.chunk.css",
+    "static/js/2.f3560719.chunk.js": "/fvv/static/js/2.f3560719.chunk.js",
+    "static/js/2.f3560719.chunk.js.map": "/fvv/static/js/2.f3560719.chunk.js.map",
+    "index.html": "/fvv/index.html",
+    "precache-manifest.7059cdc200eb04e33aeec195091ed327.js": "/fvv/precache-manifest.7059cdc200eb04e33aeec195091ed327.js",
+    "service-worker.js": "/fvv/service-worker.js",
+    "static/css/2.aeec6e59.chunk.css.map": "/fvv/static/css/2.aeec6e59.chunk.css.map",
+    "static/css/main.e977b38e.chunk.css.map": "/fvv/static/css/main.e977b38e.chunk.css.map",
+    "static/media/red_marker.png": "/fvv/static/media/red_marker.33539eeb.png",
+    "static/media/venue_location_icon.svg": "/fvv/static/media/venue_location_icon.bd6f36a3.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e3c3eae1.js",
+    "static/css/2.aeec6e59.chunk.css",
+    "static/js/2.f3560719.chunk.js",
+    "static/css/main.e977b38e.chunk.css",
+    "static/js/main.4edd3a63.chunk.js"
+  ]
+}
