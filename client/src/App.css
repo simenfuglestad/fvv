@@ -1,26 +1,18 @@
-body {
+body{
   margin: 0px;
 }
 
-header {
+header{
   margin-left: 10px;
   margin-top: 10px;
   font-size: large;
-}
-
-button {
-  color: white;
-  background-color: #373d47;
-  border-width: 0px;
-  display: block;
-  margin: 1px;
 }
 
 .removeFilter{
   display: inline;
 }
 
-.Container {
+.Container{
   width: 100vw;
   height: 100vh;
   background-color: #282c34;
@@ -28,30 +20,27 @@ button {
   grid-template-columns: 1fr 1fr;
 }
 
-.leaflet-container {
+.leaflet-container{
+  position: absolute;
   width: 100vw;
   height: 100vh;
 }
 
-.Menu {
+.Menu{
   height: 100vh;
   color: white;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-.main-menu {
-  border-style: none solid none none;
-}
-
-.ContextMenu {
+.ContextMenu{
   position: absolute;
   background-color: #282c34;
   color: white;
   z-index: 2000;
 }
 
-.caseRegistration {
+.caseRegistration{
   height: 100vh;
 }
 
@@ -71,26 +60,69 @@ button {
   margin: 10px;
 }
 
-.mapfilter-container {
+.rightMenu{
   position: absolute;
   top: 0px;
   right: 0px;
-  width: 100px;
-  height: 100px;
-  transition: width 0.2s linear, height 0.2s linear;
-  background-color: #282c34;
-  color: white;
-  z-index: 2000;
+  z-index: 1000;
 }
 
-.mapfilter-toggle {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  z-index: -1;
+.searchField{
+  margin: 5px;
+  z-index: 1000;
 }
 
+.searchField-input{
+  padding: 5px;
+  font-size: larger;
+}
 
+.searchfield-choices{
+  overflow-y: scroll;
+  max-height: 40vh;
+}
+
+.searchfield-choice{
+  background-color: white;
+  margin: 0px;
+  padding: 1px;
+}
+
+.mapFilter{
+  margin: 5px;
+  padding: 5px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  z-index: 1000;
+}
+
+.mapFilter-entry{
+  border-style: solid;
+  border-width: 1px;
+  display: grid;
+  padding: 3px;
+  margin: 5px;
+}
+
+.mapfilter-entry-name{
+  grid-column-start: 1;
+}
+
+.mapFilter-entry-button{
+  color: black;
+  background-color: white;
+  grid-column-start: 2;
+}
+
+.dataDisplay{
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  margin: 5px;
+  z-index: 1000;
+  max-width: 20vw;
+}
 
 /* -----------TOOLTIP-----------*/
 

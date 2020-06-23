@@ -5,6 +5,7 @@ import {RedMarker} from './RedMarker';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
+import Leaflet from 'leaflet';
 
 /**
  * props:
@@ -21,9 +22,11 @@ class MapView extends Component {
     }
 
     this.handleClick = this.handleClick.bind(this);
+
   }
 
   render() {
+    console.log(this.props.filters)
     return (
       <Map 
         center={this.props.currentLocation} 
@@ -59,21 +62,19 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
+
     console.log(objects)
+    var parse = require('wellknown')
     return(
       objects.map((item, index) => {
         try{
-          if(!this.props.filters.includes(item.metadata.type.id)){
-            return null;
-          }
 
-          var parse = require('wellknown')
           const geoJSON = parse(item.geometri.wkt)
           if(geoJSON.type === 'Point'){
             const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
             let icon = VenueLocationIcon;
             return (
-              <Marker position={point} key={index} icon={this.getIcon(item.metadata.type.id)} onClick={this.props.handleMarkerClick} >
+              <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
               </Marker>
             );
           } else if(geoJSON.type === 'LineString') {
@@ -120,13 +121,60 @@ class MapView extends Component {
   }
 
   getIcon(id){
-    const icons = {79: RedMarker, 83: VenueLocationIcon, 87: VenueLocationIcon}
-    return icons[id];
+    const color = this.rainbow(
+      this.props.filters.length, 
+      this.props.filters.findIndex((filter) => (
+        filter.id === id
+      ))
+    )
+
+    const markerHtmlStyles = `
+    background-color: ${color};
+    width: 2rem;
+    height: 2rem;
+    display: block;
+    left: -1.5rem;
+    top: -1.5rem;
+    position: relative;
+    border-radius: 3rem 3rem 0;
+    transform: rotate(45deg);
+    border: 1px solid #FFFFFF`
+
+    const icon = Leaflet.divIcon({
+      className: "my-custom-pin",
+      iconAnchor: [0, 24],
+      labelAnchor: [-6, 0],
+      popupAnchor: [0, -36],
+      html: `<span style="${markerHtmlStyles}" />`
+    })
+
+    return icon;
   }
 
   handleClick(event) {
-    this.props.onClick(event)
+    this.props.handleMapClick(event)
   }
+
+  rainbow(numOfSteps, step) {
+    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+    // Adam Cole, 2011-Sept-14
+    // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
+    }
+    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    return (c);
+}
 }
 
 export default MapView;
