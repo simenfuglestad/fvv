@@ -29,8 +29,9 @@ class App extends Component {
 
   async componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    this.getIssues();
-    this.testApiSkriv();
+    this.getRoadObjectTypes()
+    //this.getIssues();
+    //this.altTestApiSkriv();
   }
 
   render() {
@@ -41,6 +42,7 @@ class App extends Component {
         filters= {this.state.filters}
         roads={this.state.roads}
         issues={this.state.issues}
+        roadObjectTypes={this.state.roadObjectTypes}
         handleFilters={this.handleFilters}
         handleRegistration={this.handleRegistration}
         testRoadSelect={this.testRoadSelect}
@@ -96,7 +98,7 @@ class App extends Component {
     this.setState({currentLocation: {lat: position.coords.latitude, lng: position.coords.longitude}})
   }
 
-  //TODO
+
   async handleFilters(filters) {
     let promises = [];
     this.setState({filters: filters})
@@ -106,7 +108,7 @@ class App extends Component {
       console.log(roadId);
       if(filters){
         filters.forEach(async(element) => {
-          promises.push(this.nvdb.apiCall('vegobjekter/' + element + '?inkluder=alle&srid=4326&veglenkesekvens=' + roadId));
+          promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&veglenkesekvens=' + roadId));
         });
         Promise.all(promises).then((values) => {
           this.setState({map: [].concat.apply([], values)});
@@ -117,13 +119,18 @@ class App extends Component {
 
       if(filters){
         filters.forEach(async(element) => {
-          promises.push(this.nvdb.apiCall('vegobjekter/' + element + '?inkluder=alle&srid=4326&polygon=' + poly));
+          promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + poly));
         });
         Promise.all(promises).then((values) => {
           this.setState({map: [].concat.apply([], values)});
         });
       }
     }
+  }
+
+  async getRoadObjectTypes(){
+    const data = await this.nvdb.apiCallSingle('vegobjekttyper')
+    this.setState({roadObjectTypes: data})
   }
   
   async handleRegistration(issues){
@@ -149,9 +156,21 @@ class App extends Component {
   }
 
   async testApiSkriv(){
-    const response = await axios.post('http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', {'username': 'bjosor', 'password': 'bjosor'}, {headers: { 'Content-Type': 'application/json'}});
+    const response = await axios.post('http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', {headers: { 'Content-Type': 'application/json'}, body: {'username': 'bjosor', 'password': 'bjosor'}});
     console.log(response)
     
+  }
+
+  altTestApiSkriv(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        console.log(xhttp.responseText);
+      }
+    };
+    xhttp.open("POST", 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', true);
+    xhttp.setRequestHeader("Content-type", 'application/json');
+    xhttp.send({'username': 'bjosor', 'password': 'bjosor'});
   }
 }
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import MapView from './MapView';
 import Menu from './Menu';
-import MapFilter from './MapFilter';
 import ContextMenu from './ContextMenu'
+import RightMenu from './RightMenu';
 
 class Container extends Component {
   constructor(props) {
@@ -13,8 +13,9 @@ class Container extends Component {
 
     this.swiping = false;
 
-    this.handleClick = this.handleClick.bind(this);
+    this.handleMapClick = this.handleMapClick.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
+    this.handleMarkerClick = this.handleMarkerClick.bind(this);
   }
 
   render() {
@@ -23,15 +24,15 @@ class Container extends Component {
         className="Container" 
         onMouseDown={() => {this.swiping = false}} 
         onMouseMove={() => {this.swiping = true}} 
-
       >
-        <Menu 
-          issueRegistration={this.state.issueRegistration} 
-          latlng={{lat: this.state.contextMenu.lat, lng: this.state.contextMenu.lng}}
-          handleRegistration={this.props.handleRegistration}
-        />
 
         {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>} 
+
+        <RightMenu
+          roadObjectTypes={this.props.roadObjectTypes}
+          handleFilters={this.props.handleFilters}
+          showMarkerInfo={this.state.showMarkerInfo}
+        />
 
         <MapView
           currentLocation={this.props.currentLocation}
@@ -39,18 +40,20 @@ class Container extends Component {
           filters= {this.props.filters}
           roads={this.props.roads}
           issues={this.props.issues}
-          onClick={this.handleClick}
-        />
-        <MapFilter
-          data={this.state.menu}
-          handleFilters={this.props.handleFilters}
+          handleMapClick={this.handleMapClick}
+          handleMarkerClick={this.handleMarkerClick}
         />
 
       </div>
     );
   }
 
-  handleClick(event){
+  handleMarkerClick(marker) {
+    this.setState({showMarkerInfo: marker})
+    console.log(marker)
+  }
+
+  handleMapClick(event){
     const origin = event.originalEvent;
     if(origin.target.classList.contains('leaflet-container') && !this.state.contextMenu.show && !this.swiping){
         this.setState({contextMenu: {show: true, x: origin.pageX, y: origin.pageY,  lat: event.latlng.lat, lng: event.latlng.lng}})    
