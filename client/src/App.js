@@ -15,7 +15,6 @@ class App extends Component {
       filters: [],
       roads: [],
       issues: [],
-      filterOnRoad: false,
     }
 
     this.nvdb = new ApiGateway(this.state.nvdbEndpoint)
@@ -24,7 +23,6 @@ class App extends Component {
     //bind functions that need a reference to this instance
     this.handleFilters = this.handleFilters.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
-    this.testRoadSelect = this.testRoadSelect.bind(this);
   }
 
   async componentDidMount() {
@@ -45,7 +43,6 @@ class App extends Component {
         roadObjectTypes={this.state.roadObjectTypes}
         handleFilters={this.handleFilters}
         handleRegistration={this.handleRegistration}
-        testRoadSelect={this.testRoadSelect}
       />
     );
   }
@@ -60,9 +57,6 @@ class App extends Component {
 
   /**
    * Returns a collection of lat,lng points that form a circle around center
-   * @param {center point of circle in lat,lng} center 
-   * @param {radius of circle in km} radius 
-   * @param {how many points on the circle to return} verts 
    */
   getCircle(center, radius=5, verts=10){
     let headings = [];
@@ -102,29 +96,15 @@ class App extends Component {
   async handleFilters(filters) {
     let promises = [];
     this.setState({filters: filters})
+    const poly = this.getPolygonString(this.getCircle(this.state.currentLocation))
 
-    if(this.state.filterOnRoad){
-      const roadId = this.state.filterOnRoad;
-      console.log(roadId);
-      if(filters){
-        filters.forEach(async(element) => {
-          promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&veglenkesekvens=' + roadId));
-        });
-        Promise.all(promises).then((values) => {
-          this.setState({map: [].concat.apply([], values)});
-        });
-      }
-    } else {
-      const poly = this.getPolygonString(this.getCircle(this.state.currentLocation))
-
-      if(filters){
-        filters.forEach(async(element) => {
-          promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + poly));
-        });
-        Promise.all(promises).then((values) => {
-          this.setState({map: [].concat.apply([], values)});
-        });
-      }
+    if(filters){
+      filters.forEach(async(element) => {
+        promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + poly));
+      });
+      Promise.all(promises).then((values) => {
+        this.setState({map: [].concat.apply([], values)});
+      });
     }
   }
 
@@ -142,17 +122,6 @@ class App extends Component {
   async getIssues(){
     const response = await axios.get('/api/getIssues');
     this.setState({issues: response.data})
-  }
-
-  async testRoadSelect(lat, lng) {
-    axios.get(this.state.nvdbEndpoint + 'posisjon?lat=' + lat + '&lon=' + lng + '&srid=4326' + '&maks_avstand=200').then(value => {
-      axios.get(this.state.nvdbEndpoint + 'vegnett/veglenkesekvenser/' + value.data[0].veglenkesekvens.veglenkesekvensid + '?srid=4326').then(value2 => {
-        this.setState({
-          roads: value2.data.veglenker,
-          filterOnRoad: value.data[0].veglenkesekvens.veglenkesekvensid
-        })
-      })
-    })
   }
 
   async testApiSkriv(){

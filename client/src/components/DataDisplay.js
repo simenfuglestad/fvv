@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import onClickOutside from 'react-onclickoutside';
 
 class DataDisplay extends Component {
 
     render(){
         const Marker = this.props.showMarkerInfo
         return(
-            this.props.showMarkerInfo ?
+            Marker ?
             <div className='dataDisplay'>
                 <p>{Marker.metadata.type.navn}</p>
                 <p>ID: {Marker.id}</p>
@@ -27,6 +28,11 @@ class DataDisplay extends Component {
             <div></div>
         )
     }
+
+    handleClickOutside(event){
+        this.props.handleClickOutside();
+    }
+
 }
 
-export default DataDisplay;
+export default onClickOutside(DataDisplay);

@@ -16,6 +16,7 @@ class Container extends Component {
     this.handleMapClick = this.handleMapClick.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
+    this.closeDataDisplay = this.closeDataDisplay.bind(this);
   }
 
   render() {
@@ -30,8 +31,9 @@ class Container extends Component {
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
-          handleFilters={this.props.handleFilters}
           showMarkerInfo={this.state.showMarkerInfo}
+          handleFilters={this.props.handleFilters}
+          handleClickOutside={this.closeDataDisplay}
         />
 
         <MapView
@@ -50,7 +52,6 @@ class Container extends Component {
 
   handleMarkerClick(marker) {
     this.setState({showMarkerInfo: marker})
-    console.log(marker)
   }
 
   handleMapClick(event){
@@ -60,8 +61,6 @@ class Container extends Component {
     } else if(!origin.target.classList.contains('ContextMenu')) {
         this.setState({contextMenu: {show: false}});
     }
-
-    this.props.testRoadSelect(event.latlng.lat, event.latlng.lng)
   }
 
   handleContextClick(){
@@ -69,6 +68,10 @@ class Container extends Component {
     this.setState(prevState => (
       {issueRegistration: true, contextMenu: {show: false, lat: prevState.contextMenu.lat, lng: prevState.contextMenu.lng}}
     ));
+  }
+
+  closeDataDisplay(){
+      this.setState({showMarkerInfo: undefined})
   }
 }
 
