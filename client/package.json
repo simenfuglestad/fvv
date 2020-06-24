@@ -13,6 +13,7 @@
     "react-jsonschema-form": "^1.8.1",
     "react-leaflet": "^2.5.0",
     "react-leaflet-markercluster": "^2.0.0",
+    "react-minimal-pie-chart": "^8.0.1",
     "react-onclickoutside": "^6.9.0",
     "react-scripts": "3.2.0",
     "wellknown": "^0.5.0"
