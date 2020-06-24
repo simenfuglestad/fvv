@@ -19,7 +19,12 @@ class RightMenu extends Component {
             <div className='rightMenu'>
                 <SearchField handleFilterSelect={this.handleFilterSelect} data={this.props.roadObjectTypes}/>
                 <MapFilter filters={this.state.filters} handleRemoveFilter={this.handleRemoveFilter}/>
-                {this.props.showMarkerInfo && <DataDisplay showMarkerInfo={this.props.showMarkerInfo}/>}
+                {this.props.showMarkerInfo && 
+                    <DataDisplay   
+                    showMarkerInfo={this.props.showMarkerInfo}
+                    handleClickOutside={this.props.handleClickOutside}
+                    />
+                }
             </div>
         )
     }

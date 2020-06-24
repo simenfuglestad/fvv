@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, Marker, Popup, Polyline, Polygon, GeoJSON } from 'react-leaflet';
-import {VenueLocationIcon} from './VenueLocationIcon';
-import {RedMarker} from './RedMarker';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
@@ -26,7 +24,6 @@ class MapView extends Component {
   }
 
   render() {
-    console.log(this.props.filters)
     return (
       <Map 
         center={this.props.currentLocation} 
@@ -53,7 +50,7 @@ class MapView extends Component {
     return (
       issueMarkers.map((item,index) => {
         return(
-          <Marker position={item.geometry.coordinates} key={index} icon={VenueLocationIcon} >
+          <Marker position={item.geometry.coordinates} key={index} icon={this.getIcon()} >
             <Popup>{item.properties.name + ' ' + item.properties.date}</Popup>
           </Marker>
         )
@@ -62,8 +59,6 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
-
-    console.log(objects)
     var parse = require('wellknown')
     return(
       objects.map((item, index) => {
@@ -72,7 +67,6 @@ class MapView extends Component {
           const geoJSON = parse(item.geometri.wkt)
           if(geoJSON.type === 'Point'){
             const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
-            let icon = VenueLocationIcon;
             return (
               <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
               </Marker>
@@ -105,7 +99,6 @@ class MapView extends Component {
   }
 
   drawRoads(objects){
-    console.log(objects)
     var parse = require('wellknown')
     return(
       objects.map((item,index) => {
@@ -121,12 +114,19 @@ class MapView extends Component {
   }
 
   getIcon(id){
-    const color = this.rainbow(
-      this.props.filters.length, 
-      this.props.filters.findIndex((filter) => (
-        filter.id === id
-      ))
-    )
+    let color;
+    
+    if(id){
+      color = this.rainbow(
+        this.props.filters.length, 
+        this.props.filters.findIndex((filter) => (
+          filter.id === id
+        ))
+      );
+    } else {
+      color = this.rainbow(1,1);
+    }
+ 
 
     const markerHtmlStyles = `
     background-color: ${color};
