@@ -8,7 +8,7 @@ class SearchField extends Component {
             query: '',
             filteredData: []
         }
-        
+
         this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
@@ -30,12 +30,20 @@ class SearchField extends Component {
 
     handleInputChange = event => {
         const query = event.target.value;
-    
+
         this.setState(prevState => {
-          const filteredData = this.props.data.filter(element => {
+          let filteredData = this.props.data.filter(element => {
             return element.navn.toLowerCase().includes(query.toLowerCase());
           });
-    
+
+          filteredData.sort(function(a, b) {
+            let n = a.navn.toLowerCase();
+            let m = b.navn.toLowerCase();
+            if (n < m) return -1;
+            else if(n === m) return 0;
+            else return 1;
+         });
+
           return {
             query,
             filteredData
@@ -52,5 +60,21 @@ class SearchField extends Component {
       this.props.handleFilterSelect(i);
     }
 }
+
+function sortObjectsByName(objects) {
+  let tmp = objects;
+  let pairs = []
+  while (tmp.length > 0) {
+    let middle;
+    if (tmp.length % 2 == 1) {
+      let pair1 = objects;
+    }
+  }
+
+  //   names.push(objects[i]);
+  // }
+  // names = names.sort();
+}
+
 
 export default onClickOutside(SearchField);
