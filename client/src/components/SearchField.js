@@ -61,20 +61,4 @@ class SearchField extends Component {
     }
 }
 
-function sortObjectsByName(objects) {
-  let tmp = objects;
-  let pairs = []
-  while (tmp.length > 0) {
-    let middle;
-    if (tmp.length % 2 == 1) {
-      let pair1 = objects;
-    }
-  }
-
-  //   names.push(objects[i]);
-  // }
-  // names = names.sort();
-}
-
-
 export default onClickOutside(SearchField);
