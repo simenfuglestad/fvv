@@ -179,6 +179,7 @@ class MapView extends Component {
 
   getMarkerClusterIcon(cluster){
     var children = cluster.getAllChildMarkers();
+    var childCount = cluster.getChildCount();
 
     const clusterTypes = children.reduce(function (acc, curr) {
       const id = curr.options.icon.options.className;
@@ -212,8 +213,16 @@ class MapView extends Component {
       className: "my-custom-pin",
       iconSize: new Leaflet.Point(40, 40),
       html: ReactDOMServer.renderToString(
-          <PieChart
+        <PieChart
           data={data}
+          label={({ dataEntry }) => childCount}
+          labelStyle={{
+            fontSize: '40px',
+            fontFamily: 'sans-serif',
+            fill: 'white',
+            textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
+          }}
+          labelPosition={0}
         /> 
       ) 
     })
