@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { ReactComponent as AddObject } from './../assets/untitled.svg'
+// import {StyleSheet} from 'react-native'
 
 class PlaceObjectBtn extends Component {
   constructor(props) {
@@ -7,12 +9,15 @@ class PlaceObjectBtn extends Component {
 
   render() {
     return(
-      <button onClick = {this.props.handleBtnClick}
-              type="button"
-              id="placeObjectBtn">
-        Legg til Objekt/Hendelse
-      </button>
-    )
+      <div borderRadius="25px">
+        <AddObject
+          id="placeObjectBtn"
+          onClick = {this.props.handleBtnClick}>
+        </AddObject>
+      </div>
+    );
   }
+
+
 }
 export default PlaceObjectBtn;
