@@ -110,16 +110,26 @@ header{
   display: grid;
   padding: 3px;
   margin: 5px;
+  grid-template-columns: 0fr 1fr 0fr;
 }
 
 .mapfilter-entry-name{
-  grid-column-start: 1;
+  grid-column-start: 2;
 }
 
 .mapFilter-entry-button{
+  width: 20px;
+  justify-self: end;
   color: black;
   background-color: white;
-  grid-column-start: 2;
+  grid-column-start: 3;
+}
+.mapfilter-entry-colorbox{
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-width: 1px;
+  margin: 2px;
 }
 
 .dataDisplay{
@@ -129,6 +139,14 @@ header{
   margin: 5px;
   z-index: 1000;
   max-width: 20vw;
+}
+
+.clusterPie{
+  position: relative;
+  float: left;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* -----------TOOLTIP-----------*/
