@@ -20,6 +20,7 @@ class MapView extends Component {
       zoom: 15,
       contextMenu: false,
     }
+    this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3']
 
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
@@ -117,15 +118,14 @@ class MapView extends Component {
 
   getIcon(id){
     let color;
+    let idIndex = this.props.filters.findIndex((filter) => (
+      filter.id === id
+    ))
     
     if(id){
-      color = this.rainbow(
-        this.props.filters.length, 
-        this.props.filters.findIndex((filter) => (
-          filter.id === id
-        ))
-      );
+      color = this.colorScheme[idIndex%this.colorScheme.length]
     } else {
+      console.log('marker using default color')
       color = this.rainbow(1,1);
     }
  
@@ -197,9 +197,7 @@ class MapView extends Component {
         return ({
           title: type.id, 
           value: clusterTypes[type.id], 
-          color: this.rainbow(
-            this.props.filters.length, 
-            index),
+          color: this.colorScheme[index%this.colorScheme.length],
           })
       } else {
         return;
