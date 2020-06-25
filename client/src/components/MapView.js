@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { Map, TileLayer, Marker, Popup, Polyline, Polygon, GeoJSON } from 'react-leaflet';
+import { PieChart } from 'react-minimal-pie-chart';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
@@ -18,9 +20,10 @@ class MapView extends Component {
       zoom: 15,
       contextMenu: false,
     }
+    this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3']
 
     this.handleClick = this.handleClick.bind(this);
-
+    this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
   }
 
   render() {
@@ -37,7 +40,7 @@ class MapView extends Component {
 
           {this.drawIssueMarkers(this.props.issues)}
 
-          <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18}>
+          <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
            {this.props.filters.length !== 0 && this.drawMapObjects(this.props.map)}
            {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
@@ -115,19 +118,17 @@ class MapView extends Component {
 
   getIcon(id){
     let color;
+    let idIndex = this.props.filters.findIndex((filter) => (
+      filter.id === id
+    ))
     
     if(id){
-      color = this.rainbow(
-        this.props.filters.length, 
-        this.props.filters.findIndex((filter) => (
-          filter.id === id
-        ))
-      );
+      color = this.colorScheme[idIndex%this.colorScheme.length]
     } else {
+      console.log('marker using default color')
       color = this.rainbow(1,1);
     }
  
-
     const markerHtmlStyles = `
     background-color: ${color};
     width: 2rem;
@@ -141,7 +142,7 @@ class MapView extends Component {
     border: 1px solid #FFFFFF`
 
     const icon = Leaflet.divIcon({
-      className: "my-custom-pin",
+      className: id,
       iconAnchor: [0, 24],
       labelAnchor: [-6, 0],
       popupAnchor: [0, -36],
@@ -174,7 +175,58 @@ class MapView extends Component {
     }
     var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
     return (c);
-}
+  }
+
+  getMarkerClusterIcon(cluster){
+    var children = cluster.getAllChildMarkers();
+    var childCount = cluster.getChildCount();
+
+    const clusterTypes = children.reduce(function (acc, curr) {
+      const id = curr.options.icon.options.className;
+      if (typeof acc[id] == 'undefined') {
+        acc[id] = 1;
+      } else {
+        acc[id] += 1;
+      }
+
+      return acc;
+    }, {});
+
+    let data = this.props.filters.map((type, index) => { 
+      if(clusterTypes[type.id]) {
+        return ({
+          title: type.id, 
+          value: clusterTypes[type.id], 
+          color: this.colorScheme[index%this.colorScheme.length],
+          })
+      } else {
+        return;
+      }
+    })
+
+    data = data.filter((item) => (item != null))
+
+
+    const icon = Leaflet.divIcon({
+      className: "my-custom-pin",
+      iconSize: new Leaflet.Point(40, 40),
+      html: ReactDOMServer.renderToString(
+        <PieChart
+          data={data}
+          label={({ dataEntry }) => childCount}
+          labelStyle={{
+            fontSize: '40px',
+            fontFamily: 'sans-serif',
+            fill: 'white',
+            textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
+          }}
+          labelPosition={0}
+        /> 
+      ) 
+    })
+
+		return icon;
+  }
 }
 
 export default MapView;
