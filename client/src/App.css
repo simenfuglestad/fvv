@@ -88,6 +88,13 @@ header{
   padding: 1px;
 }
 
+#placeObjectBtn {
+  width: 100%;
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px
+}
+
 .mapFilter{
   margin: 5px;
   padding: 5px;
@@ -210,4 +217,3 @@ header{
 .dd-list::-webkit-scrollbar {
   display: none;
 }
-
