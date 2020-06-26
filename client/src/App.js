@@ -3,6 +3,7 @@ import axios from 'axios';
 import ApiGateway from './ApiGateway'
 import Container from './components/Container'
 import './App.css';
+import '../node_modules/leaflet-draw/dist/leaflet.draw.css'
 
 class App extends Component {
   constructor(props) {
@@ -23,6 +24,7 @@ class App extends Component {
     //bind functions that need a reference to this instance
     this.handleFilters = this.handleFilters.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
+    this.setPoly = this.setPoly.bind(this);
   }
 
   async componentDidMount() {
@@ -43,6 +45,7 @@ class App extends Component {
         roadObjectTypes={this.state.roadObjectTypes}
         handleFilters={this.handleFilters}
         handleRegistration={this.handleRegistration}
+        setPoly={this.setPoly}
       />
     );
   }
@@ -50,9 +53,12 @@ class App extends Component {
   getPolygonString(polygon) {
     let result = '';
     polygon.forEach(point => {
-      result = result + point.lat + ' ' + point.lng + ',';
+      result = result + point[0] + ' ' + point[1] + ',';
     });
-    return result.slice(0, -1);
+
+    result = result + polygon[0][0] + ' ' + polygon[0][1]
+    console.log(result)
+    return result;
   }
 
   /**
@@ -81,26 +87,37 @@ class App extends Component {
       } else {
         lng = ((center.lng-Math.asin(Math.sin(heading)*Math.sin(radius)/Math.cos(lat))+Math.PI)%(2*Math.PI))-Math.PI;
       }
-      points.push({lat: lat*(180/Math.PI), lng: lng*(180/Math.PI)})
+      points.push([ lat*(180/Math.PI), lng*(180/Math.PI)])
     });
-
-    points.push(points[0]);
     return points;
   }
 
   getUserLocation(position){
-    this.setState({currentLocation: {lat: position.coords.latitude, lng: position.coords.longitude}})
+    this.setState({
+      currentLocation: {lat: position.coords.latitude, lng: position.coords.longitude},
+      poly: this.getPolygonString(this.getCircle({lat: position.coords.latitude, lng: position.coords.longitude}))
+    })
+  }
+
+  setPoly(polygon){
+    if(polygon){
+      polygon = this.getPolygonString(polygon)
+      this.setState({poly: polygon})
+    } else {
+      navigator.geolocation.getCurrentPosition(this.getUserLocation)
+    }
+    
   }
 
 
-  async handleFilters(filters) {
+  handleFilters(filters) {
     let promises = [];
+    
     this.setState({filters: filters})
-    const poly = this.getPolygonString(this.getCircle(this.state.currentLocation))
 
     if(filters){
       filters.forEach(async(element) => {
-        promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + poly));
+        promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly));
       });
       Promise.all(promises).then((values) => {
         this.setState({map: [].concat.apply([], values)});

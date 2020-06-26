@@ -21,6 +21,7 @@ class RightMenu extends Component {
                 <MapFilter 
                     filters={this.state.filters} 
                     handleRemoveFilter={this.handleRemoveFilter}
+                    togglePolyFilter = {this.props.togglePolyFilter}
                 />
                 
                 {this.props.showMarkerInfo && 

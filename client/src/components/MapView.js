@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { Map, TileLayer, Marker, Popup, Polyline, Polygon, GeoJSON } from 'react-leaflet';
+import { Map, TileLayer, Marker, Popup, Polyline, Polygon} from 'react-leaflet';
 import { PieChart } from 'react-minimal-pie-chart';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
+import PolygonDrawer from './PolygonDrawer';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
@@ -19,14 +20,24 @@ class MapView extends Component {
     this.state = {
       zoom: 15,
       contextMenu: false,
+      polygonPoints: [],
+      finished: false,
     }
     this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3']
 
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
+    this.handleMovePoint = this.handleMovePoint.bind(this);
+  }
+
+  componentDidUpdate(prevProps){
+    if(prevProps.drawing !== this.props.drawing){
+      this.setState({polygonPoints: [], finished: false})
+    }
   }
 
   render() {
+    console.log(this.props.filters.length)
     return (
       <Map 
         center={this.props.currentLocation} 
@@ -37,6 +48,8 @@ class MapView extends Component {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
           />
+
+          <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleMovePoint={this.handleMovePoint}/>
 
           {this.drawIssueMarkers(this.props.issues)}
 
@@ -62,6 +75,7 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
+    console.log(objects)
     var parse = require('wellknown')
     return(
       objects.map((item, index) => {
@@ -126,7 +140,7 @@ class MapView extends Component {
       color = this.colorScheme[idIndex%this.colorScheme.length]
     } else {
       console.log('marker using default color')
-      color = this.rainbow(1,1);
+      color = this.colorScheme[idIndex%this.colorScheme.length]
     }
  
     const markerHtmlStyles = `
@@ -153,9 +167,22 @@ class MapView extends Component {
   }
 
   handleClick(event) {
-    this.props.handleMapClick(event)
+    console.log(this.state.polygonPoints);
+    if(this.props.drawing && !this.state.finished){
+      this.setState((prevstate) => ({
+        polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
+      }))
+    } else {
+      this.props.handleMapClick(event)
+    }
   }
 
+  handleMovePoint(){
+    this.setState({finished: true})
+    this.props.setPolyFilter(this.state.polygonPoints)
+  }
+
+  //OBSOLETE
   rainbow(numOfSteps, step) {
     // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
     // Adam Cole, 2011-Sept-14
