@@ -3,7 +3,6 @@ import axios from 'axios';
 import ApiGateway from './ApiGateway'
 import Container from './components/Container'
 import './App.css';
-import '../node_modules/leaflet-draw/dist/leaflet.draw.css'
 
 class App extends Component {
   constructor(props) {
@@ -43,7 +42,7 @@ class App extends Component {
 
   render() {
     return (
-      <Container 
+      <Container
         currentLocation={this.state.currentLocation}
         map= {this.state.map}
         filters= {this.state.filters}
@@ -111,7 +110,7 @@ class App extends Component {
       this.setState({poly: polygon})
     } else {
       navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    } 
+    }
   }
 
   fetchData(){
@@ -137,7 +136,7 @@ class App extends Component {
     const data = await this.nvdb.apiCallSingle('vegobjekttyper')
     this.setState({roadObjectTypes: data})
   }
-  
+
   async handleRegistration(issues){
     const response = await axios.post('/api/registerIssue', issues);
 
@@ -152,7 +151,7 @@ class App extends Component {
   async testApiSkriv(){
     const response = await axios.post('http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', {headers: { 'Content-Type': 'application/json'}, body: {'username': 'bjosor', 'password': 'bjosor'}});
     console.log(response)
-    
+
   }
 
   altTestApiSkriv(){
