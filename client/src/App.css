@@ -89,10 +89,14 @@ header{
 }
 
 #placeObjectBtn {
-  width: 100%;
-  text-align: center;
-  padding-top: 5px;
-  padding-bottom: 5px
+  position: absolute;
+  overflow: hidden;
+
+  bottom: 5px;
+  right: 10px;
+  width: 15%;
+  border-radius: 40px;
+  z-index: 1000;
 }
 
 .mapFilter{

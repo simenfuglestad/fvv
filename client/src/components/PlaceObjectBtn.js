@@ -1,18 +1,9 @@
 import React, { Component } from 'react'
+import AddObject from './../assets/AddObject.png'
 
-class PlaceObjectBtn extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return(
-      <button onClick = {this.props.handleBtnClick}
-              type="button"
-              id="placeObjectBtn">
-        Legg til Objekt/Hendelse
-      </button>
-    )
-  }
+function PlaceObjectBtn(props) {
+  return (
+      <img src = {AddObject} onClick={props.handleBtnShowContext} id="placeObjectBtn"/>
+  )
 }
 export default PlaceObjectBtn;

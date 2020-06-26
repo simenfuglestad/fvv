@@ -13,26 +13,25 @@ class RightMenu extends Component {
 
         this.handleFilterSelect = this.handleFilterSelect.bind(this);
         this.handleRemoveFilter = this.handleRemoveFilter.bind(this);
-        this.handleBtnClick = this.handleBtnClick.bind(this);
+        this.handleShowBtnClick = this.handleBtnClick.bind(this);
     }
 
     render(){
         return(
             <div className='rightMenu'>
                 <SearchField handleFilterSelect={this.handleFilterSelect} data={this.props.roadObjectTypes}/>
-                <MapFilter 
-                    filters={this.state.filters} 
+                <MapFilter
+                    filters={this.state.filters}
                     handleRemoveFilter={this.handleRemoveFilter}
                     togglePolyFilter = {this.props.togglePolyFilter}
                 />
-                
-                {this.props.showMarkerInfo && 
-                    <DataDisplay   
+
+                {this.props.showMarkerInfo &&
+                    <DataDisplay
                     showMarkerInfo={this.props.showMarkerInfo}
                     handleClickOutside={this.props.handleClickOutside}
                     />
                 }
-                <PlaceObjectBtn handleBtnClick={this.handleBtnClick}></PlaceObjectBtn>
             </div>
         )
     }
