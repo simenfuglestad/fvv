@@ -65,7 +65,6 @@ class Container extends Component {
 
   handleSwipe(event) {
     const origin = event.originalEvent;
-    console.log(event)
 
     if (this.state.contextMenu.show && this.swiping) {
       this.setState(prevState => (
