@@ -21,14 +21,16 @@ class Container extends Component {
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.handleBtnShowContext = this.handleBtnShowContext.bind(this);
+    this.handleSwipe = this.handleSwipe.bind(this);
   }
 
   render() {
     return (
       <div
         className="Container"
-        onMouseDown={() => {this.swiping = false}}
-        onMouseMove={() => {this.swiping = true}}
+        onMouseDown={() => {this.swiping = true}}
+        onMouseUp = {() => {this.swiping = false}}
+        onMouseMove={this.handleSwipe}
       >
 
         {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
@@ -61,6 +63,17 @@ class Container extends Component {
     );
   }
 
+  handleSwipe(event) {
+    const origin = event.originalEvent;
+    console.log(event)
+
+    if (this.state.contextMenu.show && this.swiping) {
+      this.setState(prevState => (
+        {contextMenu: {show: true, x: origin.pageX, y: origin.pageY,  lat: event.latlng.lat, lng: event.latlng.lng}, btnShowContextMenu : false}
+      ))
+    }
+  }
+
   handleBtnShowContext(event) {
     alert("Plasser objekt/hendelse på kartet");
     this.setState(prevState => (
@@ -80,6 +93,7 @@ class Container extends Component {
 
   handleMapClick(event){
     const origin = event.originalEvent;
+
     if(origin.target.classList.contains('leaflet-container') && !this.state.contextMenu.show && !this.swiping && this.state.btnShowContextMenu){
         this.setState({contextMenu: {show: true, x: origin.pageX, y: origin.pageY,  lat: event.latlng.lat, lng: event.latlng.lng}, btnShowContextMenu : false})
     } else if(!origin.target.classList.contains('ContextMenu')) {
@@ -94,7 +108,6 @@ class Container extends Component {
   }
 
   handleContextClick(){
-
     this.setState(prevState => (
       {issueRegistration: true, contextMenu: {show: false, lat: prevState.contextMenu.lat, lng: prevState.contextMenu.lng}}
     ));

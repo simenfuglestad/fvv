@@ -38,8 +38,8 @@ class MapView extends Component {
 
   render() {
     return (
-      <Map 
-        center={this.props.currentLocation} 
+      <Map
+        center={this.props.currentLocation}
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
       >
@@ -103,7 +103,7 @@ class MapView extends Component {
             console.log(geoJSON);
             return null;
           }
-  
+
         } catch(err) {
             console.log(item);
             console.log(err)
@@ -133,14 +133,14 @@ class MapView extends Component {
     let idIndex = this.props.filters.findIndex((filter) => (
       filter.id === id
     ))
-    
+
     if(id){
       color = this.colorScheme[idIndex%this.colorScheme.length]
     } else {
       console.log('marker using default color')
       color = this.colorScheme[idIndex%this.colorScheme.length]
     }
- 
+
     const markerHtmlStyles = `
     background-color: ${color};
     width: 2rem;
@@ -216,11 +216,11 @@ class MapView extends Component {
       return acc;
     }, {});
 
-    let data = this.props.filters.map((type, index) => { 
+    let data = this.props.filters.map((type, index) => {
       if(clusterTypes[type.id]) {
         return ({
-          title: type.id, 
-          value: clusterTypes[type.id], 
+          title: type.id,
+          value: clusterTypes[type.id],
           color: this.colorScheme[index%this.colorScheme.length],
           })
       } else {
@@ -245,8 +245,8 @@ class MapView extends Component {
             textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
           }}
           labelPosition={0}
-        /> 
-      ) 
+        />
+      )
     })
 
 		return icon;
