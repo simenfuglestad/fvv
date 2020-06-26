@@ -50,7 +50,7 @@ class Container extends Component {
           handleMapClick={this.handleMapClick}
           handleMarkerClick={this.handleMarkerClick}
         />
-      <PlaceObjectBtn handleBtnClick={this.handleBtnShowContext}></PlaceObjectBtn>
+      <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
 
       </div>
     );

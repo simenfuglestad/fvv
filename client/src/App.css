@@ -90,24 +90,13 @@ header{
 
 #placeObjectBtn {
   position: absolute;
-  /* background-color: blue; */
   overflow: hidden;
-  /* margin-top: 75%; */
-  margin-left: 80%;
 
-  width: 20%;
-  height: 20%;
-  bottom: 0px;
-  left: 10px;
-  /* background-size: cover; */
-  clip: rect(24px, 211px, 169px, 67px);
-  border-radius: 25px;
+  bottom: 5px;
+  right: 10px;
+  width: 15%;
+  border-radius: 40px;
   z-index: 1000;
-  /* width: 100%; */
-  /* text-align: center; */
-
-  /* padding-top: 5px;
-  padding-bottom: 5px */
 }
 
 .mapFilter{
