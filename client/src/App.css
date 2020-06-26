@@ -101,6 +101,7 @@ header{
   border-style: solid;
   border-width: 1px;
   background-color: white;
+  display: grid;
   z-index: 1000;
 }
 
@@ -115,6 +116,9 @@ header{
 
 .mapfilter-entry-name{
   grid-column-start: 2;
+}
+.mapfilter-areabutton{
+  justify-self: end;
 }
 
 .mapFilter-entry-button{
