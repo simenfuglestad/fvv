@@ -37,7 +37,6 @@ class MapView extends Component {
   }
 
   render() {
-    console.log(this.props.filters.length)
     return (
       <Map 
         center={this.props.currentLocation} 
@@ -75,7 +74,6 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
-    console.log(objects)
     var parse = require('wellknown')
     return(
       objects.map((item, index) => {
@@ -167,7 +165,6 @@ class MapView extends Component {
   }
 
   handleClick(event) {
-    console.log(this.state.polygonPoints);
     if(this.props.drawing && !this.state.finished){
       this.setState((prevstate) => ({
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])

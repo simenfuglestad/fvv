@@ -34,6 +34,13 @@ class App extends Component {
     //this.altTestApiSkriv();
   }
 
+  componentDidUpdate(prevprops,prevstate){
+    if(this.state.filters !== prevstate.filters || this.state.poly !== prevstate.poly){
+      console.log('cake')
+      this.fetchData();
+    }
+  }
+
   render() {
     return (
       <Container 
@@ -57,7 +64,6 @@ class App extends Component {
     });
 
     result = result + polygon[0][0] + ' ' + polygon[0][1]
-    console.log(result)
     return result;
   }
 
@@ -105,15 +111,12 @@ class App extends Component {
       this.setState({poly: polygon})
     } else {
       navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    }
-    
+    } 
   }
 
-
-  handleFilters(filters) {
+  fetchData(){
+    let filters = this.state.filters;
     let promises = [];
-    
-    this.setState({filters: filters})
 
     if(filters){
       filters.forEach(async(element) => {
@@ -123,6 +126,11 @@ class App extends Component {
         this.setState({map: [].concat.apply([], values)});
       });
     }
+  }
+
+
+  handleFilters(filters) {
+    this.setState({filters: filters})
   }
 
   async getRoadObjectTypes(){
