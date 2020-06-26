@@ -42,6 +42,7 @@ class MapView extends Component {
         center={this.props.currentLocation}
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
+        onMouseMove={this.props.handleOnMouseMove}
       >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

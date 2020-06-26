@@ -8,11 +8,14 @@ class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
-        contextMenu: {show: false},
+        contextMenu: {show: false, x : 0, y : 0},
         btnShowContextMenu : false
     }
-
+    this.mouseDown = false;
     this.swiping = false;
+
+    this.mouseDragStart = {x : 0, y : 0};
+    this.contextMenuStartPos = {x : 0, y : 0};
 
     this.handleMapClick = this.handleMapClick.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
@@ -21,7 +24,7 @@ class Container extends Component {
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.handleBtnShowContext = this.handleBtnShowContext.bind(this);
-    this.handleSwipe = this.handleSwipe.bind(this);
+    this.handleOnMouseMove = this.handleOnMouseMove.bind(this);
   }
 
   render() {
@@ -30,7 +33,6 @@ class Container extends Component {
         className="Container"
         onMouseDown={() => {this.swiping = true}}
         onMouseUp = {() => {this.swiping = false}}
-        onMouseMove={this.handleSwipe}
       >
 
         {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
@@ -56,6 +58,7 @@ class Container extends Component {
           setPolyFilter={this.setPolyFilter}
           handleMapClick={this.handleMapClick}
           handleMarkerClick={this.handleMarkerClick}
+          handleOnMouseMove={this.handleOnMouseMove}
         />
       <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
 
@@ -63,13 +66,48 @@ class Container extends Component {
     );
   }
 
-  handleSwipe(event) {
-    const origin = event.originalEvent;
+  handleOnMouseMove(event) {
+    const containerPoint = event.containerPoint;
+    const cx = containerPoint.x;
+    const cy = containerPoint.y;
+    // console.log(event);
+    if (this.state.contextMenu.show) {
+      if (!this.swiping) {
+        this.mouseDragStart = {x: cx, y:cy};
+      } else {
+        let mds = this.mouseDragStart;
 
-    if (this.state.contextMenu.show && this.swiping) {
-      this.setState(prevState => (
-        {contextMenu: {show: true, x: origin.pageX, y: origin.pageY,  lat: event.latlng.lat, lng: event.latlng.lng}, btnShowContextMenu : false}
-      ))
+        if (cx < mds.x) {
+          console.log("Going east");
+          let diff = mds.x - cx;
+          this.setState(prevState => (
+            {contextMenu : {show : true, x : prevState.contextMenu.x-diff, y:prevState.contextMenu.y}}
+          ));
+        }
+        else if (cx > mds.x) {
+          console.log("Going west");
+          let diff = cx-mds.x;
+          this.setState(prevState => (
+            {contextMenu : {show : true, x : prevState.contextMenu.x+diff, y:prevState.contextMenu.y}}
+          ));
+        }
+        if (cy > mds.y) {
+          console.log("Going South");
+          let diff = mds.y - cy;
+          this.setState(prevState => (
+            {contextMenu : {show : true, x:prevState.contextMenu.x, y : prevState.contextMenu.y-diff}}
+          ));
+        }
+        else if (cy < mds.y) {
+          console.log("Going north");
+          let diff = cy - mds.y;
+          console.log(diff)
+          this.setState(prevState => (
+            {contextMenu : {show : true, x:prevState.contextMenu.x, y : prevState.contextMenu.y+diff}}
+          ));
+        }
+        this.mouseDragStart = {x:cx, y: cy};
+      }
     }
   }
 
@@ -78,8 +116,6 @@ class Container extends Component {
     this.setState(prevState => (
       {contextMenu : prevState.contextMenu, btnShowContextMenu : true}
     ));
-    console.log(this.state.contextMenu.show);
-
   }
 
   handleMarkerClick(marker) {
@@ -100,7 +136,7 @@ class Container extends Component {
           this.setState({contextMenu: {show: true, x: origin.pageX, y: origin.pageY,  lat: event.latlng.lat, lng: event.latlng.lng}, btnShowContextMenu : false})
         } else if (!this.stateBtnShowContexMenu) {
           this.setState(prevState => (
-            {contextMenu: {show: false}, btnShowContextMenu : prevState.btnShowContextMenu}
+            {contextMenu: {show: false, x: prevState.contextMenu.x, y : prevState.contextMenu.y}, btnShowContextMenu : prevState.btnShowContextMenu}
           ));
         }
       }
