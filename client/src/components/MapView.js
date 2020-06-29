@@ -7,6 +7,7 @@ import PolygonDrawer from './PolygonDrawer';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
+import ContextMarker from './ContextMarker';
 
 /**
  * props:
@@ -19,7 +20,8 @@ class MapView extends Component {
     super(props);
     this.state = {
       zoom: 15,
-      contextMenu: false,
+      showContextMenu : false,
+      contextMenuDetails: {lat : 0, lng : 0},
       polygonPoints: [],
       finished: false,
     }
@@ -28,6 +30,16 @@ class MapView extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
     this.handleMovePoint = this.handleMovePoint.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
+  }
+
+  handleContextMenu(event) {
+    let lat = event.latlng.lat;
+    let lng = event.latlng.lng;
+
+    this.setState(
+      {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
+    );
   }
 
   componentDidUpdate(prevProps){
@@ -42,8 +54,10 @@ class MapView extends Component {
         center={this.props.currentLocation}
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
-        onMouseMove={this.props.handleOnMouseMove}
+        oncontextmenu={this.handleContextMenu}
       >
+          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng}/>}
+
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
