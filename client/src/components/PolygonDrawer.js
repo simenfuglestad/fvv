@@ -30,7 +30,6 @@ class PolygonDrawer extends Component{
     } else {
         corners.push(<Polyline color='red' positions= {this.props.polygon} key={this.props.polygon}/>);
     }
-    
 
     return corners;
    }

@@ -12,7 +12,7 @@ class App extends Component {
       nvdbEndpoint: 'https://nvdbapiles-v3.utv.atlas.vegvesen.no/',
       currentLocation: { lat: 60.0084857, lng:11.0648648 },
       menu: 'mainMenu',
-      map: [],
+      map: {},
       filters: [],
       roads: [],
       issues: [],
@@ -36,7 +36,7 @@ class App extends Component {
 
   componentDidUpdate(prevprops,prevstate){
     if(this.state.filters !== prevstate.filters || this.state.poly !== prevstate.poly){
-      console.log('cake')
+      console.log('fetching data')
       this.fetchData();
     }
   }
@@ -115,15 +115,27 @@ class App extends Component {
   }
 
   fetchData(){
-    let filters = this.state.filters;
-    let promises = [];
+    let filters = this.state.filters.map(filter => (filter.id));
+    let newDataSet = {};
+
+    Object.entries(this.state.map).forEach(([key, value]) => {
+      if(filters.includes(key)){
+        newDataSet[key] = value;
+      }
+    })
+
+    this.setState({map: newDataSet})
 
     if(filters){
       filters.forEach(async(element) => {
-        promises.push(this.nvdb.apiCall('vegobjekter/' + element.id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly));
-      });
-      Promise.all(promises).then((values) => {
-        this.setState({map: [].concat.apply([], values)});
+        this.nvdb.apiCall('vegobjekter/' + element + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
+          this.setState((prevState) => {
+            let newMap = {...prevState.map};
+            newMap[element] = value;
+
+            return {map: newMap};
+          });
+        });
       });
     }
   }

@@ -7,9 +7,6 @@ import PlaceObjectBtn from './PlaceObjectBtn';
 class RightMenu extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            filters: [],
-        }
 
         this.handleFilterSelect = this.handleFilterSelect.bind(this);
         this.handleRemoveFilter = this.handleRemoveFilter.bind(this);
@@ -21,7 +18,7 @@ class RightMenu extends Component {
             <div className='rightMenu'>
                 <SearchField handleFilterSelect={this.handleFilterSelect} data={this.props.roadObjectTypes}/>
                 <MapFilter 
-                    filters={this.state.filters} 
+                    filters={this.props.filters} 
                     handleRemoveFilter={this.handleRemoveFilter}
                     togglePolyFilter = {this.props.togglePolyFilter}
                 />
@@ -38,20 +35,13 @@ class RightMenu extends Component {
     }
 
     handleFilterSelect(item){
-        const newFilters= this.state.filters.concat(item);
+        const newFilters= this.props.filters.concat(item);
         this.props.handleFilters(newFilters)
-        this.setState(() => {
-            return{filters: newFilters}
-        })
-
     }
 
     handleRemoveFilter(item){
-        const newFilters = this.state.filters.filter(f => f !== item);
+        const newFilters = this.props.filters.filter(f => f !== item);
         this.props.handleFilters(newFilters)
-        this.setState(() => {
-            return{filters: newFilters}
-        })
     }
 
     handleBtnClick(event) {

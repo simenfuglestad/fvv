@@ -20,6 +20,7 @@ class MapView extends Component {
     this.state = {
       zoom: 15,
       contextMenu: false,
+      markers: {},
       polygonPoints: [],
       finished: false,
     }
@@ -34,6 +35,20 @@ class MapView extends Component {
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
+
+    if(prevProps.map !== this.props.map){
+      let markers = {};
+      this.props.filters.forEach((filter) => {
+        if(this.props.map[filter.id] != prevProps.map[filter.id]){
+          markers[filter.id] = this.drawMapObjects(this.props.map[filter.id]);
+        } else {
+          markers[filter.id] = this.state.markers[filter.id]
+        }
+      });
+
+      this.setState({markers: markers})
+    }
+    
   }
 
   render() {
@@ -51,9 +66,10 @@ class MapView extends Component {
           <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleMovePoint={this.handleMovePoint}/>
 
           {this.drawIssueMarkers(this.props.issues)}
+          
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-           {this.props.filters.length !== 0 && this.drawMapObjects(this.props.map)}
+           {this.props.filters.length !== 0 && this.showMarkers()}
            {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 
@@ -73,44 +89,54 @@ class MapView extends Component {
     );
   }
 
-  drawMapObjects(objects){
-    var parse = require('wellknown')
-    return(
-      objects.map((item, index) => {
-        try{
+  showMarkers(){
+    let markers = [];
+    Object.entries(this.state.markers).forEach(([key,value]) => {
+      markers = markers.concat(value);
+    })
+    return markers;
+  }
 
-          const geoJSON = parse(item.geometri.wkt)
-          if(geoJSON.type === 'Point'){
-            const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
-            return (
-              <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
-              </Marker>
-            );
-          } else if(geoJSON.type === 'LineString') {
-            let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
-            return (
-              <Polyline color='red' positions= {latLngList} key={index}>
-              </Polyline>
-            );
-          } else if(geoJSON.type === 'Polygon') {
-            let latLngList = geoJSON.coordinates;
-            return (
-              <Polygon color='red' positions= {latLngList} key={index}>
-              </Polygon>
-            );
-          } else {
-            console.log('Invalid geoJSON: ' + geoJSON.type);
-            console.log(geoJSON);
-            return null;
-          }
-  
-        } catch(err) {
-            console.log(item);
-            console.log(err)
-            return null;
+  drawMapObjects(objects){
+    if(!objects){
+      return []
+    }
+    let parse = require('wellknown')
+
+    return (objects.map((item, index) => {
+      try{
+
+        const geoJSON = parse(item.geometri.wkt);
+        if(geoJSON.type === 'Point'){
+          const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
+          return (
+            <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
+            </Marker>
+          );
+        } else if(geoJSON.type === 'LineString') {
+          let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
+          return (
+            <Polyline color='red' positions= {latLngList} key={index}>
+            </Polyline>
+          );
+        } else if(geoJSON.type === 'Polygon') {
+          let latLngList = geoJSON.coordinates;
+          return (
+            <Polygon color='red' positions= {latLngList} key={index}>
+            </Polygon>
+          );
+        } else {
+          console.log('Invalid geoJSON: ' + geoJSON.type);
+          console.log(geoJSON);
+          return null;
         }
-      })
-    );
+
+      } catch(err) {
+          console.log(item);
+          console.log(err)
+          return null;
+      }
+     }));
   }
 
   drawRoads(objects){
