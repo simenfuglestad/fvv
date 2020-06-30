@@ -34,12 +34,14 @@ class MapView extends Component {
   }
 
   handleContextMenu(event) {
-    let lat = event.latlng.lat;
-    let lng = event.latlng.lng;
+    if(!this.props.drawing || this.state.finished) {
+      let lat = event.latlng.lat;
+      let lng = event.latlng.lng;
 
-    this.setState(
-      {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
-    );
+      this.setState(
+        {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
+      );
+    }
   }
 
   componentDidUpdate(prevProps){
@@ -182,10 +184,15 @@ class MapView extends Component {
   handleClick(event) {
     if(this.props.drawing && !this.state.finished){
       this.setState((prevstate) => ({
+        showContextMenu : false,
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
+
       }))
-    } else {
-      this.props.handleMapClick(event)
+    } else if (this.state.showContextMenu === true) {
+      this.setState(prevState => ({
+        showContextMenu : false,
+        // polygonPoints : prevState.polygonPoints
+      }))
     }
   }
 
