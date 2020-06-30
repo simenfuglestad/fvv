@@ -38,7 +38,7 @@ class MapView extends Component {
     if(nextState.finished !== this.state.finished) return(true);
     if(nextState.markers !== this.state.markers) return(true);
     if(nextProps.currentLocation !== this.props.currentLocation) return(true);
-    if(nextProps.ontextMenuDetails !== this.state.ontextMenuDetails) return(true);
+
     if(nextProps.drawing !== this.props.drawing) return(true);
 
     if(nextProps.map !== this.props.map){
@@ -50,6 +50,7 @@ class MapView extends Component {
 
       this.setState({markers: markers})
     }
+    if(nextProps.ontextMenuDetails !== this.state.ontextMenuDetails) return(true);
 
     return false;
   }
