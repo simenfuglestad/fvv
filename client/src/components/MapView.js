@@ -7,6 +7,7 @@ import PolygonDrawer from './PolygonDrawer';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
+import ContextMarker from './ContextMarker';
 
 /**
  * props:
@@ -19,7 +20,8 @@ class MapView extends Component {
     super(props);
     this.state = {
       zoom: 15,
-      contextMenu: false,
+      contextMenuDetails: {lat : 0, lng : 0},
+      showContextMenu : false,
       markers: {},
       polygonPoints: [],
       finished: false,
@@ -29,6 +31,18 @@ class MapView extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
     this.handleMovePoint = this.handleMovePoint.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
+  }
+
+  handleContextMenu(event) {
+    if(!this.props.drawing || this.state.finished) {
+      let lat = event.latlng.lat;
+      let lng = event.latlng.lng;
+
+      this.setState(
+        {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
+      );
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState){
@@ -68,11 +82,14 @@ class MapView extends Component {
   render() {
     console.log('render')
     return (
-      <Map 
-        center={this.props.currentLocation} 
+      <Map
+        center={this.props.currentLocation}
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
+        oncontextmenu={this.handleContextMenu}
       >
+          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng}/>}
+
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -113,6 +130,7 @@ class MapView extends Component {
   }
 
   drawMapObjects(objects){
+
     if(!objects){
       return []
     }
@@ -144,6 +162,7 @@ class MapView extends Component {
           console.log('Invalid geoJSON: ' + geoJSON.type);
           console.log(geoJSON);
           return null;
+
         }
 
       } catch(err) {
@@ -196,14 +215,14 @@ class MapView extends Component {
     let idIndex = this.props.filters.findIndex((filter) => (
       filter.id === id
     ))
-    
+
     if(id){
       color = this.colorScheme[idIndex%this.colorScheme.length]
     } else {
       console.log('marker using default color')
       color = this.colorScheme[idIndex%this.colorScheme.length]
     }
- 
+
     const markerHtmlStyles = `
     background-color: ${color};
     width: 2rem;
@@ -230,10 +249,15 @@ class MapView extends Component {
   handleClick(event) {
     if(this.props.drawing && !this.state.finished){
       this.setState((prevstate) => ({
+        showContextMenu : false,
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
+
       }))
-    } else {
-      this.props.handleMapClick(event)
+    } else if (this.state.showContextMenu === true) {
+      this.setState(prevState => ({
+        showContextMenu : false,
+        // polygonPoints : prevState.polygonPoints
+      }))
     }
   }
 
@@ -257,11 +281,11 @@ class MapView extends Component {
       return acc;
     }, {});
 
-    let data = this.props.filters.map((type, index) => { 
+    let data = this.props.filters.map((type, index) => {
       if(clusterTypes[type.id]) {
         return ({
-          title: type.id, 
-          value: clusterTypes[type.id], 
+          title: type.id,
+          value: clusterTypes[type.id],
           color: this.colorScheme[index%this.colorScheme.length],
           })
       } else {
@@ -286,8 +310,8 @@ class MapView extends Component {
             textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
           }}
           labelPosition={0}
-        /> 
-      ) 
+        />
+      )
     })
 
 		return icon;
