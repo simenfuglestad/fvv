@@ -8,7 +8,6 @@ class MapFilter extends Component {
         }
         this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3']
         
-
         this.polygonFilter = this.polygonFilter.bind(this);
     }
 

@@ -29,6 +29,7 @@ class Container extends Component {
           roadObjectTypes={this.props.roadObjectTypes}
           showMarkerInfo={this.state.showMarkerInfo}
           handleFilters={this.props.handleFilters}
+          filters={this.props.filters}
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
           contextMenu={this.state.contextMenu}

@@ -10,6 +10,12 @@ export default class ApiGateway {
     }
 
     async apiCall(request){
+      let cache = Datastore.get(request);
+      if(cache.length > 0){
+        console.log('returning cached data')
+        return cache;
+      }
+      console.log('no cached data, sending requests')
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
   
       let data = res.data.objekter;
@@ -19,6 +25,8 @@ export default class ApiGateway {
         res = await axios.get(res.data.metadata.neste.href, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
         data = data.concat(res.data.objekter);
       }
+
+      Datastore.add(request, data)
       return data;
     }
 
