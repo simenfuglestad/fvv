@@ -10,7 +10,7 @@ class RightMenu extends Component {
 
         this.handleFilterSelect = this.handleFilterSelect.bind(this);
         this.handleRemoveFilter = this.handleRemoveFilter.bind(this);
-        this.handleBtnClick = this.handleBtnClick.bind(this);
+        this.handleShowBtnClick = this.handleBtnClick.bind(this);
     }
 
     render(){
@@ -22,14 +22,13 @@ class RightMenu extends Component {
                     handleRemoveFilter={this.handleRemoveFilter}
                     togglePolyFilter = {this.props.togglePolyFilter}
                 />
-                
-                {this.props.showMarkerInfo && 
-                    <DataDisplay   
+
+                {this.props.showMarkerInfo &&
+                    <DataDisplay
                     showMarkerInfo={this.props.showMarkerInfo}
                     handleClickOutside={this.props.handleClickOutside}
                     />
                 }
-                <PlaceObjectBtn handleBtnClick={this.handleBtnClick}></PlaceObjectBtn>
             </div>
         )
     }

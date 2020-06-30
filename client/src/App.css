@@ -65,6 +65,8 @@ header{
   top: 0px;
   right: 0px;
   z-index: 1000;
+  min-width: 20vh;
+  max-width: 20vh;
 }
 
 .searchField{
@@ -75,11 +77,13 @@ header{
 .searchField-input{
   padding: 5px;
   font-size: larger;
+  max-width: 20vh;
 }
 
 .searchfield-choices{
   overflow-y: scroll;
   max-height: 40vh;
+  width:21.31vh;
 }
 
 .searchfield-choice{
@@ -89,10 +93,13 @@ header{
 }
 
 #placeObjectBtn {
-  width: 100%;
-  text-align: center;
-  padding-top: 5px;
-  padding-bottom: 5px
+  position: absolute;
+  overflow: hidden;
+
+  bottom: 5px;
+  right: 10px;
+  width: 15%;
+  z-index: 1000;
 }
 
 .mapFilter{
@@ -103,6 +110,8 @@ header{
   background-color: white;
   display: grid;
   z-index: 1000;
+  min-width: inherit;
+  max-width: inherit;
 }
 
 .mapFilter-entry{
