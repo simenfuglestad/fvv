@@ -15,7 +15,7 @@ export default class ApiGateway {
         console.log('returning cached data')
         return cache;
       }
-      console.log('no cached data')
+      console.log('no cached data, sending requests')
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
   
       let data = res.data.objekter;

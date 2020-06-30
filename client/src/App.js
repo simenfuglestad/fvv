@@ -119,11 +119,10 @@ class App extends Component {
     let newDataSet = {};
 
     Object.entries(this.state.map).forEach(([key, value]) => {
-      if(filters.includes(key)){
+      if(filters.includes(Number(key))){
         newDataSet[key] = value;
       }
     })
-
     this.setState({map: newDataSet})
 
     if(filters){
