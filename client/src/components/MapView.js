@@ -33,6 +33,7 @@ class MapView extends Component {
 
   shouldComponentUpdate(nextProps, nextState){
     if(!this.compareData(nextState.markers, this.state.markers)) return(true);
+    if(!this.compareData(nextProps.currentLocation, this.props.currentLocation)) return(true);
 
     if(nextProps.drawing !== this.props.drawing) return(true);
 
@@ -61,9 +62,7 @@ class MapView extends Component {
     console.log(prevProps.map)
     console.log(this.props.map)
     if(!this.compareData(prevProps.map, this.props.map)){
-
     }
-    
   }
 
   render() {
