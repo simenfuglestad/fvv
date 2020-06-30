@@ -1,4 +1,4 @@
-import React, { Component, Profiler } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import ApiGateway from './ApiGateway'
 import Container from './components/Container'
@@ -42,7 +42,6 @@ class App extends Component {
 
   render() {
     return (
-      <Profiler id="App" onRender={this.onRenderCallback}>
         <Container
           currentLocation={this.state.currentLocation}
           map= {this.state.map}
@@ -54,23 +53,7 @@ class App extends Component {
           handleRegistration={this.handleRegistration}
           setPoly={this.setPoly}
         />
-      </Profiler>
-     
     );
-  }
-
-  onRenderCallback(
-    id, // the "id" prop of the Profiler tree that has just committed
-    phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
-    actualDuration, // time spent rendering the committed update
-    baseDuration, // estimated time to render the entire subtree without memoization
-    startTime, // when React began rendering this update
-    commitTime, // when React committed this update
-    interactions // the Set of interactions belonging to this update
-  ) {
-    console.log(id)
-    console.log(actualDuration)
-    console.log("------------------------------------------------------")
   }
 
   getPolygonString(polygon) {

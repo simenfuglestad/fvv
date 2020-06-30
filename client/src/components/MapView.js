@@ -1,4 +1,4 @@
-import React, { Component, Profiler } from 'react';
+import React, { Component } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Map, TileLayer, Marker, Popup, Polyline, Polygon} from 'react-leaflet';
 import { PieChart } from 'react-minimal-pie-chart';

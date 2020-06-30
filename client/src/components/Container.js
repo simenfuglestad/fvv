@@ -1,4 +1,4 @@
-import React, { Component, Profiler } from 'react';
+import React, { Component } from 'react';
 import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
@@ -44,7 +44,6 @@ class Container extends Component {
           handleBtnShowContext={this.handleBtnShowContext}
         />
 
-        <Profiler id="Mapview Outer" onRender={this.onRenderCallback}>
         <MapView
           currentLocation={this.props.currentLocation}
           map= {this.props.map}
@@ -56,25 +55,11 @@ class Container extends Component {
           handleMapClick={this.handleMapClick}
           handleMarkerClick={this.handleMarkerClick}
         />
-        </Profiler>
         
       <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
 
       </div>
     );
-  }
-
-  onRenderCallback(
-    id, // the "id" prop of the Profiler tree that has just committed
-    phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
-    actualDuration, // time spent rendering the committed update
-    baseDuration, // estimated time to render the entire subtree without memoization
-    startTime, // when React began rendering this update
-    commitTime, // when React committed this update
-    interactions // the Set of interactions belonging to this update
-  ) {
-    console.log(id)
-    console.log(actualDuration)
   }
 
   handleBtnShowContext(event) {
