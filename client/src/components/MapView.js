@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Profiler } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Map, TileLayer, Marker, Popup, Polyline, Polygon} from 'react-leaflet';
 import { PieChart } from 'react-minimal-pie-chart';
@@ -32,21 +32,19 @@ class MapView extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState){
-    if(!this.compareData(nextState.markers, this.state.markers)) return(true);
-    if(!this.compareData(nextProps.currentLocation, this.props.currentLocation)) return(true);
+    if(nextState.polygonPoints !== this.state.polygonPoints) return(true);
+    if(nextState.finished !== this.state.finished) return(true);
+    if(nextState.markers !== this.state.markers) return(true);
+    if(nextProps.currentLocation !== this.props.currentLocation) return(true);
 
     if(nextProps.drawing !== this.props.drawing) return(true);
 
-    if(!this.compareData(nextProps.map, this.props.map)){
-      console.log('cake')
+    if(nextProps.map !== this.props.map){
       let markers = {};
+
       this.props.filters.forEach((filter) => {
-        if( JSON.stringify(this.props.map[filter.id]) !== JSON.stringify(nextProps.map[filter.id])){
           markers[filter.id] = this.drawMapObjects(nextProps.map[filter.id]);
-        } else {
-          markers[filter.id] = this.state.markers[filter.id]
-        }
-      });
+      })
 
       this.setState({markers: markers})
     } 
@@ -58,21 +56,15 @@ class MapView extends Component {
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
-
-    console.log(prevProps.map)
-    console.log(this.props.map)
-    if(!this.compareData(prevProps.map, this.props.map)){
-    }
   }
 
   render() {
-    console.log('render')
     return (
-      <Map 
+        <Map 
         center={this.props.currentLocation} 
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
-      >
+        >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -84,8 +76,8 @@ class MapView extends Component {
           
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-           {this.props.filters.length !== 0 && this.showMarkers()}
-           {this.drawRoads(this.props.roads)}
+            {this.props.filters.length !== 0 && this.showMarkers()}
+            {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 
         </Map>
