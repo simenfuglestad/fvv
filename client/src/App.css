@@ -33,6 +33,21 @@ header{
   grid-template-columns: 1fr 1fr 1fr;
 }
 
+.regMenu {
+  height: 100%;
+  width: 50vh;
+  background-color: red
+}
+
+.rightMenu{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  min-width: 20vh;
+  max-width: 20vh;
+}
+
 .ContextMenu{
   position: absolute;
   background-color: #282c34;
@@ -60,14 +75,7 @@ header{
   margin: 10px;
 }
 
-.rightMenu{
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  z-index: 1000;
-  min-width: 20vh;
-  max-width: 20vh;
-}
+
 
 .searchField{
   margin: 5px;

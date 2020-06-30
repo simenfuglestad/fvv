@@ -3,6 +3,7 @@ import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
 import PlaceObjectBtn from './PlaceObjectBtn';
+import RegistrationMenu from './RegistrationMenu';
 
 class Container extends Component {
   constructor(props) {
@@ -43,6 +44,8 @@ class Container extends Component {
           contextMenu={this.state.contextMenu}
           handleBtnShowContext={this.handleBtnShowContext}
         />
+
+      <RegistrationMenu></RegistrationMenu>
 
         <MapView
           currentLocation={this.props.currentLocation}
