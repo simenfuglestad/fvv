@@ -44,7 +44,6 @@ class Container extends Component {
           handleBtnShowContext={this.handleBtnShowContext}
         />
 
-
         <MapView
           currentLocation={this.props.currentLocation}
           map= {this.props.map}
@@ -56,6 +55,7 @@ class Container extends Component {
           handleMapClick={this.handleMapClick}
           handleMarkerClick={this.handleMarkerClick}
         />
+        
       <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
 
       </div>

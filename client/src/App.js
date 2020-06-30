@@ -42,17 +42,17 @@ class App extends Component {
 
   render() {
     return (
-      <Container
-        currentLocation={this.state.currentLocation}
-        map= {this.state.map}
-        filters= {this.state.filters}
-        roads={this.state.roads}
-        issues={this.state.issues}
-        roadObjectTypes={this.state.roadObjectTypes}
-        handleFilters={this.handleFilters}
-        handleRegistration={this.handleRegistration}
-        setPoly={this.setPoly}
-      />
+        <Container
+          currentLocation={this.state.currentLocation}
+          map= {this.state.map}
+          filters= {this.state.filters}
+          roads={this.state.roads}
+          issues={this.state.issues}
+          roadObjectTypes={this.state.roadObjectTypes}
+          handleFilters={this.handleFilters}
+          handleRegistration={this.handleRegistration}
+          setPoly={this.setPoly}
+        />
     );
   }
 
@@ -113,16 +113,23 @@ class App extends Component {
     }
   }
 
+  removeData(){
+    //TODO
+  }
+
   fetchData(){
     let filters = this.state.filters.map(filter => (filter.id));
     let newDataSet = {};
 
-    Object.entries(this.state.map).forEach(([key, value]) => {
-      if(filters.includes(Number(key))){
-        newDataSet[key] = value;
-      }
-    })
-    this.setState({map: newDataSet})
+    if(Object.entries(this.state.map).length > 0){
+      Object.entries(this.state.map).forEach(([key, value]) => {
+        if(filters.includes(Number(key))){
+          newDataSet[key] = value;
+        }
+      })
+      this.setState({map: newDataSet})
+    }
+
 
     if(filters){
       filters.forEach(async(element) => {
