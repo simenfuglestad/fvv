@@ -20,6 +20,7 @@ class MapView extends Component {
     this.state = {
       zoom: 15,
       contextMenu: false,
+      markers: {},
       polygonPoints: [],
       finished: false,
     }
@@ -30,13 +31,42 @@ class MapView extends Component {
     this.handleMovePoint = this.handleMovePoint.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState){
+    if(!this.compareData(nextState.markers, this.state.markers)) return(true);
+    if(!this.compareData(nextProps.currentLocation, this.props.currentLocation)) return(true);
+
+    if(nextProps.drawing !== this.props.drawing) return(true);
+
+    if(!this.compareData(nextProps.map, this.props.map)){
+      console.log('cake')
+      let markers = {};
+      this.props.filters.forEach((filter) => {
+        if( JSON.stringify(this.props.map[filter.id]) !== JSON.stringify(nextProps.map[filter.id])){
+          markers[filter.id] = this.drawMapObjects(nextProps.map[filter.id]);
+        } else {
+          markers[filter.id] = this.state.markers[filter.id]
+        }
+      });
+
+      this.setState({markers: markers})
+    } 
+
+    return false;
+  }
+
   componentDidUpdate(prevProps){
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
+
+    console.log(prevProps.map)
+    console.log(this.props.map)
+    if(!this.compareData(prevProps.map, this.props.map)){
+    }
   }
 
   render() {
+    console.log('render')
     return (
       <Map 
         center={this.props.currentLocation} 
@@ -51,9 +81,10 @@ class MapView extends Component {
           <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleMovePoint={this.handleMovePoint}/>
 
           {this.drawIssueMarkers(this.props.issues)}
+          
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-           {this.props.filters.length !== 0 && this.drawMapObjects(this.props.map)}
+           {this.props.filters.length !== 0 && this.showMarkers()}
            {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 
@@ -73,44 +104,54 @@ class MapView extends Component {
     );
   }
 
-  drawMapObjects(objects){
-    var parse = require('wellknown')
-    return(
-      objects.map((item, index) => {
-        try{
+  showMarkers(){
+    let markers = [];
+    Object.entries(this.state.markers).forEach(([key,value]) => {
+      markers = markers.concat(value);
+    })
+    return markers;
+  }
 
-          const geoJSON = parse(item.geometri.wkt)
-          if(geoJSON.type === 'Point'){
-            const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
-            return (
-              <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
-              </Marker>
-            );
-          } else if(geoJSON.type === 'LineString') {
-            let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
-            return (
-              <Polyline color='red' positions= {latLngList} key={index}>
-              </Polyline>
-            );
-          } else if(geoJSON.type === 'Polygon') {
-            let latLngList = geoJSON.coordinates;
-            return (
-              <Polygon color='red' positions= {latLngList} key={index}>
-              </Polygon>
-            );
-          } else {
-            console.log('Invalid geoJSON: ' + geoJSON.type);
-            console.log(geoJSON);
-            return null;
-          }
-  
-        } catch(err) {
-            console.log(item);
-            console.log(err)
-            return null;
+  drawMapObjects(objects){
+    if(!objects){
+      return []
+    }
+    let parse = require('wellknown')
+
+    return (objects.map((item, index) => {
+      try{
+
+        const geoJSON = parse(item.geometri.wkt);
+        if(geoJSON.type === 'Point'){
+          const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
+          return (
+            <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
+            </Marker>
+          );
+        } else if(geoJSON.type === 'LineString') {
+          let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
+          return (
+            <Polyline color='red' positions= {latLngList} key={index}>
+            </Polyline>
+          );
+        } else if(geoJSON.type === 'Polygon') {
+          let latLngList = geoJSON.coordinates;
+          return (
+            <Polygon color='red' positions= {latLngList} key={index}>
+            </Polygon>
+          );
+        } else {
+          console.log('Invalid geoJSON: ' + geoJSON.type);
+          console.log(geoJSON);
+          return null;
         }
-      })
-    );
+
+      } catch(err) {
+          console.log(item);
+          console.log(err)
+          return null;
+      }
+     }));
   }
 
   drawRoads(objects){
@@ -126,6 +167,28 @@ class MapView extends Component {
         );
       })
     );
+  }
+
+  compareData(a,b){
+    let bEmpty = true;
+    let aEmpty = true;
+    for(var i in b) { bEmpty = false; }
+    for(var i in a) { aEmpty = false; } 
+
+    if(aEmpty ? !bEmpty : bEmpty){
+      return false;
+    }
+    
+    let entriesA =  Object.entries(a);
+    let entriesB =  Object.entries(b);
+    let length = entriesA.length > entriesB.length ? entriesA.length : entriesB.length
+    for (let index = 0; index < length; index++) {
+      if(JSON.stringify(entriesA[index]) !== JSON.stringify(entriesB[index]) ) return false;
+      
+    }
+    
+    // if none are undefined then check for object equality
+    return true;
   }
 
   getIcon(id){
@@ -177,28 +240,6 @@ class MapView extends Component {
   handleMovePoint(){
     this.setState({finished: true})
     this.props.setPolyFilter(this.state.polygonPoints)
-  }
-
-  //OBSOLETE
-  rainbow(numOfSteps, step) {
-    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
-    // Adam Cole, 2011-Sept-14
-    // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
-    var r, g, b;
-    var h = step / numOfSteps;
-    var i = ~~(h * 6);
-    var f = h * 6 - i;
-    var q = 1 - f;
-    switch(i % 6){
-        case 0: r = 1; g = f; b = 0; break;
-        case 1: r = q; g = 1; b = 0; break;
-        case 2: r = 0; g = 1; b = f; break;
-        case 3: r = 0; g = q; b = 1; break;
-        case 4: r = f; g = 0; b = 1; break;
-        case 5: r = 1; g = 0; b = q; break;
-    }
-    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
-    return (c);
   }
 
   getMarkerClusterIcon(cluster){
