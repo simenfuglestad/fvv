@@ -33,6 +33,8 @@ export default class ApiGateway {
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
   
       let data = res.data;
+      Datastore.add(request, data);
+      if(data.navn === undefined) console.log(data)
       return data;
     }
 }

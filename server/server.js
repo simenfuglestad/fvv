@@ -1,15 +1,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/api/getIssues', (req, res) => {
-    const data = require('./data.json');
-    res.send(data);
+    axios.post(
+        'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', 
+        {'username': 'bjosor', 'password': 'bjosor'},
+        { 'Content-Type': 'application/json'})
+    .then(response => {
+        console.log('success')
+      console.log(response.data);
+    })
+    .catch(error => {
+        console.log('error')
+      console.log(error);
+    });
 });
 
 app.post('/api/registerIssue', (req, res) => {

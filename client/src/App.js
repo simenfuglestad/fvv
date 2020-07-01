@@ -26,9 +26,9 @@ class App extends Component {
     this.setPoly = this.setPoly.bind(this);
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    this.getRoadObjectTypes()
+    this.getRoadObjectTypeData()
     //this.getIssues();
     //this.altTestApiSkriv();
   }
@@ -166,8 +166,12 @@ class App extends Component {
     this.setState({filters: filters})
   }
 
-  async getRoadObjectTypes(){
+  async getRoadObjectTypeData(){
     const data = await this.nvdb.apiCallSingle('vegobjekttyper')
+
+    data.forEach(type => {
+      this.nvdb.apiCallSingle('vegobjekttyper' + '/' + type.id)
+    })
     this.setState({roadObjectTypes: data})
   }
 
@@ -186,18 +190,6 @@ class App extends Component {
     const response = await axios.post('http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', {headers: { 'Content-Type': 'application/json'}, body: {'username': 'bjosor', 'password': 'bjosor'}});
     console.log(response)
 
-  }
-
-  altTestApiSkriv(){
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log(xhttp.responseText);
-      }
-    };
-    xhttp.open("POST", 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', true);
-    xhttp.setRequestHeader("Content-type", 'application/json');
-    xhttp.send({'username': 'bjosor', 'password': 'bjosor'});
   }
 }
 
