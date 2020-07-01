@@ -7,7 +7,9 @@ import PolygonDrawer from './PolygonDrawer';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
+import MarkerManager from './MarkerManager';
 import ContextMarker from './ContextMarker'
+
 /**
  * props:
  * data: map, roads, issues, filters
@@ -19,40 +21,18 @@ class MapView extends Component {
     super(props);
     this.state = {
       zoom: 15,
-      markers: {},
       polygonPoints: [],
       finished: false,
       ontextMenuDetails: {lat : 0, lng : 0},
       showContextMenu : false,
     }
-    this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3']
+    this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3'];
+    this.markers = {};
 
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
     this.handleMovePoint = this.handleMovePoint.bind(this);
     this.handleContextMenu = this.handleContextMenu.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps, nextState){
-    if(nextState.polygonPoints !== this.state.polygonPoints) return(true);
-    if(nextState.finished !== this.state.finished) return(true);
-    if(nextState.markers !== this.state.markers) return(true);
-    if(nextProps.currentLocation !== this.props.currentLocation) return(true);
-
-    if(nextProps.drawing !== this.props.drawing) return(true);
-
-    if(nextProps.map !== this.props.map){
-      let markers = {};
-
-      this.props.filters.forEach((filter) => {
-          markers[filter.id] = this.drawMapObjects(nextProps.map[filter.id]);
-      })
-
-      this.setState({markers: markers})
-    }
-    if(nextProps.ontextMenuDetails !== this.state.ontextMenuDetails) return(true);
-
-    return false;
   }
 
   componentDidUpdate(prevProps){
@@ -62,16 +42,16 @@ class MapView extends Component {
   }
 
   handleContextMenu(event) {
-  if(!this.props.drawing || this.state.finished) {
-    let lat = event.latlng.lat;
-    let lng = event.latlng.lng;
+    if(!this.props.drawing || this.state.finished) {
+      let lat = event.latlng.lat;
+      let lng = event.latlng.lng;
 
-    this.setState(
-      {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
-    );
+      this.setState(
+        {showContextMenu : true, contextMenuDetails : {lat : lat, lng : lng}}
+      );
+    }
   }
-}
-
+  
   render() {
     return (
         <Map
@@ -92,12 +72,19 @@ class MapView extends Component {
 
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-            {this.props.filters.length !== 0 && this.showMarkers()}
+            <MarkerManager map={this.props.map} filters={this.props.filters} handleClick= {this.props.handleMarkerClick}/>
+            
             {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 
         </Map>
     );
+  }
+
+  componentDidUpdate(prevProps){
+    if(prevProps.drawing !== this.props.drawing){
+      this.setState({polygonPoints: [], finished: false})
+    }
   }
 
   drawIssueMarkers(issueMarkers){
@@ -110,56 +97,6 @@ class MapView extends Component {
         )
       })
     );
-  }
-
-  showMarkers(){
-    let markers = [];
-    Object.entries(this.state.markers).forEach(([key,value]) => {
-      markers = markers.concat(value);
-    })
-    return markers;
-  }
-
-  drawMapObjects(objects){
-    if(!objects){
-      return []
-    }
-    let parse = require('wellknown')
-
-    return (objects.map((item, index) => {
-      try{
-
-        const geoJSON = parse(item.geometri.wkt);
-        if(geoJSON.type === 'Point'){
-          const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
-          return (
-            <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleMarkerClick(item)}} >
-            </Marker>
-          );
-        } else if(geoJSON.type === 'LineString') {
-          let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
-          return (
-            <Polyline color='red' positions= {latLngList} key={index}>
-            </Polyline>
-          );
-        } else if(geoJSON.type === 'Polygon') {
-          let latLngList = geoJSON.coordinates;
-          return (
-            <Polygon color='red' positions= {latLngList} key={index}>
-            </Polygon>
-          );
-        } else {
-          console.log('Invalid geoJSON: ' + geoJSON.type);
-          console.log(geoJSON);
-          return null;
-        }
-
-      } catch(err) {
-          console.log(item);
-          console.log(err)
-          return null;
-      }
-     }));
   }
 
   drawRoads(objects){
@@ -175,64 +112,6 @@ class MapView extends Component {
         );
       })
     );
-  }
-
-  compareData(a,b){
-    let bEmpty = true;
-    let aEmpty = true;
-    for(var i in b) { bEmpty = false; }
-    for(var i in a) { aEmpty = false; }
-
-    if(aEmpty ? !bEmpty : bEmpty){
-      return false;
-    }
-
-    let entriesA =  Object.entries(a);
-    let entriesB =  Object.entries(b);
-    let length = entriesA.length > entriesB.length ? entriesA.length : entriesB.length
-    for (let index = 0; index < length; index++) {
-      if(JSON.stringify(entriesA[index]) !== JSON.stringify(entriesB[index]) ) return false;
-
-    }
-
-    // if none are undefined then check for object equality
-    return true;
-  }
-
-  getIcon(id){
-    let color;
-    let idIndex = this.props.filters.findIndex((filter) => (
-      filter.id === id
-    ))
-
-    if(id){
-      color = this.colorScheme[idIndex%this.colorScheme.length]
-    } else {
-      console.log('marker using default color')
-      color = this.colorScheme[idIndex%this.colorScheme.length]
-    }
-
-    const markerHtmlStyles = `
-    background-color: ${color};
-    width: 2rem;
-    height: 2rem;
-    display: block;
-    left: -1.5rem;
-    top: -1.5rem;
-    position: relative;
-    border-radius: 3rem 3rem 0;
-    transform: rotate(45deg);
-    border: 1px solid #FFFFFF`
-
-    const icon = Leaflet.divIcon({
-      className: id,
-      iconAnchor: [0, 24],
-      labelAnchor: [-6, 0],
-      popupAnchor: [0, -36],
-      html: `<span style="${markerHtmlStyles}" />`
-    })
-
-    return icon;
   }
 
   handleClick(event) {
