@@ -33,14 +33,35 @@ class App extends Component {
     //this.altTestApiSkriv();
   }
 
-  componentDidUpdate(prevprops,prevstate){
-    if(this.state.filters !== prevstate.filters || this.state.poly !== prevstate.poly){
-      console.log('fetching data')
-      this.fetchData();
+  componentDidUpdate(prevProps,prevState){
+    if(this.state.filters !== prevState.filters || this.state.poly !== prevState.poly){
+      //if a filter has been removed
+      if(this.state.filters.length < prevState.filters.length) {
+        this.removeData();
+      }
+
+      // if a filter has been added or the polygon state has changed
+      if(this.state.filters.length > prevState.filters.length){
+        this.state.filters.forEach(filter => {
+          let current = this.state.map[filter.id];
+          let prev = prevState.map[filter.id];
+            if(current !== prev || (current === undefined && prev === undefined )){
+              console.log('fetching data')
+              this.fetchData(filter);
+            }
+        })
+      }
+
+      if(this.state.poly !== prevState.poly){
+        this.state.filters.forEach(filter => {
+        this.fetchData(filter);
+        })
+      }
     }
   }
 
   render() {
+
     return (
         <Container
           currentLocation={this.state.currentLocation}
@@ -114,10 +135,6 @@ class App extends Component {
   }
 
   removeData(){
-    //TODO
-  }
-
-  fetchData(){
     let filters = this.state.filters.map(filter => (filter.id));
     let newDataSet = {};
 
@@ -129,20 +146,19 @@ class App extends Component {
       })
       this.setState({map: newDataSet})
     }
+  }
 
+  fetchData(filter){
+    let id = filter.id;
+    
+    this.nvdb.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
+      this.setState((prevState) => {
+        let newMap = {...prevState.map};
+        newMap[id] = value;
 
-    if(filters){
-      filters.forEach(async(element) => {
-        this.nvdb.apiCall('vegobjekter/' + element + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
-          this.setState((prevState) => {
-            let newMap = {...prevState.map};
-            newMap[element] = value;
-
-            return {map: newMap};
-          });
-        });
+        return {map: newMap};
       });
-    }
+    });
   }
 
 
