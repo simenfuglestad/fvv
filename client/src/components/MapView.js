@@ -31,6 +31,7 @@ class MapView extends Component {
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
     this.handleMovePoint = this.handleMovePoint.bind(this);
     this.handleContextMenu = this.handleContextMenu.bind(this);
+    this.testfunc.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState){
@@ -72,6 +73,10 @@ class MapView extends Component {
   }
 }
 
+  testfunc(event) {
+    console.log("test");
+  }
+
   render() {
     return (
         <Map
@@ -80,7 +85,7 @@ class MapView extends Component {
         onclick={this.handleClick}
         oncontextmenu={this.handleContextMenu}
         >
-          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng}/>}
+          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng} handleClick={this.props.handleContextClick}/>}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
