@@ -8,7 +8,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      nvdbEndpoint: 'https://nvdbapiles-v3.utv.atlas.vegvesen.no/',
+      nvdbEndpoint: 'https://nvdbapiles-v3.atlas.vegvesen.no/',
       currentLocation: { lat: 60.0084857, lng:11.0648648 },
       menu: 'mainMenu',
       map: {},
