@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import ApiGateway from './ApiGateway'
+import ServerConnection from './ServerConnection'
 import Container from './components/Container'
 import './App.css';
 
@@ -8,7 +7,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      nvdbEndpoint: 'https://nvdbapiles-v3.utv.atlas.vegvesen.no/',
+      nvdbEndpoint: 'https://nvdbapiles-v3.atlas.vegvesen.no/',
       currentLocation: { lat: 60.0084857, lng:11.0648648 },
       menu: 'mainMenu',
       map: {},
@@ -17,7 +16,7 @@ class App extends Component {
       issues: [],
     }
 
-    this.nvdb = new ApiGateway(this.state.nvdbEndpoint)
+    this.server = new ServerConnection()
 
 
     //bind functions that need a reference to this instance
@@ -29,8 +28,6 @@ class App extends Component {
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
     this.getRoadObjectTypeData()
-    //this.getIssues();
-    //this.altTestApiSkriv();
   }
 
   componentDidUpdate(prevProps,prevState){
@@ -151,7 +148,7 @@ class App extends Component {
   fetchData(filter){
     let id = filter.id;
     
-    this.nvdb.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
+    this.server.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
       this.setState((prevState) => {
         let newMap = {...prevState.map};
         newMap[id] = value;
@@ -161,35 +158,17 @@ class App extends Component {
     });
   }
 
-
   handleFilters(filters) {
     this.setState({filters: filters})
   }
 
   async getRoadObjectTypeData(){
-    const data = await this.nvdb.apiCallSingle('vegobjekttyper')
+    const data = await this.server.apiCallSingle('vegobjekttyper')
 
     data.forEach(type => {
-      this.nvdb.apiCallSingle('vegobjekttyper' + '/' + type.id)
+      this.server.apiCallSingle('vegobjekttyper' + '/' + type.id)
     })
     this.setState({roadObjectTypes: data})
-  }
-
-  async handleRegistration(issues){
-    const response = await axios.post('/api/registerIssue', issues);
-
-    if (response.status !== 200) throw Error(response);
-  }
-
-  async getIssues(){
-    const response = await axios.get('/api/getIssues');
-    this.setState({issues: response.data})
-  }
-
-  async testApiSkriv(){
-    const response = await axios.post('http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', {headers: { 'Content-Type': 'application/json'}, body: {'username': 'bjosor', 'password': 'bjosor'}});
-    console.log(response)
-
   }
 }
 

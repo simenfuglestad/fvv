@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
-import PlaceObjectBtn from './PlaceObjectBtn';
 import RegistrationMenu from './RegistrationMenu';
-import CaseRegistration from './CaseRegistration';
-import Form from './Form'
 
 class Container extends Component {
   constructor(props) {
@@ -47,7 +44,6 @@ class Container extends Component {
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
           contextMenu={this.state.contextMenu}
-          handleBtnShowContext={this.handleBtnShowContext}
         />
 
 
@@ -63,8 +59,6 @@ class Container extends Component {
           handleMarkerClick={this.handleMarkerClick}
           handleContextClick={this.handleContextClick}
         />
-
-      <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
 
       </div>
     );
