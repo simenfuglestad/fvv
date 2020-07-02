@@ -7,13 +7,16 @@ class Form extends Component {
     this.state = {
       dataEntryNames : [],
       dataentryIDs : [],
+      currentObjectName : "Velg en kategori",
+      currentObjectID : 0,
+      enteredData : [],
       // displayingEntries : false
     };
-    this.currentObjectname = "Velg en kategori";
-    this.currentObjectID = 0;
     this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.testFunc = this.testFunc.bind(this);
   }
 
   getObjectNames(objects) {
@@ -25,7 +28,6 @@ class Form extends Component {
       result.push(o);
     });
 
-    console.log(result)
     result.sort(function(a, b) {
       let n = a.name.toLowerCase();
       let m = b.name.toLowerCase();
@@ -40,29 +42,48 @@ class Form extends Component {
     let obj = Datastore.get('vegobjekttyper').filter(o =>{
       return o.navn === objectName;
     })[0];
-    console.log(obj);
-    this.setState({
-      dataEntryNames : Object.keys(obj)
-    });
+    if(obj !== undefined && obj !== null) {
+      this.setState({dataEntryNames : Object.keys(obj)});
+    } else {
+      this.setState({dataEntryNames : []});
+    }
   }
 
   setCurrentObjectID(objectName) {
-    console.log(this.categoryNamesIDs);
     let obj = this.categoryNamesIDs.filter(o =>{
       return o.name === objectName;
     })[0];
-    if(obj)
-    console.log(obj)
-    console.log(obj.id);
-    this.currentObjectID = obj.id;
+    if(obj !== undefined && obj !== null) {
+      this.setState({currentObjectID : obj.id});
+    } else {
+      this.setState({currentObjectID : 0});
+    }
   }
 
   handleChange(event) {
-    console.log(event.target.value);
-    this.currentObjectName = event.target.value;
+    this.setState({currentObjectName : event.target.value});
     this.setCurrentObjectID(event.target.value);
-    console.log(this.currentObjectID);
     this.setDataEntryNames(event.target.value);
+    this.clearInputFields();
+  }
+
+  clearInputFields() {
+    this.setState({
+      enteredData : [],
+    })
+  }
+
+  handleInputChange(event, i) {
+    let temp = [...this.state.enteredData];
+    temp[i] = event.target.value;
+
+    this.setState(prevState => ({
+      enteredData : temp
+    }));
+  }
+
+  testFunc(e) {
+    console.log(this.state.enteredData);
 
   }
 
@@ -70,21 +91,25 @@ class Form extends Component {
   render() {
     return (
       <div className="regMenu">
-        <select value={this.currentObjectname} onChange={this.handleChange}>
+        <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleChange}>
             <option value="Velg en kategori">Velg En kategori</option>
-          {this.categoryNamesIDs.map((object, i) =>
-            <option key = {i} value={object.name}>{object.name}</option>
-          )}
+            {this.categoryNamesIDs.map((object, i) =>
+              <option key={i} value={object.name}>{object.name}</option>
+            )}
         </select>
 
         <div className="regForm">
           {this.state.dataEntryNames.map((object, i) =>
             <div className="regPosSubDiv" key={i}>
               <label>{object}</label>
-              <input type="text"></input>
+              <input  id="regInputId"
+                      onChange={(e) => this.handleInputChange(e, i)}
+                      type="text">
+              </input>
             </div>
           )}
-          </div>
+          <input type="button" value="Fullfør" onClick={(e) => this.testFunc(e)}></input>
+        </div>
       </div>
     )
   }
