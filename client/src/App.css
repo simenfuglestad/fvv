@@ -62,8 +62,8 @@ header{
 
 .rightMenu{
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: 10px;
+  right:25px;
   z-index: 1000;
   min-width: 20vh;
   max-width: 20vh;
@@ -90,16 +90,6 @@ header{
   background-color: white;
   margin: 0px;
   padding: 1px;
-}
-
-#placeObjectBtn {
-  position: absolute;
-  overflow: hidden;
-
-  bottom: 5px;
-  right: 10px;
-  width: 15%;
-  z-index: 1000;
 }
 
 .mapFilter{

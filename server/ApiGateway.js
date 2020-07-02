@@ -1,31 +1,25 @@
-import axios from 'axios';
-import Datastore from './Datastore';
+const axios = require('axios');
 
 /**
  * Responsible for sending out api calls and storing responses
  */
-export default class ApiGateway {
+class ApiGateway {
     constructor(endpoint){
         this.endpoint = endpoint;
     }
 
     async apiCall(request){
-      let cache = Datastore.get(request);
-      if(cache.length > 0){
-        console.log('returning cached data')
-        return cache;
-      }
-      console.log('no cached data, sending requests')
+
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
   
       let data = res.data.objekter;
-  
-      while (res.data.metadata.returnert === 1000) {
+      
+      console.log(res.data.metadata)
+
+      while (res.data.metadata.antall !== data.length) {
         res = await axios.get(res.data.metadata.neste.href, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
         data = data.concat(res.data.objekter);
       }
-
-      Datastore.add(request, data)
       return data;
     }
 
@@ -33,8 +27,8 @@ export default class ApiGateway {
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
   
       let data = res.data;
-      Datastore.add(request, data);
-      if(data.navn === undefined) console.log(data)
       return data;
     }
 }
+
+module.exports = ApiGateway;

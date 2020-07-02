@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
-import PlaceObjectBtn from './PlaceObjectBtn';
 
 class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
         contextMenu: {show: false},
-        btnShowContextMenu : false,
         drawing : false
     }
 
@@ -20,7 +18,7 @@ class Container extends Component {
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
-    this.handleBtnShowContext = this.handleBtnShowContext.bind(this);
+
   }
 
   render() {
@@ -41,7 +39,6 @@ class Container extends Component {
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
           contextMenu={this.state.contextMenu}
-          handleBtnShowContext={this.handleBtnShowContext}
         />
 
         <MapView
@@ -55,19 +52,8 @@ class Container extends Component {
           handleMarkerClick={this.handleMarkerClick}
         />
 
-      <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
-
       </div>
     );
-  }
-
-  handleBtnShowContext(event) {
-    alert("Plasser objekt/hendelse på kartet");
-    this.setState(prevState => (
-      {contextMenu : prevState.contextMenu, btnShowContextMenu : true}
-    ));
-    console.log(this.state.contextMenu.show);
-
   }
 
   handleMarkerClick(marker) {
