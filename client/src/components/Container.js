@@ -21,7 +21,8 @@ class Container extends Component {
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
-    this.handleFinishReg = this.handleFinishReg.bind(this);
+    this.handleDoneReg = this.handleDoneReg.bind(this);
+
   }
 
   render() {
@@ -33,7 +34,7 @@ class Container extends Component {
       >
         {
           this.state.isRegMenuOpen &&
-          <RegistrationMenu handleFinishReg={this.handleFinishReg}>
+          <RegistrationMenu handleDoneReg={this.handleDoneReg}>
           </RegistrationMenu>
         }
 
@@ -75,7 +76,7 @@ class Container extends Component {
     })
   }
 
-  handleFinishReg(event) {
+  handleDoneReg(event) {
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,

@@ -8,14 +8,24 @@ class Form extends Component {
       dataEntryNames : [],
       dataentryIDs : [],
       currentObjectName : "Velg en kategori",
+      currentValueName : "Velg en verdi",
       currentObjectID : 0,
       enteredData : [],
+      objectAllowedValues : [],
+      objectDescs : [],
+      currentDesc : "beskrivelse",
+      begunCategoerySelect : false,
+      begunValueSelect : false,
+      // currentObjectDesc : "",
+      // currentObjectValue : ,
     };
-    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
 
-    this.handleChange = this.handleChange.bind(this);
+    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
+    this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDoneClick = this.handleDoneClick.bind(this);
+    this.currentObjectID = -1;
+    this.handleSelectValue = this.handleSelectValue.bind(this);
   }
 
   getObjectNames(objects) {
@@ -37,14 +47,33 @@ class Form extends Component {
     return result;
   }
 
+  getDesc(values) {
+    let result = [];
+  }
+
   setDataEntryNames(objectName) {
-    let obj = Datastore.get('vegobjekttyper').filter(o =>{
-      return o.navn === objectName;
-    })[0];
+    // let obj = Datastore.get('vegobjekttyper/'+ this.currentObjectID.toString()).filter(o =>{
+    //   return o.navn === objectName;
+    // })[0];
+    let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
+    let tmp = obj.egenskapstyper[8].tillatte_verdier;
+    let allowedVals = [];
+    let descs = [];
+
+    tmp.forEach((item, i) => {
+      allowedVals.push(item.verdi);
+      descs.push(item.beskrivelse);
+    });
     if(obj !== undefined && obj !== null) {
-      this.setState({dataEntryNames : Object.keys(obj)});
+      this.setState({
+        objectAllowedValues : allowedVals,
+        objectDescs : descs,
+        dataEntryNames : Object.keys(obj)});
     } else {
-      this.setState({dataEntryNames : []});
+      this.setState({
+        objectAllowedValues : [],
+        objectDescs : [],
+        dataEntryNames : []});
     }
   }
 
@@ -53,17 +82,27 @@ class Form extends Component {
       return o.name === objectName;
     })[0];
     if(obj !== undefined && obj !== null) {
-      this.setState({currentObjectID : obj.id});
+      this.currentObjectID = obj.id;
+      // this.setState({currentObjectID : obj.id});
     } else {
-      this.setState({currentObjectID : 0});
+      this.currentObjectID = -1;
+      // this.setState({currentObjectID : 0});
     }
   }
 
-  handleChange(event) {
+  handleSelectCategoryChange(event) {
     this.setState({currentObjectName : event.target.value});
     this.setCurrentObjectID(event.target.value);
     this.setDataEntryNames(event.target.value);
     this.clearInputFields();
+    this.setState({ begunCategoerySelect : true })
+  }
+
+  handleSelectValue(event) {
+    this.setState({
+      currentValueName : event.target.value,
+      currentDesc : event.target.value
+    });
   }
 
   clearInputFields() {
@@ -73,22 +112,41 @@ class Form extends Component {
   }
 
   handleInputChange(event, i) {
-    let temp = [...this.state.enteredData];
-    temp[i] = event.target.value;
+    let newEnteredData = [...this.state.enteredData];
+    newEnteredData[i] = event.target.value;
 
     this.setState(prevState => ({
-      enteredData : temp
+      enteredData : newEnteredData
     }));
   }
 
   handleDoneClick(event) {
+    let processedData = this.processEnteredData(this.state.enteredData, this.state.dataEntryNames);
+    this.props.handleDoneReg(processedData);
+    // this.dat
   }
+
+  processEnteredData(data, names) {
+    let resultObject = {};
+    for(var i = 0; i < data.length; i++) {
+      let propName = this.state.dataEntryNames[i];
+      let propData = data[i];
+      if (propData !== undefined && propData !== null) {
+        resultObject[propName] = propData;
+      }
+      else {
+          resultObject[propName] = " ";
+      }
+    }
+    console.log(resultObject);
+  }
+
 
 
   render() {
     return (
       <div className="regMenu">
-        <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleChange}>
+        <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
             <option value="Velg en kategori">Velg En kategori</option>
             {this.categoryNamesIDs.map((object, i) =>
               <option key={i} value={object.name}>{object.name}</option>
@@ -96,16 +154,19 @@ class Form extends Component {
         </select>
 
         <div className="regForm">
-          {this.state.dataEntryNames.map((object, i) =>
-            <div className="regPosSubDiv" key={i}>
-              <label>{object}</label>
-              <input  id="regInputId"
-                      onChange={(e) => this.handleInputChange(e, i)}
-                      type="text">
-              </input>
-            </div>
-          )}
-          <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
+          {this.state.begunCategoerySelect &&
+            <select value={this.state.currentValueName} onChange={this.handleSelectValue}>
+              <option value ="chooseVal">Velg en Verdi</option>
+              {this.state.objectAllowedValues.map((val, i) =>
+                <option key={i} value={val}>{val}</option>
+              )}
+            </select>
+          }
+          <br></br>
+          <div>
+            <label>{this.state.currentDesc}</label>
+            <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
+          </div>
         </div>
       </div>
     )
@@ -113,3 +174,15 @@ class Form extends Component {
 }
 
 export default Form;
+
+/*
+{this.state.objectDescs.map((object, i) =>
+  <div className="regPosSubDiv" key={i}>
+    <label>{object}</label>
+    <input  id="regInputId"
+            onChange={(e) => this.handleInputChange(e, i)}
+            type="text">
+    </input>
+  </div>
+)}
+*/
