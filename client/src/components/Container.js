@@ -3,24 +3,26 @@ import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
 import PlaceObjectBtn from './PlaceObjectBtn';
+import RegistrationMenu from './RegistrationMenu';
+import CaseRegistration from './CaseRegistration';
+import Form from './Form'
 
 class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
-        contextMenu: {show: false},
-        btnShowContextMenu : false,
+        isRegMenuOpen : false,
         drawing : false
     }
 
     this.swiping = false;
 
-
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
-    this.handleBtnShowContext = this.handleBtnShowContext.bind(this);
+    this.handleContextClick = this.handleContextClick.bind(this);
+    this.handleFinishReg = this.handleFinishReg.bind(this);
   }
 
   render() {
@@ -30,8 +32,12 @@ class Container extends Component {
         onMouseDown={() => {this.swiping = false}}
         onMouseMove={() => {this.swiping = true}}
       >
+        {
+          this.state.isRegMenuOpen &&
+          <Form handleFinishReg={this.handleFinishReg}>
+          </Form>
+        }
 
-        {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -44,6 +50,8 @@ class Container extends Component {
           handleBtnShowContext={this.handleBtnShowContext}
         />
 
+
+
         <MapView
           currentLocation={this.props.currentLocation}
           map= {this.props.map}
@@ -53,6 +61,7 @@ class Container extends Component {
           drawing={this.state.drawing}
           setPolyFilter={this.setPolyFilter}
           handleMarkerClick={this.handleMarkerClick}
+          handleContextClick={this.handleContextClick}
         />
 
       <PlaceObjectBtn handleBtnShowContext={this.handleBtnShowContext}></PlaceObjectBtn>
@@ -61,16 +70,21 @@ class Container extends Component {
     );
   }
 
-  handleBtnShowContext(event) {
-    alert("Plasser objekt/hendelse på kartet");
-    this.setState(prevState => (
-      {contextMenu : prevState.contextMenu, btnShowContextMenu : true}
-    ));
-    console.log(this.state.contextMenu.show);
+  handleContextClick(event) {
+    this.setState({
+      isRegMenuOpen :  true,
+    })
+  }
 
+  handleFinishReg(event) {
+    alert("Du har fullført registrering");
+    this.setState({
+      isRegMenuOpen : false,
+    })
   }
 
   handleMarkerClick(marker) {
+    console.log("test handlemarkerclick")
     this.setState({showMarkerInfo: marker})
   }
 
