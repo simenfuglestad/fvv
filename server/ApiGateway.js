@@ -11,9 +11,9 @@ class ApiGateway {
     async apiCall(request){
 
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
-  
+
       let data = res.data.objekter;
-      
+
       console.log(res.data.metadata)
 
       while (res.data.metadata.antall !== data.length) {
@@ -25,7 +25,7 @@ class ApiGateway {
 
     async apiCallSingle(request){
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
-  
+
       let data = res.data;
       return data;
     }
