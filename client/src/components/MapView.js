@@ -33,7 +33,6 @@ class MapView extends Component {
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
     this.handleMovePoint = this.handleMovePoint.bind(this);
     this.handleContextMenu = this.handleContextMenu.bind(this);
-    this.testfunc.bind(this);
   }
 
   componentDidUpdate(prevProps){
@@ -74,7 +73,7 @@ class MapView extends Component {
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
             <MarkerManager map={this.props.map} filters={this.props.filters} handleClick= {this.props.handleMarkerClick}/>
-            
+
             {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 

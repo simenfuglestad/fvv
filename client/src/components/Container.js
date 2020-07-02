@@ -31,8 +31,8 @@ class Container extends Component {
       >
         {
           this.state.isRegMenuOpen &&
-          <Form handleFinishReg={this.handleFinishReg}>
-          </Form>
+          <RegistrationMenu handleFinishReg={this.handleFinishReg}>
+          </RegistrationMenu>
         }
 
 
