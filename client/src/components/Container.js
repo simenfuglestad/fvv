@@ -5,7 +5,6 @@ import RightMenu from './RightMenu';
 import PlaceObjectBtn from './PlaceObjectBtn';
 import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
-import Form from './Form'
 
 class Container extends Component {
   constructor(props) {
@@ -34,8 +33,8 @@ class Container extends Component {
       >
         {
           this.state.isRegMenuOpen &&
-          <Form handleFinishReg={this.handleFinishReg}>
-          </Form>
+          <RegistrationMenu handleFinishReg={this.handleFinishReg}>
+          </RegistrationMenu>
         }
 
 
