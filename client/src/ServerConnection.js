@@ -38,4 +38,11 @@ export default class ServerConnection {
       const res = await axios.post('/testendring', changeSet);
       console.log(res)
     }
+    
+    async getChangeSets(){
+      console.log('henter Endringssetts oversikt')
+      const res = await axios.get('/getChangeSets', {'request': ''});
+      console.log(res)
+      return res.data;
+    }
 }

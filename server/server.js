@@ -19,7 +19,8 @@ axios.interceptors.request.use(function (config) {
   return Promise.reject(error);
 });
 
-const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+const nvdbLes = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+const nvdbSkriv = new apiGateway('http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett/')
 let token;
 let tokenName;
 
@@ -47,7 +48,7 @@ app.post('/testendring', (req, res) => {
   axios.post(
   'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
   data = req.body,
-  config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+  config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient', 'X-NVDB-DryRun': true}})
   .then(response => {
     axios.post(
     response.data[1].src,
@@ -73,15 +74,35 @@ console.log(error);
   
 })
 
+app.get('/getChangeSets', (req, res) => {
+  axios.get(
+    'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+    {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+  .then(response => {res.send(response.data)}).catch(e => {console.log(e)})
+})
+
 app.post('/api/getroadobjecttypes', (req, res) => {
-    nvdb.apiCallSingle(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+    nvdbLes.apiCallSingle(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 
 });
 
 app.post('/api/getroadobjects', (req, res) => {
-  nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+  nvdbLes.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
+
+
+async function checkStatus(id){
+  let status = 'BEHANDLES'
+  while (status === 'BEHANDLES' || status === 'VENTER') {
+    let framdrift = await nvdbSkriv(
+      response.data[0].src,
+      config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+      
+    status = framdrift.data
+    console.log(status)
+  }
+}
 

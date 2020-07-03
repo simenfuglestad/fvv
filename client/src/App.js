@@ -25,7 +25,8 @@ class App extends Component {
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    this.getRoadObjectTypeData()
+    //this.getRoadObjectTypeData()
+    this.getChangeSets()
     //this.testendring();
   }
 
@@ -168,6 +169,10 @@ class App extends Component {
       this.server.apiCallSingle('vegobjekttyper' + '/' + type.id)
     })
     this.setState({roadObjectTypes: data})
+  }
+
+  getChangeSets(){
+    this.server.getChangeSets().then(data => {console.log(data)})
   }
 
   async testendring(){
