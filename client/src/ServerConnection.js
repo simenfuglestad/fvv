@@ -32,4 +32,10 @@ export default class ServerConnection {
       Datastore.add(request, data);
       return data;
     }
+
+    async pushChangesToNvdb(changeSet){
+      console.log('sender Endringssett')
+      const res = await axios.post('/testendring', changeSet);
+      console.log(res)
+    }
 }
