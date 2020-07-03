@@ -6,16 +6,18 @@ class Form extends Component {
     super(props);
     this.state = {
       dataEntryNames : [],
-      dataentryIDs : [],
       currentObjectName : "Velg en kategori",
       currentValueName : "Velg en verdi",
       currentObjectID : 0,
       enteredData : [],
-      objectAllowedValues : [],
+      currentAllowedValues : [],
       objectDescs : [],
-      currentDesc : "beskrivelse",
-      begunCategoerySelect : false,
-      begunValueSelect : false,
+      currentValue : "",
+      currentDesc : "",
+      begunCategorySelect : false,
+      nameValuePairs : [],
+      requireSelect : [], // order of values that require select menu
+      // currentDescValue
       // currentObjectDesc : "",
       // currentObjectValue : ,
     };
@@ -27,6 +29,8 @@ class Form extends Component {
     this.currentObjectID = -1;
     this.handleSelectValue = this.handleSelectValue.bind(this);
   }
+
+
 
   getObjectNames(objects) {
     let result = [];
@@ -47,35 +51,75 @@ class Form extends Component {
     return result;
   }
 
-  getDesc(values) {
-    let result = [];
+  /*
+  * Fetches all entries a user can modify during registration
+  * Structed as Object with name as key and list of possible values as value
+  */
+  fetchVals(obj) {
+    // console.log(obj)
+    let attributes = obj.egenskapstyper;
+    console.log(attributes);
+    let result = {};
+    if(attributes !== undefined) {
+      attributes.forEach((item, i) => {
+        // console.log(i)
+        // console.log(item)
+        let name = item["navn"];
+        let found_allowed = false;
+        let req_sel = false;
+        for (var key in item) {
+          // console.log(key)
+          result[name] = [];
+          if (key === "tillatte_verdier") {
+            let tmp_list = [];
+
+            item[key].forEach((item2, i) => {
+              tmp_list.push(item2["verdi"]);
+            });
+            result[name] = tmp_list;
+
+            req_sel = true;
+            break;
+          }
+        }
+        let rs = this.state.requireSelect;
+        rs.push(req_sel);
+        this.setState({
+          requireSelect : rs
+        })
+      });
+    }
+    return result;
+  }
+
+  testfetchVals() {
+    let obj = Datastore.get('vegobjekttyper/79');
+    let f_obj = this.fetchVals(obj);
   }
 
   setDataEntryNames(objectName) {
-    // let obj = Datastore.get('vegobjekttyper/'+ this.currentObjectID.toString()).filter(o =>{
-    //   return o.navn === objectName;
-    // })[0];
     let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
-    let tmp = obj.egenskapstyper[8].tillatte_verdier;
-    let allowedVals = [];
-    let descs = [];
+    let desc = obj["beskrivelse"];
+    let allowedVals = this.fetchVals(obj);
+      // console.log(allowedVals);
+      if(obj !== undefined && obj !== null) {
+        this.setState({
+          currentAllowedValues : allowedVals,
+          dataEntryNames : Object.keys(obj),
+          nameValuePairs : allowedVals,
+          currentDesc : desc
+        });
 
-    tmp.forEach((item, i) => {
-      allowedVals.push(item.verdi);
-      descs.push(item.beskrivelse);
-    });
-    if(obj !== undefined && obj !== null) {
-      this.setState({
-        objectAllowedValues : allowedVals,
-        objectDescs : descs,
-        dataEntryNames : Object.keys(obj)});
-    } else {
-      this.setState({
-        objectAllowedValues : [],
-        objectDescs : [],
-        dataEntryNames : []});
+      } else {
+        console.log("invalid object")
+        this.setState({
+          currentAllowedValues : [],
+          dataEntryNames : [],
+          nameValuePairs : [],
+          currentDesc : ""
+        });
+      }
     }
-  }
 
   setCurrentObjectID(objectName) {
     let obj = this.categoryNamesIDs.filter(o =>{
@@ -95,13 +139,13 @@ class Form extends Component {
     this.setCurrentObjectID(event.target.value);
     this.setDataEntryNames(event.target.value);
     this.clearInputFields();
-    this.setState({ begunCategoerySelect : true })
+    this.setState({ begunCategorySelect : true })
   }
 
   handleSelectValue(event) {
     this.setState({
       currentValueName : event.target.value,
-      currentDesc : event.target.value
+      currentDesc : this.state.currentDesc
     });
   }
 
@@ -123,7 +167,6 @@ class Form extends Component {
   handleDoneClick(event) {
     let processedData = this.processEnteredData(this.state.enteredData, this.state.dataEntryNames);
     this.props.handleDoneReg(processedData);
-    // this.dat
   }
 
   processEnteredData(data, names) {
@@ -138,10 +181,19 @@ class Form extends Component {
           resultObject[propName] = " ";
       }
     }
-    console.log(resultObject);
+    // console.log(resultObject);
   }
 
-
+  constructRegFields = fields => {
+    let result = []
+    for(let i = 0; i < this.state.nameValuePairs.length; i++) {
+      if(this.state.nameValuePairs.length === 0) {
+        result.push(
+          <div key={i}><input type="text"></input></div>)
+      }
+    }
+    return result;
+  }
 
   render() {
     return (
@@ -154,17 +206,23 @@ class Form extends Component {
         </select>
 
         <div className="regForm">
-          {this.state.begunCategoerySelect &&
-            <select value={this.state.currentValueName} onChange={this.handleSelectValue}>
-              <option value ="chooseVal">Velg en Verdi</option>
-              {this.state.objectAllowedValues.map((val, i) =>
-                <option key={i} value={val}>{val}</option>
+          {this.state.begunCategorySelect &&
+            <div>
+              {Object.keys(this.state.nameValuePairs).map((k, i) =>
+                <div key={i}>
+                  <label key={i+'l'}>{k}</label>
+                  <select key={i+'s'} value={this.state.currentAllowedValues[k]} onChange={this.handleSelectValue}>
+                    {this.state.nameValuePairs[k].map((v, i) =>
+                      <option key={i} value={v}>{v}</option>
+                    )}
+                  </select>
+                  <br></br>
+                </div>
               )}
-            </select>
+            </div>
           }
           <br></br>
-          <div>
-            <label>{this.state.currentDesc}</label>
+          <div className="regFormUserInput">
             <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
           </div>
         </div>
