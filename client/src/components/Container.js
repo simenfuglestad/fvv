@@ -11,7 +11,8 @@ class Container extends Component {
     super(props)
     this.state = {
         isRegMenuOpen : false,
-        drawing : false
+        drawing : false,
+        currentRegObject : {}
     }
 
     this.swiping = false;
@@ -76,10 +77,11 @@ class Container extends Component {
     })
   }
 
-  handleDoneReg(event) {
+  handleDoneReg(newObject) {
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
+      currentRegObject : newObject
     })
   }
 

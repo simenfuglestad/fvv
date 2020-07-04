@@ -1,7 +1,7 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
 
-class Form extends Component {
+class RegMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,7 +10,7 @@ class Form extends Component {
       currentValueName : "Velg en verdi",
       currentObjectID : 0,
       enteredData : [],
-      currentAllowedValues : [],
+      currentAllowedValues : {},
       objectDescs : [],
       currentValue : "",
       currentDesc : "",
@@ -56,19 +56,16 @@ class Form extends Component {
   * Structed as Object with name as key and list of possible values as value
   */
   fetchVals(obj) {
-    // console.log(obj)
     let attributes = obj.egenskapstyper;
-    console.log(attributes);
     let result = {};
     if(attributes !== undefined) {
       attributes.forEach((item, i) => {
-        // console.log(i)
-        // console.log(item)
+
         let name = item["navn"];
         let found_allowed = false;
         let req_sel = false;
         for (var key in item) {
-          // console.log(key)
+
           result[name] = [];
           if (key === "tillatte_verdier") {
             let tmp_list = [];
@@ -101,7 +98,6 @@ class Form extends Component {
     let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
     let desc = obj["beskrivelse"];
     let allowedVals = this.fetchVals(obj);
-      // console.log(allowedVals);
       if(obj !== undefined && obj !== null) {
         this.setState({
           currentAllowedValues : allowedVals,
@@ -165,34 +161,21 @@ class Form extends Component {
   }
 
   handleDoneClick(event) {
-    let processedData = this.processEnteredData(this.state.enteredData, this.state.dataEntryNames);
+    let processedData = this.processEnteredData(this.state.enteredData, this.state.currentAllowedValues);
     this.props.handleDoneReg(processedData);
   }
 
-  processEnteredData(data, names) {
+  processEnteredData() {
     let resultObject = {};
-    for(var i = 0; i < data.length; i++) {
-      let propName = this.state.dataEntryNames[i];
-      let propData = data[i];
-      if (propData !== undefined && propData !== null) {
-        resultObject[propName] = propData;
-      }
-      else {
-          resultObject[propName] = " ";
-      }
-    }
-    // console.log(resultObject);
-  }
 
-  constructRegFields = fields => {
-    let result = []
-    for(let i = 0; i < this.state.nameValuePairs.length; i++) {
-      if(this.state.nameValuePairs.length === 0) {
-        result.push(
-          <div key={i}><input type="text"></input></div>)
+    Object.keys(this.state.currentAllowedValues).forEach((item, i) => {
+      if (this.state.enteredData[i] !== undefined) {
+        resultObject[item] = this.state.enteredData[i];
+      } else {
+        resultObject[item] = "ingen verdi oppgitt";
       }
-    }
-    return result;
+    });
+    return resultObject
   }
 
   render() {
@@ -208,21 +191,31 @@ class Form extends Component {
         <div className="regForm">
           {this.state.begunCategorySelect &&
             <div>
-              {Object.keys(this.state.nameValuePairs).map((k, i) =>
-                <div key={i}>
-                  <label key={i+'l'}>{k}</label>
-                  <select key={i+'s'} value={this.state.currentAllowedValues[k]} onChange={this.handleSelectValue}>
-                    {this.state.nameValuePairs[k].map((v, i) =>
-                      <option key={i} value={v}>{v}</option>
-                    )}
-                  </select>
-                  <br></br>
-                </div>
+              {Object.keys(this.state.currentAllowedValues).map((k, i) =>
+                {if(this.state.currentAllowedValues[k].length !== 0) return (
+                  <div key={i} className="regFormUserInput">
+                    <label key={i+'l'}>{k}</label>
+
+                    <select key={i+'s'} value={this.state.currentAllowedValues[k][0]} onChange={this.handleSelectValue}>
+                      {this.state.nameValuePairs[k].map((v, i) =>
+                          <option key={i} value={v}>{v}</option>
+                      )}
+                    </select>
+                    <br></br>
+                  </div>
+                )
+                else return (
+                  <div key={i} className="regFormUserInput">
+                    <label key={i+'l'}>{k}</label>
+                    <input type="text" onChange={(e) => this.handleInputChange(e, i)}></input>
+                    <br></br>
+                  </div>
+                )}
               )}
             </div>
           }
           <br></br>
-          <div className="regFormUserInput">
+          <div className="regFormUserSubmit">
             <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
           </div>
         </div>
@@ -231,16 +224,4 @@ class Form extends Component {
   }
 }
 
-export default Form;
-
-/*
-{this.state.objectDescs.map((object, i) =>
-  <div className="regPosSubDiv" key={i}>
-    <label>{object}</label>
-    <input  id="regInputId"
-            onChange={(e) => this.handleInputChange(e, i)}
-            type="text">
-    </input>
-  </div>
-)}
-*/
+export default RegMenu;
