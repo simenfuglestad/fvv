@@ -1,30 +1,29 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
+import ReactTooltip from "react-tooltip";
 
 class RegMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentObjectName : "Velg en kategori",
-      currentSelectValues : [],
-      selectIndex : -1,
       currentObjectID : 0,
       enteredData : [],
-      currentAllowedValues : {},
-      objectDescs : [],
+      objectProperties : {},
       currentValue : "",
-      currentDesc : "", //implement this as tooltip later
       begunCategorySelect : false,
-      nameValuePairs : [],
     };
 
     this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
+
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDoneClick = this.handleDoneClick.bind(this);
-    this.currentObjectID = -1; //this needs to be outside state or else updating fails
     this.handleSelectValue = this.handleSelectValue.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
+    this.handleOnMouseOver = this.handleOnMouseOver.bind(this);
+
+    this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
 
@@ -52,14 +51,13 @@ class RegMenu extends Component {
   * Fetches all entries a user can modify during registration
   * Structed as Object with name as key and list of possible values as value
   */
-  fetchVals(obj) {
+  fetchObjectProperties(obj) {
     let attributes = obj.egenskapstyper;
     let result = {};
     if(attributes !== undefined) {
       attributes.forEach((item, i) => {
 
         let name = item["navn"];
-        let req_sel = false;
         for (var key in item) {
 
           result[name] = [];
@@ -70,8 +68,6 @@ class RegMenu extends Component {
               tmp_list.push(item2["verdi"]);
             });
             result[name] = tmp_list;
-
-            req_sel = true;
             break;
           }
         }
@@ -80,28 +76,18 @@ class RegMenu extends Component {
     return result;
   }
 
-  testfetchVals() {
-    let obj = Datastore.get('vegobjekttyper/79');
-    let f_obj = this.fetchVals(obj);
-  }
-
   setCurrentVals(objectName) {
     let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
-    let desc = obj["beskrivelse"];
-    let allowedVals = this.fetchVals(obj);
+    let objProps = this.fetchObjectProperties(obj);
       if(obj !== undefined && obj !== null) {
         this.setState({
-          currentAllowedValues : allowedVals,
-          nameValuePairs : allowedVals,
-          currentDesc : desc
+          objectProperties : objProps,
         });
 
       } else {
-        console.log("invalid object")
+        //invalid object
         this.setState({
-          currentAllowedValues : [],
-          nameValuePairs : [],
-          currentDesc : ""
+          objectProperties : [],
         });
       }
     }
@@ -119,7 +105,6 @@ class RegMenu extends Component {
 
   handleSelectCategoryChange(event) {
     let val = event.target.value;
-    console.log(event.target);
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
     this.setCurrentVals(val);
@@ -134,32 +119,24 @@ class RegMenu extends Component {
   }
 
   updateUserSelection(data, index) {
-    console.log("index is " + index)
     let newEnteredData = [...this.state.enteredData];
     newEnteredData[index] = data;
     this.setState(prevState => ({
       enteredData : newEnteredData
     }));
-    console.log(this.state.enteredData)
   }
 
   handleSelectValue(event, i) {
-    console.log(event.target.value);
     this.updateUserSelection(event.target.value, i);
-    this.setState({
-      currentDesc : this.state.currentDesc
-    });
   }
 
   handleInputChange(event, i) {
-    console.log(event.target.value);
     this.updateUserSelection(event.target.value, i);
   }
 
   handleDoneClick(event) {
-    console.log(this.state.enteredData)
     if(this.state.enteredData.length !== 0) {
-      let processedData = this.processEnteredData(this.state.enteredData, this.state.currentAllowedValues);
+      let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
       this.props.handleDoneReg(processedData);
     } else {
       alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
@@ -172,8 +149,7 @@ class RegMenu extends Component {
 
   processEnteredData() {
     let resultObject = {};
-    console.log(this.state.enteredData.length);
-    Object.keys(this.state.currentAllowedValues).forEach((item, i) => {
+    Object.keys(this.state.objectProperties).forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.enteredData !=="Velg en verdi") {
         resultObject[item] = this.state.enteredData[i];
       } else {
@@ -196,14 +172,14 @@ class RegMenu extends Component {
         <div className="regForm">
           {this.state.begunCategorySelect &&
             <div>
-              {Object.keys(this.state.currentAllowedValues).map((k, i) =>
-                {if(this.state.currentAllowedValues[k].length !== 0) return (
-                  <div key={i} className="regFormUserInput">
+              {Object.keys(this.state.objectProperties).map((k, i) =>
+                {if(this.state.objectProperties[k].length !== 0) return (
+                  <div key={i} className="regFormUserInput" onMouseOver={(e) => this.handleOnMouseOver(e, i)}>
                     <label key={i+'l'}>{k}</label>
 
                     <select key={i+'s'} defaultValue={"Velg en verdi"} onClick={(e) => this.handleSelectValue(e, i)}>
                       <option value="Velg en verdi">Velg en verdi</option>
-                      {this.state.currentAllowedValues[k].map((v, i) =>
+                      {this.state.objectProperties[k].map((v, i) =>
                           <option key={i} value={v}>{v}</option>
                       )}
                     </select>
@@ -219,6 +195,7 @@ class RegMenu extends Component {
                 )}
               )}
             </div>
+
           }
           <br></br>
           {this.state.begunCategorySelect && <div className="regFormUserSubmit">
