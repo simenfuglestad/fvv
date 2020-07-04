@@ -3,13 +3,15 @@ import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
 import RegistrationMenu from './RegistrationMenu';
+import CaseRegistration from './CaseRegistration';
 
 class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
         isRegMenuOpen : false,
-        drawing : false
+        drawing : false,
+        currentRegObject : {}
     }
 
     this.swiping = false;
@@ -19,7 +21,8 @@ class Container extends Component {
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
-    this.handleFinishReg = this.handleFinishReg.bind(this);
+    this.handleDoneReg = this.handleDoneReg.bind(this);
+
   }
 
   render() {
@@ -31,7 +34,8 @@ class Container extends Component {
       >
         {
           this.state.isRegMenuOpen &&
-          <RegistrationMenu handleFinishReg={this.handleFinishReg}>
+
+          <RegistrationMenu handleDoneReg={this.handleDoneReg} handleClose={this.handleContextClick}>
           </RegistrationMenu>
         }
 
@@ -66,14 +70,16 @@ class Container extends Component {
 
   handleContextClick(event) {
     this.setState({
-      isRegMenuOpen :  true,
+      isRegMenuOpen :  !this.state.isRegMenuOpen,
     })
   }
 
-  handleFinishReg(event) {
+  handleDoneReg(newObject) {
+    console.log(newObject);
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
+      currentRegObject : newObject
     })
   }
 
