@@ -21,7 +21,6 @@ class RegMenu extends Component {
     this.handleDoneClick = this.handleDoneClick.bind(this);
     this.handleSelectValue = this.handleSelectValue.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
-    this.handleOnMouseOver = this.handleOnMouseOver.bind(this);
 
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
@@ -174,7 +173,7 @@ class RegMenu extends Component {
             <div>
               {Object.keys(this.state.objectProperties).map((k, i) =>
                 {if(this.state.objectProperties[k].length !== 0) return (
-                  <div key={i} className="regFormUserInput" onMouseOver={(e) => this.handleOnMouseOver(e, i)}>
+                  <div key={i} className="regFormUserInput">
                     <label key={i+'l'}>{k}</label>
 
                     <select key={i+'s'} defaultValue={"Velg en verdi"} onClick={(e) => this.handleSelectValue(e, i)}>
