@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import SearchField from './SearchField';
 import MapFilter from './MapFilter';
 import DataDisplay from './DataDisplay';
-import PlaceObjectBtn from './PlaceObjectBtn';
 
 class RightMenu extends Component {
     constructor(props) {
@@ -10,7 +9,6 @@ class RightMenu extends Component {
 
         this.handleFilterSelect = this.handleFilterSelect.bind(this);
         this.handleRemoveFilter = this.handleRemoveFilter.bind(this);
-        this.handleShowBtnClick = this.handleBtnClick.bind(this);
     }
 
     render(){
@@ -41,11 +39,6 @@ class RightMenu extends Component {
     handleRemoveFilter(item){
         const newFilters = this.props.filters.filter(f => f !== item);
         this.props.handleFilters(newFilters)
-    }
-
-    handleBtnClick(event) {
-      this.props.handleBtnShowContext(event);
-      console.log("test handleBtn");
     }
 }
 
