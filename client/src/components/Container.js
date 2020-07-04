@@ -35,7 +35,7 @@ class Container extends Component {
       >
         {
           this.state.isRegMenuOpen &&
-          <RegistrationMenu handleDoneReg={this.handleDoneReg}>
+          <RegistrationMenu handleDoneReg={this.handleDoneReg} handleClose={this.handleContextClick}>
           </RegistrationMenu>
         }
 
@@ -73,11 +73,12 @@ class Container extends Component {
 
   handleContextClick(event) {
     this.setState({
-      isRegMenuOpen :  true,
+      isRegMenuOpen :  !this.state.isRegMenuOpen,
     })
   }
 
   handleDoneReg(newObject) {
+    console.log(newObject);
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
