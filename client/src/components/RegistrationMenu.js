@@ -1,6 +1,5 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
-import ReactTooltip from "react-tooltip";
 
 class RegMenu extends Component {
   constructor(props) {
