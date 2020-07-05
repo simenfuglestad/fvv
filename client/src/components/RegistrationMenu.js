@@ -1,6 +1,5 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
-import ReactTooltip from "react-tooltip";
 
 class RegMenu extends Component {
   constructor(props) {
@@ -198,6 +197,8 @@ class RegMenu extends Component {
           }
           <br></br>
           {this.state.begunCategorySelect && <div className="regFormUserSubmit">
+            <input type="button" value="Ta bilde" onClick={this.props.openCameraView}></input>
+            <br></br>
             <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
             <input type="button" value="Lukk" onClick={this.handleCloseClick}></input>
           </div>
