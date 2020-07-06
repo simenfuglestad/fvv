@@ -78,24 +78,31 @@ class Container extends Component {
   }
 
   handleContextClick(event) {
-    console.log(event.current.innerHTML)
+    if(!event){
+      this.setState(prevState => ({
+        isRegMenuOpen: !prevState.isRegMenuOpen
+      }))
+      return;
+    }
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
       })
+      return;
     }
     if(event.current.innerHTML === 'Ny Sak'){
       this.setState({
         isCaseMenuOpen :  true,
       })
+      return;
     }
-    
   }
 
   handleFinishReg(event) {
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
+    })
   }
 
   handleDoneReg(newObject) {
