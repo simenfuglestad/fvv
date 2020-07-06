@@ -9,6 +9,10 @@ class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
+        contextMenu: {show: false},
+        isRegMenuOpen : false,
+        isCaseMenuOpen: false,
+        drawing : false,
         isRegMenuOpen : false,
         drawing : false,
         currentRegObject : {}
@@ -39,6 +43,11 @@ class Container extends Component {
           </RegistrationMenu>
         }
 
+        {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
+        {
+          this.state.isCaseMenuOpen &&
+          <CaseRegistration/>
+        }
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -69,8 +78,30 @@ class Container extends Component {
   }
 
   handleContextClick(event) {
+    if(!event){
+      this.setState(prevState => ({
+        isRegMenuOpen: !prevState.isRegMenuOpen
+      }))
+      return;
+    }
+    if(event.current.innerHTML === 'Nytt Objekt'){
+      this.setState({
+        isRegMenuOpen :  true,
+      })
+      return;
+    }
+    if(event.current.innerHTML === 'Ny Sak'){
+      this.setState({
+        isCaseMenuOpen :  true,
+      })
+      return;
+    }
+  }
+
+  handleFinishReg(event) {
+    alert("Du har fullført registrering");
     this.setState({
-      isRegMenuOpen :  !this.state.isRegMenuOpen,
+      isRegMenuOpen : false,
     })
   }
 

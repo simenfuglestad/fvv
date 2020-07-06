@@ -6,8 +6,6 @@ class CaseRegistration extends Component {
         this.state = {
             type: '',
             date: '',
-            latitude: this.props.point.lat,
-            longitude: this.props.point.lng,
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -17,7 +15,6 @@ class CaseRegistration extends Component {
     render(){
         
         return(
-            this.props.show ? 
                 <div className='caseRegistration'>
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
                         <label className='caseRegistration-form-label'>
@@ -60,8 +57,6 @@ class CaseRegistration extends Component {
                         <input type='submit' className='caseRegistration-form-input'></input>
                     </form>
                 </div>
-                : 
-                <div></div>
         )
     }
 
