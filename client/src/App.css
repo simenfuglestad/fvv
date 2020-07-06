@@ -42,11 +42,14 @@ header{
 
 .caseRegistration{
   height: 100vh;
+  background: rgba(0,0,0,0.2);
+  overflow: visible;
+  z-index: 1000;
 }
 
 .caseRegistration-form{
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr;
   padding: 10px;
 }
 
@@ -56,7 +59,7 @@ header{
 }
 
 .caseRegistration-form-input{
-  grid-column-start: 2;
+  grid-column-start: 1;
   margin: 10px;
 }
 

@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
+import CaseRegistration from './CaseRegistration';
 
 class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
         contextMenu: {show: false},
+        isRegMenuOpen : false,
+        isCaseMenuOpen: false,
         drawing : false
     }
 
@@ -30,6 +33,11 @@ class Container extends Component {
       >
 
         {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
+        {
+          this.state.isCaseMenuOpen &&
+          <CaseRegistration/>
+        }
+
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -54,6 +62,28 @@ class Container extends Component {
 
       </div>
     );
+  }
+
+  handleContextClick(event) {
+    console.log(event.current.innerHTML)
+    if(event.current.innerHTML === 'Nytt Objekt'){
+      this.setState({
+        isRegMenuOpen :  true,
+      })
+    }
+    if(event.current.innerHTML === 'Ny Sak'){
+      this.setState({
+        isCaseMenuOpen :  true,
+      })
+    }
+    
+  }
+
+  handleFinishReg(event) {
+    alert("Du har fullført registrering");
+    this.setState({
+      isRegMenuOpen : false,
+    })
   }
 
   handleMarkerClick(marker) {

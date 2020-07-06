@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { Marker, Popup } from 'react-leaflet';
 import Leaflet from 'leaflet';
 import plus_pngrepo from './../assets/plus-pngrepo-com.png';
@@ -15,6 +16,9 @@ class ContextMarker extends Component {
         iconSize:     [40, 40],
 
       });
+
+      this.objectBtn = React.createRef();
+      this.caseBtn = React.createRef();
     }
 
     handleClick(event) {
@@ -30,9 +34,10 @@ class ContextMarker extends Component {
         let lng = this.props.lng;
 
         return(
-          <Marker position={[lat, lng]} icon={this.icon} onClick={this.handleClick}>
-            <Popup popupclose={this.handleOnOpen}>{this.openText}</Popup>
-          </Marker>
+          <Popup position={[lat, lng]}>
+            <button onClick={() => {this.props.handleClick(this.objectBtn)}} ref={this.objectBtn}>Nytt Objekt</button>
+            <button onClick={() => {this.props.handleClick(this.caseBtn)}} ref={this.caseBtn}>Ny Sak</button>
+          </Popup>
         )
     }
 }

@@ -117,15 +117,10 @@ class MapView extends Component {
   handleClick(event) {
     if(this.props.drawing && !this.state.finished){
       this.setState((prevstate) => ({
-        showContextMenu : false,
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
       }))
     } else if (this.state.showContextMenu === true) {
-        this.setState(prevState => (
-          {
-            showContextMenu : false,
-          }
-        ))
+      
     }
   }
 
