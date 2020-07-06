@@ -132,25 +132,38 @@ header{
 
 .caseRegistration{
   height: 100vh;
-  background: rgba(0,0,0,0.2);
+  width: 500px;
+  background: white;
   overflow: visible;
   z-index: 1000;
 }
 
 .caseRegistration-form{
-  display: grid;
-  grid-template-columns: 1fr;
   padding: 10px;
 }
 
 .caseRegistration-form-label{
-  grid-column-start: 1;
+  display: grid;
   padding: 10px;
 }
 
 .caseRegistration-form-input{
-  grid-column-start: 1;
+  grid-column-start: 2;
+  grid-row-start: span 2;
   margin: 10px;
+}
+
+.caseRegistration-form-options{
+  grid-column-start: 1;
+  width: 100px;
+  height: 25px;
+}
+
+#caseSubmit{
+  width: 50px;
+}
+#caseAbort{
+  width: 50px;
 }
 
 .rightMenu{

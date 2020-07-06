@@ -10,54 +10,71 @@ class CaseRegistration extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.getObjectsFromFilter = this.getObjectsFromFilter.bind(this);
+
+        this.abortBtn = React.createRef();
     }
 
     render(){
+        console.log(this.props.map)
         
         return(
                 <div className='caseRegistration'>
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
                         <label className='caseRegistration-form-label'>
-                            Sakstype
-                            <input
-                                name='type'
-                                type='text' 
-                                className='caseRegistration-form-input'
-                                value={this.state.type} 
-                                onChange={this.handleChange}
-                            />
+                            Sakstype:
+                            <select className='caseRegistration-form-input'>
+                                <option>-</option>
+                                <option>Skade</option>  
+                                <option>Vedlikehold</option>  
+                                <option>Annet</option>  
+                            </select>
                         </label>
+
                         <label className='caseRegistration-form-label'>
-                            Dato
-                            <input
-                                name='date' 
-                                type='text' 
-                                className='caseRegistration-form-input'
-                                value={this.state.date} 
-                                onChange={this.handleChange}
-                            />
+                            Status:
+                            <select className='caseRegistration-form-input' type="text" value={this.state.statusValue} onChange={this.handleChange} >
+                                <option>-</option>
+                                <option>Ikke utført</option>  
+                                <option>Ny</option>  
+                                <option>Planlagt</option>
+                                <option>På vent</option>  
+                                <option>Under arbeid</option>  
+                                <option>Utført</option>    
+                            </select>
                         </label>
+
                         <label className='caseRegistration-form-label'>
-                            Sted
-                            <input 
-                                name='latitude'
-                                type='text' 
-                                className='caseRegistration-form-input' 
-                                value={this.state.latitude}
-                                onChange={this.handleChange}
-                            />
-                            <input
-                                name='longitude'
-                                type='text'
-                                className='caseRegistration-form-input' 
-                                value={this.state.longitude}
-                                onChange={this.handleChange}
-                            />
+                            Beskrivelse:
+                            <textarea className='caseRegistration-form-input'/>
                         </label>
-                        <input type='submit' className='caseRegistration-form-input'></input>
+
+                        <label className='caseRegistration-form-label'>
+                            Objektliste:
+                            <textarea className='caseRegistration-form-input' name='objectList' value={this.state.objectList} onChange={this.handleChange}/>
+                            <button className='caseRegistration-form-options' onClick={this.getObjectsFromFilter}>Fra kartfilter</button>
+                        </label>
+
+                        <label className='caseRegistration-form-label'>
+                            Legg ved filer:
+                            <input type="file"  />
+                        </label>
+
+                        <input type='submit' id='caseSubmit' value='Lagre'/>
+                        <input type='button' id='caseAbort' value='Avbryt' onClick={() => {this.props.handleClose(this.abortBtn)}} ref={this.abortBtn}/>
                     </form>
                 </div>
         )
+    }
+
+    getObjectsFromFilter(event){
+        let list = '';
+
+        Object.entries(this.props.map).forEach(([key,value]) => {
+            value.forEach(element => { list += element.id + ', '})
+        });
+
+        this.setState({objectList: list})
     }
 
     handleChange(event) {
@@ -71,19 +88,7 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-        let newIssue = {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [this.state.latitude, this.state.longitude]
-            },
-            properties: {
-                name: this.state.type,
-                date: this.state.date
-            }
-        }
 
-        this.props.handleRegistration(newIssue);
         event.preventDefault();
     }
 }

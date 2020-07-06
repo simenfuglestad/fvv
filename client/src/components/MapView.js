@@ -31,15 +31,11 @@ class MapView extends Component {
 
     this.handleClick = this.handleClick.bind(this);
     this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
-    this.handleMovePoint = this.handleMovePoint.bind(this);
+    this.handleFinishPoly = this.handleFinishPoly.bind(this);
     this.handleContextMenu = this.handleContextMenu.bind(this);
+    this.handleContextClick = this.handleContextClick.bind(this);
   }
 
-  componentDidUpdate(prevProps){
-    if(prevProps.drawing !== this.props.drawing){
-      this.setState({polygonPoints: [], finished: false})
-    }
-  }
 
   handleContextMenu(event) {
     if(!this.props.drawing || this.state.finished) {
@@ -56,17 +52,18 @@ class MapView extends Component {
     return (
         <Map
         center={this.props.currentLocation}
+        zoomControl={false}
         zoom={this.state.zoom} maxZoom={19}
         onclick={this.handleClick}
         oncontextmenu={this.handleContextMenu}
         >
-          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng} handleClick={this.props.handleContextClick}/>}
+          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng} handleClick={this.handleContextClick}/>}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
           />
 
-          <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleMovePoint={this.handleMovePoint}/>
+          <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleFinishPoly={this.handleFinishPoly}/>
 
           {this.drawIssueMarkers(this.props.issues)}
 
@@ -79,6 +76,15 @@ class MapView extends Component {
 
         </Map>
     );
+  }
+
+  handleContextClick(button){
+    this.setState({
+      showContextMenu: false
+    })
+    if(button){
+      this.props.handleContextClick(button);
+    }
   }
 
   componentDidUpdate(prevProps){
@@ -124,7 +130,7 @@ class MapView extends Component {
     }
   }
 
-  handleMovePoint(){
+  handleFinishPoly(){
     this.setState({finished: true})
     this.props.setPolyFilter(this.state.polygonPoints)
   }

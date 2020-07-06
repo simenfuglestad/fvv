@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import MapView from './MapView';
-import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
 import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
@@ -9,7 +8,6 @@ class Container extends Component {
   constructor(props) {
     super(props)
     this.state = {
-        contextMenu: {show: false},
         isRegMenuOpen : false,
         isCaseMenuOpen: false,
         drawing : false,
@@ -43,10 +41,9 @@ class Container extends Component {
           </RegistrationMenu>
         }
 
-        {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration/>
+          <CaseRegistration map={this.props.map} handleClose={this.handleContextClick}/>
         }
 
         <RightMenu
@@ -56,7 +53,6 @@ class Container extends Component {
           filters={this.props.filters}
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
-          contextMenu={this.state.contextMenu}
         />
 
 
@@ -78,9 +74,10 @@ class Container extends Component {
   }
 
   handleContextClick(event) {
-    if(!event){
+    if(event.current.value === 'Avbryt'){
       this.setState(prevState => ({
-        isRegMenuOpen: !prevState.isRegMenuOpen
+        isRegMenuOpen: false,
+        isCaseMenuOpen: false
       }))
       return;
     }

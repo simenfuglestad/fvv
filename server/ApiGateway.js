@@ -14,8 +14,6 @@ class ApiGateway {
 
       let data = res.data.objekter;
 
-      console.log(res.data.metadata)
-
       while (res.data.metadata.antall !== data.length) {
         res = await axios.get(res.data.metadata.neste.href, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
         data = data.concat(res.data.objekter);

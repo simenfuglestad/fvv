@@ -23,7 +23,7 @@ class PolygonDrawer extends Component{
 
    render(){
     let corners = Array.from(this.props.polygon.map((point, index) => (
-        <Marker position={point} icon={this.icon} key={index} onclick={(event) => {this.handleMovePoint(event, index)}}/>
+        <Marker position={point} icon={this.icon} key={index} onclick={(event) => {this.handleFinishPoly(event, index)}}/>
     )));
     if(this.props.finished){
         corners.push(<Polygon color='red' fillOpacity ={0.05} positions= {this.props.polygon} key={this.props.polygon}/>);
@@ -34,9 +34,9 @@ class PolygonDrawer extends Component{
     return corners;
    }
 
-   handleMovePoint(event,index){
+   handleFinishPoly(event,index){
        if(index === 0){
-           this.props.handleMovePoint();
+           this.props.handleFinishPoly();
        }
    }
 }
