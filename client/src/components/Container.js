@@ -95,11 +95,19 @@ class Container extends Component {
   }
 
   handleCloseCamera(imgData) {
-    console.log(imgData);
-    this.setState({
-      isCameraOpen : false,
-      objectImage : imgData
-    });
+    if(imgData !== null && imgData !== undefined) {
+      this.setState({
+        isCameraOpen : false,
+        objectImage : imgData,
+        isRegMenuOpen : false
+      });
+    } else {
+      this.setState(prevState => ({
+        isCameraOpen : false,
+        objectImage : prevState.objectImage,
+        isRegMenuOpen : false
+      }));
+    }
   }
 
   handleContextClick(event) {

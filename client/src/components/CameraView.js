@@ -7,28 +7,15 @@ class UserPhoto extends Component {
     super(props);
     this.state = {
       imgData : null,
-      isOpen : true,
+      isOpen : true
     }
 
-    this.handleTakePhoto=this.handleTakePhoto.bind(this);
-    this.handleCameraStop=this.handleCameraStop.bind(this);
-    this.handleCameraStart=this.handleCameraStart.bind(this);
     this.handleTakePhotoAnimationDone=this.handleTakePhotoAnimationDone.bind(this);
     this.handleConfirmPhoto=this.handleConfirmPhoto.bind(this);
     this.handleRedoPhoto=this.handleRedoPhoto.bind(this);
+    this.handleCancelPhoto=this.handleCancelPhoto.bind(this);
   }
 
-  handleTakePhoto(imgData) {
-    console.log("test photo");
-  }
-
-  handleCameraStop(event) {
-    console.log("cam stop");
-  }
-
-  handleCameraStart(event) {
-    console.log("cam start");
-  }
 
   handleTakePhotoAnimationDone(imgData) {
     this.setState({
@@ -43,36 +30,53 @@ class UserPhoto extends Component {
 
   handleRedoPhoto(event) {
     this.setState({isOpen : true})
-    console.log("redo photo");
+  }
+
+  handleCancelPhoto(event) {
+    this.props.closeCameraView(null);
   }
 
   render() {
     if(this.state.isOpen) {
       return (
-        <div className="cameraView">
+        <div className="CameraView">
           <Camera
-            isFullScreen={this.props.isFullScreen}
-            onCameraStart={this.handleCameraStart}
-            onCameraStop={this.handleCameraStop}
+            isFullscreen={true}
             onTakePhotoAnimationDone={this.handleTakePhotoAnimationDone}
             onTakePhoto={this.handleTakePhoto}
+            idealResolution={{width : 1920, height : 1080}}
+            isMaxResolution={false}
           />
+          <input
+            type="button"
+            value="Avbryt"
+            className="CancelPhotoButton"
+            onClick={this.handleCancelPhoto}/>
         </div>
       );
     } else {
       return (
-        <div className="PhotoPreview">
-          <img src={this.state.imgData}/><br></br>
-          <input type="button"
-                 value="Bekreft Bilde"
-                 className="confirmPhotoButton"
-                 onClick={this.handleConfirmPhoto}>
-          </input>
-          <input type="button"
-                 value="Ta Nytt"
-                 className="RedoPhotoButton"
-                 onClick={this.handleRedoPhoto}>
-          </input> <br></br>
+        <div>
+          <div className="PhotoPreview">
+            <img className="TakenPhoto" src={this.state.imgData}/><br></br>
+            <input
+              type="button"
+              value="Bekreft Bilde"
+              className="ConfirmPhotoButton"
+              onClick={this.handleConfirmPhoto}>
+            </input>
+            <input
+              type="button"
+              value="Ta Nytt"
+              className="RedoPhotoButton"
+              onClick={this.handleRedoPhoto}>
+            </input>
+            <input
+              type="button"
+              value="Avbryt"
+              className="CancelPhotoButton"
+              onClick={this.handleCancelPhoto}/>
+          </div>
         </div>
       )
     }
