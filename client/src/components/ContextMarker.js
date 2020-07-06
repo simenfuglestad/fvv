@@ -8,9 +8,6 @@ class ContextMarker extends Component {
     constructor(props) {
       super(props);
 
-      this.openText = "Trykk her for å legge til nytt objekt/hendelse";
-
-
       this.icon = Leaflet.icon({
         iconUrl : plus_pngrepo,
         iconSize:     [40, 40],
@@ -20,14 +17,6 @@ class ContextMarker extends Component {
       this.objectBtn = React.createRef();
       this.caseBtn = React.createRef();
     }
-
-    handleClick(event) {
-      console.log("Got clicked")
-    }
-
-    // handleOnOpen(event) {
-    //   console.log("Got opened")
-    // }
 
     render(){
         let lat = this.props.lat;

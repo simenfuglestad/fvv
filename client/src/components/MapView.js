@@ -51,7 +51,7 @@ class MapView extends Component {
       );
     }
   }
-  
+
   render() {
     return (
         <Map
@@ -60,7 +60,7 @@ class MapView extends Component {
         onclick={this.handleClick}
         oncontextmenu={this.handleContextMenu}
         >
-          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng}/>}
+          {this.state.showContextMenu && <ContextMarker lat={this.state.contextMenuDetails.lat} lng={this.state.contextMenuDetails.lng} handleClick={this.props.handleContextClick}/>}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -73,7 +73,7 @@ class MapView extends Component {
 
           <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
             <MarkerManager map={this.props.map} filters={this.props.filters} handleClick= {this.props.handleMarkerClick}/>
-            
+
             {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
 

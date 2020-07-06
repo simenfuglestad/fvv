@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import MapView from './MapView';
 import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
+import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
 
 class Container extends Component {
@@ -11,16 +12,20 @@ class Container extends Component {
         contextMenu: {show: false},
         isRegMenuOpen : false,
         isCaseMenuOpen: false,
-        drawing : false
+        drawing : false,
+        isRegMenuOpen : false,
+        drawing : false,
+        currentRegObject : {}
     }
 
     this.swiping = false;
-
 
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
+    this.handleContextClick = this.handleContextClick.bind(this);
+    this.handleDoneReg = this.handleDoneReg.bind(this);
 
   }
 
@@ -31,13 +36,18 @@ class Container extends Component {
         onMouseDown={() => {this.swiping = false}}
         onMouseMove={() => {this.swiping = true}}
       >
+        {
+          this.state.isRegMenuOpen &&
+
+          <RegistrationMenu handleDoneReg={this.handleDoneReg} handleClose={this.handleContextClick}>
+          </RegistrationMenu>
+        }
 
         {this.state.contextMenu.show && <ContextMenu details={this.state.contextMenu} handleClick={this.handleContextClick}/>}
         {
           this.state.isCaseMenuOpen &&
           <CaseRegistration/>
         }
-
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -49,6 +59,8 @@ class Container extends Component {
           contextMenu={this.state.contextMenu}
         />
 
+
+
         <MapView
           currentLocation={this.props.currentLocation}
           map= {this.props.map}
@@ -58,6 +70,7 @@ class Container extends Component {
           drawing={this.state.drawing}
           setPolyFilter={this.setPolyFilter}
           handleMarkerClick={this.handleMarkerClick}
+          handleContextClick={this.handleContextClick}
         />
 
       </div>
@@ -83,10 +96,19 @@ class Container extends Component {
     alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
+  }
+
+  handleDoneReg(newObject) {
+    console.log(newObject);
+    alert("Du har fullført registrering");
+    this.setState({
+      isRegMenuOpen : false,
+      currentRegObject : newObject
     })
   }
 
   handleMarkerClick(marker) {
+    console.log("test handlemarkerclick")
     this.setState({showMarkerInfo: marker})
   }
 
