@@ -17,7 +17,6 @@ class Container extends Component {
         objectImage : null
     }
 
-    this.swiping = false;
     this.isCameraOpen = false;
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
@@ -27,65 +26,66 @@ class Container extends Component {
     this.handleDoneReg = this.handleDoneReg.bind(this);
     this.handleOpenCamera = this.handleOpenCamera.bind(this);
     this.handleCloseCamera = this.handleCloseCamera.bind(this);
+    this.clearImageData = this.clearImageData.bind(this);
   }
 
   render() {
-    if (!this.state.isCameraOpen) {
-      return (
-        <div
-          className="Container"
-          onMouseDown={() => {this.swiping = false}}
-          onMouseMove={() => {this.swiping = true}}
-        >
-          {
-            this.state.isRegMenuOpen &&
+    return (
+      <div
+        className="Container"
+      >
+        {this.state.isCameraOpen &&
+          <CameraView
+            closeCameraView={this.handleCloseCamera}>
+          </CameraView>
+        }
 
-            <RegistrationMenu
-              handleDoneReg={this.handleDoneReg}
-              handleClose={this.handleContextClick}
-              openCameraView={this.handleOpenCamera}
-              >
+        {
+          this.state.isRegMenuOpen &&
 
-            </RegistrationMenu>
-          }
+          <RegistrationMenu
+            handleDoneReg={this.handleDoneReg}
+            handleClose={this.handleContextClick}
+            openCameraView={this.handleOpenCamera}
+            photo={this.state.objectImage}
+            clearImageData={this.clearImageData}>
+            >
 
-
-          <RightMenu
-            roadObjectTypes={this.props.roadObjectTypes}
-            showMarkerInfo={this.state.showMarkerInfo}
-            handleFilters={this.props.handleFilters}
-            filters={this.props.filters}
-            togglePolyFilter={this.togglePolyFilter}
-            handleClickOutside={this.closeDataDisplay}
-            contextMenu={this.state.contextMenu}
-          />
+          </RegistrationMenu>
+        }
 
 
+        <RightMenu
+          roadObjectTypes={this.props.roadObjectTypes}
+          showMarkerInfo={this.state.showMarkerInfo}
+          handleFilters={this.props.handleFilters}
+          filters={this.props.filters}
+          togglePolyFilter={this.togglePolyFilter}
+          handleClickOutside={this.closeDataDisplay}
+          contextMenu={this.state.contextMenu}
+        />
 
-          <MapView
-            currentLocation={this.props.currentLocation}
-            map= {this.props.map}
-            filters= {this.props.filters}
-            roads={this.props.roads}
-            issues={this.props.issues}
-            drawing={this.state.drawing}
-            setPolyFilter={this.setPolyFilter}
-            handleMarkerClick={this.handleMarkerClick}
-            handleContextClick={this.handleContextClick}
-          />
 
-          }
-        </div>
-      );
-    } else {
-      return (
-        <CameraView
-          isFullScreen={true}
-          closeCameraView={this.handleCloseCamera}
-        >
-        </CameraView>
-      )
-    }
+
+        <MapView
+          currentLocation={this.props.currentLocation}
+          map= {this.props.map}
+          filters= {this.props.filters}
+          roads={this.props.roads}
+          issues={this.props.issues}
+          drawing={this.state.drawing}
+          setPolyFilter={this.setPolyFilter}
+          handleMarkerClick={this.handleMarkerClick}
+          handleContextClick={this.handleContextClick}
+        />
+      </div>
+    );
+  }
+
+  clearImageData(event) {
+    this.setState({
+      objectImage :  null
+    })
   }
 
   handleOpenCamera(event) {
@@ -99,13 +99,13 @@ class Container extends Component {
       this.setState({
         isCameraOpen : false,
         objectImage : imgData,
-        isRegMenuOpen : false
+        // isRegMenuOpen : false
       });
     } else {
       this.setState(prevState => ({
         isCameraOpen : false,
         objectImage : prevState.objectImage,
-        isRegMenuOpen : false
+        // isRegMenuOpen : false
       }));
     }
   }

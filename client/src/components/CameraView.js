@@ -56,9 +56,9 @@ class UserPhoto extends Component {
       );
     } else {
       return (
-        <div>
-          <div className="PhotoPreview">
-            <img className="TakenPhoto" src={this.state.imgData}/><br></br>
+        <div className="PhotoPreview">
+          <div >
+            <img src={this.state.imgData}/><br></br>
             <input
               type="button"
               value="Bekreft Bilde"

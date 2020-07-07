@@ -35,6 +35,7 @@ header{
 
 .PhotoPreview {
   margin : 0 auto;
+  z-index: 1001;
 }
 
 .PhotoPreview img{
@@ -59,6 +60,7 @@ header{
 }
 
 .CameraView {
+  z-index: 1001;
   /* width : 100%; */
 }
 
@@ -74,8 +76,18 @@ header{
   left: 95vw;
 }
 
+.TakenPhoto {
+  width : 100%;
+  /* height : 50%; */
+}
+
+.TakenPhoto img{
+  width : 100%;
+  /* height : 100%;  */
+}
+
 .regMenu {
-  height: 100vh;
+  height: 95vh;
   width: 30vw;
   margin-left: 3vw;
   z-index: 1000;
