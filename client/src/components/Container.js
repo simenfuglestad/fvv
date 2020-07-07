@@ -4,6 +4,7 @@ import ContextMenu from './ContextMenu'
 import RightMenu from './RightMenu';
 import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
+import CameraView from './CameraView';
 
 class Container extends Component {
   constructor(props) {
@@ -14,32 +15,46 @@ class Container extends Component {
         isCaseMenuOpen: false,
         drawing : false,
         isRegMenuOpen : false,
+        isCameraOpen : false,
         drawing : false,
-        currentRegObject : {}
+        currentRegObject : {},
+        objectImage : null
     }
 
-    this.swiping = false;
-
+    this.isCameraOpen = false;
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
     this.handleDoneReg = this.handleDoneReg.bind(this);
-
+    this.handleOpenCamera = this.handleOpenCamera.bind(this);
+    this.handleCloseCamera = this.handleCloseCamera.bind(this);
+    this.clearImageData = this.clearImageData.bind(this);
   }
 
   render() {
     return (
       <div
         className="Container"
-        onMouseDown={() => {this.swiping = false}}
-        onMouseMove={() => {this.swiping = true}}
       >
+        {this.state.isCameraOpen &&
+          <CameraView
+            closeCameraView={this.handleCloseCamera}>
+          </CameraView>
+        }
+
         {
           this.state.isRegMenuOpen &&
 
-          <RegistrationMenu handleDoneReg={this.handleDoneReg} handleClose={this.handleContextClick}>
+          <RegistrationMenu
+            handleDoneReg={this.handleDoneReg}
+            handleClose={this.handleContextClick}
+            openCameraView={this.handleOpenCamera}
+            photo={this.state.objectImage}
+            clearImageData={this.clearImageData}>
+            >
+
           </RegistrationMenu>
         }
 
@@ -72,9 +87,36 @@ class Container extends Component {
           handleMarkerClick={this.handleMarkerClick}
           handleContextClick={this.handleContextClick}
         />
-
       </div>
     );
+  }
+
+  clearImageData(event) {
+    this.setState({
+      objectImage :  null
+    })
+  }
+
+  handleOpenCamera(event) {
+    this.setState({
+      isCameraOpen : true,
+    });
+  }
+
+  handleCloseCamera(imgData) {
+    if(imgData !== null && imgData !== undefined) {
+      this.setState({
+        isCameraOpen : false,
+        objectImage : imgData,
+        // isRegMenuOpen : false
+      });
+    } else {
+      this.setState(prevState => ({
+        isCameraOpen : false,
+        objectImage : prevState.objectImage,
+        // isRegMenuOpen : false
+      }));
+    }
   }
 
   handleContextClick(event) {
@@ -115,7 +157,6 @@ class Container extends Component {
   }
 
   handleMarkerClick(marker) {
-    console.log("test handlemarkerclick")
     this.setState({showMarkerInfo: marker})
   }
 
