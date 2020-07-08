@@ -162,11 +162,7 @@ class App extends Component {
   }
 
   async getRoadObjectTypeData(){
-    const data = await this.server.apiCallSingle('vegobjekttyper')
-
-    data.forEach(type => {
-      this.server.apiCallSingle('vegobjekttyper' + '/' + type.id)
-    })
+    const data = await this.server.apiCallSingle('vegobjekttyper?inkluder=alle')
     this.setState({roadObjectTypes: data})
   }
 
