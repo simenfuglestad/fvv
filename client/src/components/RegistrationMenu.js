@@ -13,7 +13,7 @@ class RegMenu extends Component {
       begunCategorySelect : false,
     };
 
-    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
+    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -29,6 +29,7 @@ class RegMenu extends Component {
 
 
   getObjectNames(objects) {
+    console.log(objects)
     let result = [];
     objects.forEach((item, i) => {
       let o = {};
@@ -77,7 +78,9 @@ class RegMenu extends Component {
   }
 
   setCurrentVals(objectName) {
-    let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
+    let obj = Datastore.get('vegobjekttyper?inkluder=alle');
+    obj = obj.filter(v => (v.id === this.currentObjectID))[0]
+
     let objProps = this.fetchObjectProperties(obj);
       if(obj !== undefined && obj !== null) {
         this.setState({
@@ -163,7 +166,7 @@ class RegMenu extends Component {
     return (
       <div className="regMenu">
         <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
-            <option value="Velg en kategori">Velg En kategori</option>
+            <option value="Velg en kategori">Velg en kategori</option>
             {this.categoryNamesIDs.map((object, i) =>
               <option key={i} value={object.name}>{object.name}</option>
             )}
@@ -177,7 +180,7 @@ class RegMenu extends Component {
                   <div key={i} className="regFormUserInput">
                     <label key={i+'l'}>{k}</label>
 
-                    <select key={i+'s'} defaultValue={"Velg en verdi"} onClick={(e) => this.handleSelectValue(e, i)}>
+                    <select key={i+'s'} defaultValue="Velg en verdi" onClick={(e) => this.handleSelectValue(e, i)}>
                       <option value="Velg en verdi">Velg en verdi</option>
                       {this.state.objectProperties[k].map((v, i) =>
                           <option key={i} value={v}>{v}</option>
@@ -199,6 +202,23 @@ class RegMenu extends Component {
           }
           <br></br>
           {this.state.begunCategorySelect && <div className="regFormUserSubmit">
+
+            {this.props.photo !== null ?
+              <div className="TakenPhoto" >
+                <img src={this.props.photo}/>
+                <br></br>
+                <input  type="button"
+                        value="Ta nytt bilde"
+                        onClick={this.props.openCameraView}/>
+                <input  type="button"
+                        value="Fjern Bilde"
+                        onClick={this.props.clearImageData}/>
+              </div> :
+              <input  type="button"
+                      value="Ta bilde"
+                      onClick={this.props.openCameraView}/>
+            }
+            <br></br>
             <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
             <input type="button" value="Avbryt" onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></input>
           </div>
