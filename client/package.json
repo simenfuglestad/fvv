@@ -10,6 +10,7 @@
     "leaflet.markercluster": "^1.4.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-html5-camera-photo": "^1.5.4",
     "react-jsonschema-form": "^1.8.1",
     "react-leaflet": "^2.5.0",
     "react-leaflet-markercluster": "^2.0.0",

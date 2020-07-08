@@ -13,7 +13,7 @@ class RegMenu extends Component {
       begunCategorySelect : false,
     };
 
-    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper'));
+    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -27,6 +27,7 @@ class RegMenu extends Component {
 
 
   getObjectNames(objects) {
+    console.log(objects)
     let result = [];
     objects.forEach((item, i) => {
       let o = {};
@@ -75,7 +76,9 @@ class RegMenu extends Component {
   }
 
   setCurrentVals(objectName) {
-    let obj = Datastore.get('vegobjekttyper/' + this.currentObjectID.toString());
+    let obj = Datastore.get('vegobjekttyper?inkluder=alle');
+    obj = obj.filter(v => (v.id === this.currentObjectID))[0]
+
     let objProps = this.fetchObjectProperties(obj);
       if(obj !== undefined && obj !== null) {
         this.setState({
