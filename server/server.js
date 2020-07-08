@@ -6,10 +6,6 @@ const apiGateway = require('./ApiGateway');
 const app = express();
 const port = process.env.PORT || 5000;
 
-axiosInst = axios.create({
-  withCredentials: true
-})
-
 axios.interceptors.request.use(function (config) {
   // Do something before request is sent
   console.log(config)
@@ -82,6 +78,31 @@ app.post('/api/getroadobjects', (req, res) => {
   nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 
 });
+
+app.post('/registerCase', (req, res) => {
+  const fs = require("fs"); 
+  const cases = require("./data.json"); 
+    
+  // STEP 2: Adding new data to users object 
+  cases.push(req.body); 
+    
+  // STEP 3: Writing to a file 
+  fs.writeFile("data.json", JSON.stringify(cases), err => { 
+     
+    // Checking for errors 
+    if (err) throw err;  
+   
+    console.log("Done writing"); // Success 
+  }); 
+
+  res.send('success')
+});
+
+app.get('/getCaseList', (req,res) => {
+  const cases = require('./data.json')
+
+  res.send(cases)
+})
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 

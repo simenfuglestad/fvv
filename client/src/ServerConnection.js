@@ -38,4 +38,14 @@ export default class ServerConnection {
       const res = await axios.post('/testendring', changeSet);
       console.log(res)
     }
+
+    async registerCase(newCase){
+      const res = await axios.post('/registerCase', newCase);
+    }
+
+    async getCaseList(){
+      const res = await axios.get('/getCaseList');
+      console.log(res.data)
+      return res.data;
+    }
 }

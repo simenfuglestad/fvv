@@ -3,6 +3,7 @@ import MapView from './MapView';
 import RightMenu from './RightMenu';
 import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
+import CaseList from './CaseList';
 
 class Container extends Component {
   constructor(props) {
@@ -10,8 +11,8 @@ class Container extends Component {
     this.state = {
         isRegMenuOpen : false,
         isCaseMenuOpen: false,
+        isCaseListOpen: false,
         drawing : false,
-        isRegMenuOpen : false,
         drawing : false,
         currentRegObject : {}
     }
@@ -43,8 +44,10 @@ class Container extends Component {
 
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration map={this.props.map} handleClose={this.handleContextClick}/>
+          <CaseRegistration map={this.props.map} handleClose={this.handleContextClick} registerCase={this.props.registerCase}/>
         }
+
+        {this.state.isCaseListOpen && <CaseList caseList={this.props.caseList}/>}
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}

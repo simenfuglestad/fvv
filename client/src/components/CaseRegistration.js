@@ -4,8 +4,6 @@ class CaseRegistration extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            type: '',
-            date: '',
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -23,7 +21,7 @@ class CaseRegistration extends Component {
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
                         <label className='caseRegistration-form-label'>
                             Sakstype:
-                            <select className='caseRegistration-form-input'>
+                            <select className='caseRegistration-form-input' name='saksType' value={this.state.saksType} onChange={this.handleChange}>
                                 <option>-</option>
                                 <option>Skade</option>  
                                 <option>Vedlikehold</option>  
@@ -33,7 +31,7 @@ class CaseRegistration extends Component {
 
                         <label className='caseRegistration-form-label'>
                             Status:
-                            <select className='caseRegistration-form-input' type="text" value={this.state.statusValue} onChange={this.handleChange} >
+                            <select className='caseRegistration-form-input' type="text" name='status' value={this.state.status} onChange={this.handleChange} >
                                 <option>-</option>
                                 <option>Ikke utført</option>  
                                 <option>Ny</option>  
@@ -46,12 +44,12 @@ class CaseRegistration extends Component {
 
                         <label className='caseRegistration-form-label'>
                             Beskrivelse:
-                            <textarea className='caseRegistration-form-input'/>
+                            <textarea className='caseRegistration-form-input' name='beskrivelse' value={this.state.beskrivelse} onChange={this.handleChange}/>
                         </label>
 
                         <label className='caseRegistration-form-label'>
                             Objektliste:
-                            <textarea className='caseRegistration-form-input' name='objectList' value={this.state.objectList} onChange={this.handleChange}/>
+                            <textarea className='caseRegistration-form-input' name='objektListe' value={this.state.objektListe} onChange={this.handleChange}/>
                             <button className='caseRegistration-form-options' onClick={this.getObjectsFromFilter}>Fra kartfilter</button>
                         </label>
 
@@ -68,13 +66,15 @@ class CaseRegistration extends Component {
     }
 
     getObjectsFromFilter(event){
+        
         let list = '';
 
         Object.entries(this.props.map).forEach(([key,value]) => {
             value.forEach(element => { list += element.id + ', '})
         });
 
-        this.setState({objectList: list})
+        this.setState({objektListe: list})
+        event.preventDefault();
     }
 
     handleChange(event) {
@@ -88,7 +88,8 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-
+        console.log(this.state)
+        this.props.registerCase({...this.state})
         event.preventDefault();
     }
 }
