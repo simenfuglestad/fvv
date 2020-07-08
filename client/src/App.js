@@ -177,6 +177,7 @@ class App extends Component {
 
   async getCaseList(){
     let caseList = await this.server.getCaseList()
+    console.log(caseList)
 
     this.setState({caseList: caseList})
   }

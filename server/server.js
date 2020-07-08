@@ -6,12 +6,15 @@ const apiGateway = require('./ApiGateway');
 const app = express();
 const port = process.env.PORT || 5000;
 
+//set limit for accepted filesize
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
+
+//intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  // Do something before request is sent
   console.log(config)
   return config;
 }, function (error) {
-  // Do something with request error
   return Promise.reject(error);
 });
 
@@ -82,6 +85,8 @@ app.post('/api/getroadobjects', (req, res) => {
 app.post('/registerCase', (req, res) => {
   const fs = require("fs"); 
   const cases = require("./data.json"); 
+
+  console.log(req)
     
   // STEP 2: Adding new data to users object 
   cases.push(req.body); 

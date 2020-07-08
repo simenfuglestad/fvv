@@ -1,16 +1,34 @@
 import React, { Component } from 'react';
+import Table from './Table';
 
 class CaseList extends Component {
     constructor(props) {
         super(props);
+
+        this.columns = 
+              [{
+                Header: "Saksliste",
+                // First group columns
+                columns: [
+                  {
+                    Header: "Type",
+                    accessor: "saksType"
+                  },
+                  {
+                    Header: "Status",
+                    accessor: "status"
+                  }
+                ]
+              }]
     }
 
+
     render(){
+        console.log(this.props.caseList)
         return(
             <div className='caseList'>
-                <h2>Saksliste</h2>
                 <div className='caseList-grid'>
-                    {this.props.caseList.map(element => (<p>{element.saksType} {element.status} {element.beskrivelse}</p>))}
+                    <Table columns={this.columns} data={this.props.caseList}/>
                 </div>
             </div>
         )

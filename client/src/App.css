@@ -179,24 +179,22 @@ header{
 .caseRegistration{
   height: 100vh;
   width: 500px;
+  padding: 10px;
   background-color: white;
   overflow: visible;
   z-index: 1000;
 }
 
-.caseRegistration-form{
-  padding: 10px;
-}
-
 .caseRegistration-form-label{
   display: grid;
+  grid-template-columns: 1fr 2fr;
   padding: 10px;
 }
 
 .caseRegistration-form-input{
   grid-column-start: 2;
   grid-row-start: span 2;
-  margin: 10px;
+  width: 100%;
 }
 
 .caseRegistration-form-options{
@@ -205,8 +203,16 @@ header{
   height: 25px;
 }
 
+.caseRegistration-form-files{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid black;
+  margin: 10px;
+}
+
 #caseSubmit{
   width: 50px;
+  margin: 10px;
 }
 #caseAbort{
   width: 50px;
@@ -315,6 +321,18 @@ header{
   padding: 10px;
   display: grid;
 }
+
+.openCaseListBtn{
+  z-index: 1000;
+  width: 100px;
+  height: 50px;
+}
+
+table{
+  border: 1px solid black;
+}
+
+
 
 /* -----------TOOLTIP-----------*/
 

@@ -16,7 +16,6 @@ class Container extends Component {
         isCaseListOpen: false,
         drawing : false,
         isCameraOpen : false,
-        drawing : false,
         currentRegObject : {},
         objectImage : null
     }
@@ -31,6 +30,7 @@ class Container extends Component {
     this.handleOpenCamera = this.handleOpenCamera.bind(this);
     this.handleCloseCamera = this.handleCloseCamera.bind(this);
     this.clearImageData = this.clearImageData.bind(this);
+    this.toggleCaseList = this.toggleCaseList.bind(this);
   }
 
   render() {
@@ -38,6 +38,8 @@ class Container extends Component {
       <div
         className="Container"
       >
+        { !this.state.isCaseListOpen && <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+
         {this.state.isCameraOpen &&
           <CameraView
             closeCameraView={this.handleCloseCamera}>
@@ -53,7 +55,6 @@ class Container extends Component {
             openCameraView={this.handleOpenCamera}
             photo={this.state.objectImage}
             clearImageData={this.clearImageData}>
-            >
 
           </RegistrationMenu>
         }
@@ -63,7 +64,7 @@ class Container extends Component {
           <CaseRegistration map={this.props.map} handleClose={this.handleContextClick} registerCase={this.props.registerCase}/>
         }
 
-        {this.state.isCaseListOpen && <CaseList caseList={this.props.caseList}/>}
+        { this.state.isCaseListOpen && <CaseList caseList={this.props.caseList}/>}
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -174,6 +175,10 @@ class Container extends Component {
     this.setState({
       drawing: !hasPolygon,
     })
+  }
+
+  toggleCaseList(){
+    this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
 }
 
