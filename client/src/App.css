@@ -1,0 +1,385 @@
+body{
+  margin: 0px;
+}
+
+header{
+  margin-left: 10px;
+  margin-top: 10px;
+  font-size: large;
+}
+
+.removeFilter{
+  display: inline;
+}
+
+.Container{
+  width: 100vw;
+  height: 100vh;
+  background-color: #282c34;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.leaflet-container{
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+}
+
+.Menu{
+  height: 100vh;
+  color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.PhotoPreview {
+  margin : 0 auto;
+  z-index: 1001;
+}
+
+.PhotoPreview img{
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.ConfirmPhotoButton {
+  width : 50%;
+  position: absolute;
+  bottom : 0vh;
+  bottom : 0vw;
+}
+
+.RedoPhotoButton {
+  width : 45%;
+  position: absolute;
+  bottom : 0vh;
+  left : 50vw
+}
+
+.CameraView {
+  z-index: 1001;
+  width : 100%;
+  position: absolute;
+}
+
+.CancelPhotoButton {
+  float : right;
+  position: absolute;
+  bottom : 0vw;
+  left: 95vw;
+}
+
+.TakenPhoto {
+  width : 100%;
+  /* height : 50%; */
+}
+
+.TakenPhoto img{
+  width : 100%;
+  /* height : 100%;  */
+}
+
+.regMenu {
+  height: 95vh;
+  width: 30vw;
+  margin-left: 3vw;
+  z-index: 1000;
+  overflow: visible;
+}
+
+.regForm {
+  width : 100%;
+  height: 100%;
+  background: rgba(30,100,120,0.3);
+  overflow-y: scroll;
+}
+
+.regForm label {
+  padding-right: 5vw;
+  width:20%;
+  display: inline-block;
+  padding-top: 2vh;
+  padding-bottom: 1vh;
+}
+
+.regForm input[type="button"] {
+  display: inline-block;
+}
+
+.regFormUserInput {
+  /* display: inline-block; */
+}
+
+.regFormUserInput label {
+  width : 10vw;
+}
+
+.regFormUserInput select {
+  width : 10vw;
+}
+
+.regFormUserInput input {
+  width : 10vw;
+}
+
+.regFormUserSubmit {
+  width:100%;
+  height: 20%;
+  display: inline-block;
+  text-align: left;
+}
+
+.regPosSubDiv {
+  float: center;
+  /* width: 100%; */
+  /* display: inline-block; */
+}
+
+.regPosSubDiv input[type="text"] {
+  /* margin-left: 5%; */
+  /* margin-top: 2%; */
+  /* margin-right: 1%; */
+  /* float:right; */
+  display: inline-block;
+  width: 20%;
+}
+
+.regPosSubDiv input[type="button"] {
+  /* margin-left: 10%; */
+  /* width:25.5%; */
+  /* float:right; */
+  /* height: 100%; */
+  display: inline-block;
+  width: 25%;
+}
+
+.regSelectMenu {
+  width: 70%;
+}
+
+.rightMenu{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  min-width: 20vh;
+  max-width: 20vh;
+}
+
+.ContextMenu{
+  position: absolute;
+  background-color: #282c34;
+  color: white;
+  z-index: 2000;
+}
+
+.caseRegistration{
+  height: 100vh;
+  width: 500px;
+  background-color: white;
+  overflow: visible;
+  z-index: 1000;
+}
+
+.caseRegistration-form{
+  padding: 10px;
+}
+
+.caseRegistration-form-label{
+  display: grid;
+  padding: 10px;
+}
+
+.caseRegistration-form-input{
+  grid-column-start: 2;
+  grid-row-start: span 2;
+  margin: 10px;
+}
+
+.caseRegistration-form-options{
+  grid-column-start: 1;
+  width: 100px;
+  height: 25px;
+}
+
+#caseSubmit{
+  width: 50px;
+}
+#caseAbort{
+  width: 50px;
+}
+
+.rightMenu{
+  position: absolute;
+  top: 10px;
+  right:25px;
+  z-index: 1000;
+  min-width: 20vh;
+  max-width: 20vh;
+}
+
+.searchField{
+  margin: 5px;
+  z-index: 1000;
+}
+
+.searchField-input{
+  padding: 5px;
+  font-size: larger;
+  max-width: 20vh;
+}
+
+.searchfield-choices{
+  overflow-y: scroll;
+  max-height: 40vh;
+  width:21.31vh;
+}
+
+.searchfield-choice{
+  background-color: white;
+  margin: 0px;
+  padding: 1px;
+}
+
+.mapFilter{
+  margin: 5px;
+  padding: 5px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  display: grid;
+  z-index: 1000;
+  min-width: inherit;
+  max-width: inherit;
+}
+
+.mapFilter-entry{
+  border-style: solid;
+  border-width: 1px;
+  display: grid;
+  padding: 3px;
+  margin: 5px;
+  grid-template-columns: 0fr 1fr 0fr;
+}
+
+.mapfilter-entry-name{
+  grid-column-start: 2;
+}
+.mapfilter-areabutton{
+  justify-self: end;
+}
+
+.mapFilter-entry-button{
+  width: 20px;
+  justify-self: end;
+  color: black;
+  background-color: white;
+  grid-column-start: 3;
+}
+.mapfilter-entry-colorbox{
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-width: 1px;
+  margin: 2px;
+}
+
+.dataDisplay{
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  margin: 5px;
+  z-index: 1000;
+  max-width: 20vw;
+}
+
+.clusterPie{
+  position: relative;
+  float: left;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.caseList{
+  height: 100vh;
+  width: 500px;
+  z-index: 1000;
+  background-color: white;
+}
+
+.caseList-grid{
+  padding: 10px;
+  display: grid;
+}
+
+/* -----------TOOLTIP-----------*/
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/*-----------TOOLTIP END-------------*/
+
+/*-----------DropDown Styling---------*/
+
+.dd-wrapper {
+  background-color: #373d47;
+  margin: 10px;
+  margin-right: 20px;
+}
+
+.dd-list {
+  height: 200px;
+  list-style-type: none;
+  padding-inline-start: 20px;
+  overflow: scroll;
+}
+
+.dd-list::-webkit-scrollbar {
+  display: none;
+}
