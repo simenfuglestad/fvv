@@ -21,6 +21,8 @@ class RegMenu extends Component {
     this.handleSelectValue = this.handleSelectValue.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
 
+    this.abortBtn = React.createRef();
+
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
@@ -145,7 +147,7 @@ class RegMenu extends Component {
   }
 
   handleCloseClick(event) {
-    this.props.handleClose();
+    this.props.handleClose(event);
   }
 
   processEnteredData() {
@@ -200,6 +202,7 @@ class RegMenu extends Component {
           }
           <br></br>
           {this.state.begunCategorySelect && <div className="regFormUserSubmit">
+
             {this.props.photo !== null ?
               <div className="TakenPhoto" >
                 <img src={this.props.photo}/>
@@ -216,8 +219,8 @@ class RegMenu extends Component {
                       onClick={this.props.openCameraView}/>
             }
             <br></br>
-            <input type="button" value="Fullfør" onClick={this.handleDoneClick}></input>
-            <input type="button" value="Lukk" onClick={this.handleCloseClick}></input>
+            <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
+            <input type="button" value="Avbryt" onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></input>
           </div>
           }
         </div>

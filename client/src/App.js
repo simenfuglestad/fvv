@@ -13,6 +13,7 @@ class App extends Component {
       filters: [],
       roads: [],
       issues: [],
+      caseList: [],
     }
 
     this.server = new ServerConnection()
@@ -21,12 +22,14 @@ class App extends Component {
     this.handleFilters = this.handleFilters.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
     this.setPoly = this.setPoly.bind(this);
+    this.registerCase = this.registerCase.bind(this);
   }
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
-    this.getRoadObjectTypeData()
+    this.getRoadObjectTypeData();
     //this.testendring();
+    this.getCaseList();
   }
 
   componentDidUpdate(prevProps,prevState){
@@ -69,6 +72,8 @@ class App extends Component {
           handleFilters={this.handleFilters}
           handleRegistration={this.handleRegistration}
           setPoly={this.setPoly}
+          registerCase={this.registerCase}
+          caseList={this.state.caseList}
         />
     );
   }
@@ -164,6 +169,16 @@ class App extends Component {
   async getRoadObjectTypeData(){
     const data = await this.server.apiCallSingle('vegobjekttyper?inkluder=alle')
     this.setState({roadObjectTypes: data})
+  }
+
+  registerCase(newCase){
+    this.server.registerCase(newCase)
+  }
+
+  async getCaseList(){
+    let caseList = await this.server.getCaseList()
+
+    this.setState({caseList: caseList})
   }
 
   async testendring(){
