@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "scripts": {
     "install_all": "npm i && cd client && npm i && cd ../server && npm i",
+    "start": "cd server && node server.js",
     "client": "cd client && npm run start",
     "server": "cd server && node server.js",
-    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "cd server && npm install && cd ../client && npm install && npm run build"
   },
   "dependencies": {
     "axios": "^0.19.2",
     "body-parser": "^1.18.3",
-    "express": "^4.17.1"
-  },
-  "devDependencies": {
+    "express": "^4.17.1",
     "concurrently": "^4.0.1"
   }
 }
