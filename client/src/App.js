@@ -23,13 +23,14 @@ class App extends Component {
     this.getUserLocation = this.getUserLocation.bind(this);
     this.setPoly = this.setPoly.bind(this);
     this.registerCase = this.registerCase.bind(this);
+    this.getCaseList = this.getCaseList.bind(this);
   }
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
     this.getRoadObjectTypeData();
     //this.testendring();
-    this.getCaseList();
+    //this.getCaseList();
   }
 
   componentDidUpdate(prevProps,prevState){
@@ -74,6 +75,7 @@ class App extends Component {
           setPoly={this.setPoly}
           registerCase={this.registerCase}
           caseList={this.state.caseList}
+          getCaseList={this.getCaseList}
         />
     );
   }
@@ -177,7 +179,6 @@ class App extends Component {
 
   async getCaseList(){
     let caseList = await this.server.getCaseList()
-
     this.setState({caseList: caseList})
   }
 

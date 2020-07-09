@@ -1,21 +1,31 @@
 import React, { Component } from 'react';
+import FileBase64 from 'react-file-base64';
 
 class CaseRegistration extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            saksType: '',
+            status: '',
+            beskrivelse: '',
+            objektListe: '',
+            selectedFiles: [],
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.getObjectsFromFilter = this.getObjectsFromFilter.bind(this);
+        this.handleFileSelect = this.handleFileSelect.bind(this);
 
         this.abortBtn = React.createRef();
     }
 
+    componentDidMount(){
+            this.setState({...this.props.data})
+    }
+
     render(){
-        console.log(this.props.map)
-        
+
         return(
                 <div className='caseRegistration'>
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
@@ -53,16 +63,31 @@ class CaseRegistration extends Component {
                             <button className='caseRegistration-form-options' onClick={this.getObjectsFromFilter}>Fra kartfilter</button>
                         </label>
 
+                        <div className='caseRegistration-form-files'>
+                            filer her
+                        </div>
                         <label className='caseRegistration-form-label'>
                             Legg ved filer:
-                            <input type="file"  />
+                            <FileBase64 multiple={ true } onDone={ this.handleFileSelect.bind(this) } />
                         </label>
 
                         <input type='submit' id='caseSubmit' value='Lagre'/>
-                        <input type='button' id='caseAbort' value='Avbryt' onClick={() => {this.props.handleClose(this.abortBtn)}} ref={this.abortBtn}/>
+                        <input type='button' id='caseAbort' value='Avbryt' onClick={this.props.toggleCaseReg} ref={this.abortBtn}/>
                     </form>
                 </div>
         )
+    }
+
+    handleFileSelect(files){
+        let newFiles = []
+
+        files.forEach(file => {
+            newFiles.push({name: file.name, filestring: file.base64})
+        })
+        console.log(files)
+        this.setState({
+            selectedFiles: newFiles
+        })
     }
 
     getObjectsFromFilter(event){
@@ -88,9 +113,9 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-        console.log(this.state)
-        this.props.registerCase({...this.state})
+        this.props.registerCase({...this.state});
         event.preventDefault();
+        this.props.toggleCaseReg();
     }
 }
 

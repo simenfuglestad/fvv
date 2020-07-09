@@ -16,9 +16,9 @@ class Container extends Component {
         isCaseListOpen: false,
         drawing : false,
         isCameraOpen : false,
-        drawing : false,
         currentRegObject : {},
-        objectImage : null
+        objectImage : null,
+        caseData : {},
     }
 
     this.isCameraOpen = false;
@@ -31,6 +31,9 @@ class Container extends Component {
     this.handleOpenCamera = this.handleOpenCamera.bind(this);
     this.handleCloseCamera = this.handleCloseCamera.bind(this);
     this.clearImageData = this.clearImageData.bind(this);
+    this.toggleObjectReg = this.toggleObjectReg.bind(this);
+    this.toggleCaseList = this.toggleCaseList.bind(this);
+    this.toggleCaseReg = this.toggleCaseReg.bind(this);
   }
 
   render() {
@@ -38,6 +41,8 @@ class Container extends Component {
       <div
         className="Container"
       >
+        { !this.state.isCaseListOpen && <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+
         {this.state.isCameraOpen &&
           <CameraView
             closeCameraView={this.handleCloseCamera}>
@@ -49,21 +54,20 @@ class Container extends Component {
 
           <RegistrationMenu
             handleDoneReg={this.handleDoneReg}
-            handleClose={this.handleContextClick}
+            handleClose={this.toggleObjectReg}
             openCameraView={this.handleOpenCamera}
             photo={this.state.objectImage}
             clearImageData={this.clearImageData}>
-            >
 
           </RegistrationMenu>
         }
 
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration map={this.props.map} handleClose={this.handleContextClick} registerCase={this.props.registerCase}/>
+          <CaseRegistration map={this.props.map} toggleCaseReg={this.toggleCaseReg} registerCase={this.props.registerCase} data={this.state.caseData}/>
         }
 
-        {this.state.isCaseListOpen && <CaseList caseList={this.props.caseList}/>}
+        { this.state.isCaseListOpen && <CaseList caseList={this.props.caseList} toggleCaseList={this.toggleCaseList}/>}
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
@@ -120,13 +124,6 @@ class Container extends Component {
   }
 
   handleContextClick(event) {
-    if(event.current.value === 'Avbryt'){
-      this.setState(prevState => ({
-        isRegMenuOpen: false,
-        isCaseMenuOpen: false
-      }))
-      return;
-    }
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
@@ -174,6 +171,35 @@ class Container extends Component {
     this.setState({
       drawing: !hasPolygon,
     })
+  }
+
+  toggleObjectReg(){
+    this.setState(prevState => ({isRegMenuOpen: !prevState.isRegMenuOpen}))
+  }
+
+  toggleCaseReg(){
+    if(this.state.isCaseMenuOpen){
+      this.setState({isCaseMenuOpen: false, caseData: {}})
+    } else {
+      this.setState({isCaseMenuOpen: true})
+    }
+  }
+    
+
+  toggleCaseList(id = null){
+    if(!this.state.isCaseListOpen){
+      //if opening menu, refresh caselist data
+      this.props.getCaseList()
+    } else {
+      if(id !== null){
+        //if an id was sent open caseReg and fill in data for that id
+        let thisCase = this.props.caseList.filter((e) => (e.id === Number(id)))[0];
+        this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen, caseData: thisCase, isCaseMenuOpen: true}))
+        return;
+      }
+    }
+    
+    this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
 }
 

@@ -68,7 +68,7 @@ class MapView extends Component {
           {this.drawIssueMarkers(this.props.issues)}
 
 
-          <MarkerClusterGroup spiderfyOnMaxZoom={false} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
+          <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
             <MarkerManager map={this.props.map} filters={this.props.filters} handleClick= {this.props.handleMarkerClick}/>
 
             {this.drawRoads(this.props.roads)}
