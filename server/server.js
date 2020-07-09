@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const apiGateway = require('./ApiGateway');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
