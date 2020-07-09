@@ -1,7 +1,7 @@
 import React from "react";
 import { useTable } from "react-table";
 
-export default function Table({ columns, data }) {
+export default function Table({ columns, data, onCaseClick }) {
   // Use the useTable Hook to send the columns and data to build the table
   const {
     getTableProps, // table props from react-table
@@ -33,7 +33,7 @@ export default function Table({ columns, data }) {
         {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <tr className='table-row' {...row.getRowProps()}>
+            <tr className='table-row' onClick={onCaseClick} {...row.getRowProps()}>
               {row.cells.map(cell => {
                 return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
               })}

@@ -29,7 +29,6 @@ class RegMenu extends Component {
 
 
   getObjectNames(objects) {
-    console.log(objects)
     let result = [];
     objects.forEach((item, i) => {
       let o = {};

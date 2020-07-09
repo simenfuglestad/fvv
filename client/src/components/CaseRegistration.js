@@ -5,6 +5,11 @@ class CaseRegistration extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            saksType: '',
+            status: '',
+            beskrivelse: '',
+            objektListe: '',
+            selectedFiles: [],
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -15,8 +20,12 @@ class CaseRegistration extends Component {
         this.abortBtn = React.createRef();
     }
 
+    componentDidMount(){
+            this.setState({...this.props.data})
+    }
+
     render(){
-        
+
         return(
                 <div className='caseRegistration'>
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
@@ -63,7 +72,7 @@ class CaseRegistration extends Component {
                         </label>
 
                         <input type='submit' id='caseSubmit' value='Lagre'/>
-                        <input type='button' id='caseAbort' value='Avbryt' onClick={() => {this.props.handleClose(this.abortBtn)}} ref={this.abortBtn}/>
+                        <input type='button' id='caseAbort' value='Avbryt' onClick={this.props.toggleCaseReg} ref={this.abortBtn}/>
                     </form>
                 </div>
         )
@@ -104,10 +113,9 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-        console.log(this.state)
-        this.props.registerCase({...this.state})
+        this.props.registerCase({...this.state});
         event.preventDefault();
-        this.props.handleClose(this.abortBtn)
+        this.props.toggleCaseReg();
     }
 }
 

@@ -45,7 +45,6 @@ export default class ServerConnection {
 
     async getCaseList(){
       const res = await axios.get('/getCaseList');
-      console.log(res.data)
       return res.data;
     }
 }

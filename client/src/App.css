@@ -311,10 +311,13 @@ header{
 }
 
 .caseList{
-  height: 100vh;
-  width: 500px;
+  height: calc(100vh - 20px);
+  width: 600px;
   z-index: 1000;
   background-color: white;
+  grid-template-rows: 1fr 14fr;
+  display: grid;
+  padding: 10px;
 }
 
 .caseList-grid{
@@ -323,13 +326,27 @@ header{
 }
 
 .openCaseListBtn{
+  position: absolute;
+  top: 10px;
+  left: 10px;
   z-index: 1000;
   width: 100px;
   height: 50px;
 }
 
+.closeCaseListBtn{
+  justify-self: end;
+  width: 50px;
+  height: 50px;
+}
+
 table{
   border: 1px solid black;
+}
+
+tr{
+  border: 1px solid black;
+  padding: 10px;
 }
 
 

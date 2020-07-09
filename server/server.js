@@ -26,6 +26,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //authenticate docker
+/*
 axios.post(
   'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', 
   {'username': 'ap', 'password': 'ap'},
@@ -40,6 +41,7 @@ console.log(response.data);
   console.log('error')
 console.log(error);
 });
+*/
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
@@ -86,11 +88,25 @@ app.post('/registerCase', (req, res) => {
   const fs = require("fs"); 
   const cases = require("./data.json"); 
 
-  console.log(req)
-    
-  // STEP 2: Adding new data to users object 
-  cases.push(req.body); 
-    
+  console.log(req.body)
+  if(req.body.id !== undefined){
+    let index = cases.findIndex(curCase =>(curCase.id === req.body.id));
+    cases[index] = req.body;
+  } else {
+    let ids = [];
+    let id = cases.length;
+    cases.forEach(element => {
+      ids.push(element.id)
+    });
+    while (ids.includes(id)) {
+      id += 1
+    }
+  
+    req.body['id'] = id;
+    cases.push(req.body); 
+  }
+
+
   // STEP 3: Writing to a file 
   fs.writeFile("data.json", JSON.stringify(cases), err => { 
      
