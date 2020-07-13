@@ -22,8 +22,8 @@ class ApiGateway {
     }
 
     async apiCallSingle(request){
-      let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
-
+      let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json', 'User-Agent': 'NorkartTest'}});
+      console.log(res)
       let data = res.data;
       return data;
     }
