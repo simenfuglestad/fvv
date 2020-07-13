@@ -1,5 +1,7 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
+import ExitImg from './../assets/os-x-pngrepo-com.png';
+import CameraImg from './../assets/camera-pngrepo-com.png'
 
 class RegMenu extends Component {
   constructor(props) {
@@ -25,8 +27,6 @@ class RegMenu extends Component {
 
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
-
-
 
   getObjectNames(objects) {
     let result = [];
@@ -80,8 +80,8 @@ class RegMenu extends Component {
     let obj = Datastore.get('vegobjekttyper?inkluder=alle');
     obj = obj.filter(v => (v.id === this.currentObjectID))[0]
 
-    let objProps = this.fetchObjectProperties(obj);
       if(obj !== undefined && obj !== null) {
+        let objProps = this.fetchObjectProperties(obj);
         this.setState({
           objectProperties : objProps,
         });
@@ -137,6 +137,7 @@ class RegMenu extends Component {
   }
 
   handleDoneClick(event) {
+    console.log(this.state.enteredData)
     if(this.state.enteredData.length !== 0) {
       let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
       this.props.handleDoneReg(processedData);
@@ -163,20 +164,25 @@ class RegMenu extends Component {
 
   render() {
     return (
-      <div className="regMenu">
-        <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
+      <div className="RegMenu">
+        <select className="RegSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
             <option value="Velg en kategori">Velg en kategori</option>
             {this.categoryNamesIDs.map((object, i) =>
               <option key={i} value={object.name}>{object.name}</option>
             )}
         </select>
 
-        <div className="regForm">
+        <img  src={ExitImg}
+              className="ExitRegMenu"
+              onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></img>
+
+
+        <div className="RegForm">
           {this.state.begunCategorySelect &&
             <div>
-              {Object.keys(this.state.objectProperties).map((k, i) =>
-                {if(this.state.objectProperties[k].length !== 0) return (
-                  <div key={i} className="regFormUserInput">
+              {Object.keys(this.state.objectProperties).map((k, i) => {
+                if(this.state.objectProperties[k].length !== 0) return (
+                  <div key={i} className="RegFormUserInput">
                     <label key={i+'l'}>{k}</label>
 
                     <select key={i+'s'} defaultValue="Velg en verdi" onClick={(e) => this.handleSelectValue(e, i)}>
@@ -219,7 +225,7 @@ class RegMenu extends Component {
             }
             <br></br>
             <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
-            <input type="button" value="Avbryt" onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></input>
+
           </div>
           }
         </div>
