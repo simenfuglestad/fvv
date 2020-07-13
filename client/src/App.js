@@ -24,6 +24,7 @@ class App extends Component {
     this.setPoly = this.setPoly.bind(this);
     this.registerCase = this.registerCase.bind(this);
     this.getCaseList = this.getCaseList.bind(this);
+    this.getCaseObjects = this.getCaseObjects.bind(this);
   }
 
   componentDidMount() {
@@ -76,6 +77,8 @@ class App extends Component {
           registerCase={this.registerCase}
           caseList={this.state.caseList}
           getCaseList={this.getCaseList}
+          getCaseObjects={this.getCaseObjects}
+          caseObjects={this.state.caseObjects}
         />
     );
   }
@@ -175,6 +178,35 @@ class App extends Component {
 
   registerCase(newCase){
     this.server.registerCase(newCase)
+  }
+
+  async getCaseObjects(objects){
+    if(objects === undefined){
+      this.setState({caseObjects: null});
+      return;
+    }
+    
+    objects = objects.split(',');
+    let data = {};
+    let promises = [];
+    objects.forEach(element => {
+      if(element !== ''){
+        element = element.split(':');
+        promises.push(this.server.apiCallSingle('vegobjekter/'+ element[1] + '/' + element[0] + '/?inkluder=alle&srid=4326' ));
+      }
+    });
+
+    await Promise.all(promises).then((values) => {
+      values.forEach(value => {
+        if(data[value.metadata.type.id] === undefined){
+          data[value.metadata.type.id] = [value];
+        } else {
+          data[value.metadata.type.id].push(value);
+        }
+        })
+    })
+
+    this.setState({caseObjects: data})
   }
 
   async getCaseList(){

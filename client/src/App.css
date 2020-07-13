@@ -319,9 +319,8 @@ header{
   padding: 10px;
 }
 
-.caseList-grid{
-  padding: 10px;
-  display: grid;
+#caseList-selected{
+  background-color: lightgray;
 }
 
 .openCaseListBtn{
@@ -341,11 +340,6 @@ header{
 
 table{
   border: 1px solid black;
-}
-
-tr{
-  border: 1px solid black;
-  padding: 10px;
 }
 
 
