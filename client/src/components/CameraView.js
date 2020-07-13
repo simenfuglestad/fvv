@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Camera from 'react-html5-camera-photo';
 import 'react-html5-camera-photo/build/css/index.css';
+import TakeNewPhotoImg from './../assets/redo-pngrepo-com.png';
+import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
+import ConfirmPhotoImg from  './../assets/checked-pngrepo-com.png';
 
 class UserPhoto extends Component {
   constructor(props) {
@@ -47,36 +50,29 @@ class UserPhoto extends Component {
             idealResolution={{width : 1920, height : 1080}}
             isMaxResolution={false}
           />
-          <input
-            type="button"
-            value="Avbryt"
+          <img
+            src={RemovePhotoImg}
             className="CancelPhotoButton"
             onClick={this.handleCancelPhoto}/>
         </div>
       );
     } else {
       return (
-        <div className="PhotoPreview">
-          <div >
-            <img src={this.state.imgData}/><br></br>
-            <input
-              type="button"
-              value="Bekreft Bilde"
-              className="ConfirmPhotoButton"
-              onClick={this.handleConfirmPhoto}>
-            </input>
-            <input
-              type="button"
-              value="Ta Nytt"
-              className="RedoPhotoButton"
-              onClick={this.handleRedoPhoto}>
-            </input>
-            <input
-              type="button"
-              value="Avbryt"
-              className="CancelPhotoButton"
-              onClick={this.handleCancelPhoto}/>
-          </div>
+        <div className="PhotoPreviewDiv">
+          <img  src={this.state.imgData}
+                className="PhotoPreview"/>
+          <img
+            src={ConfirmPhotoImg}
+            className="ConfirmPhotoButton"
+            onClick={this.handleConfirmPhoto}/>
+          <img
+            src={TakeNewPhotoImg}
+            className="RedoPhotoButton"
+            onClick={this.handleRedoPhoto}/>
+          <img
+            src={RemovePhotoImg}
+            className="CancelPhotoButton"
+            onClick={this.handleCancelPhoto}/>
         </div>
       )
     }
