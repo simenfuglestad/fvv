@@ -10,6 +10,8 @@ class CaseRegistration extends Component {
             beskrivelse: '',
             objektListe: '',
             selectedFiles: [],
+            lat: '',
+            lng: '',
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -21,7 +23,13 @@ class CaseRegistration extends Component {
     }
 
     componentDidMount(){
+        this.setState({...this.props.data})
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.props.data !== prevProps.data){
             this.setState({...this.props.data})
+        }
     }
 
     render(){
@@ -37,6 +45,12 @@ class CaseRegistration extends Component {
                                 <option>Vedlikehold</option>  
                                 <option>Annet</option>  
                             </select>
+                        </label>
+
+                        <label className='caseRegistration-form-label'>
+                            Plassering:
+                            <input className='caseRegistration-form-input' type='number' name='lat' value={this.state.lat} onChange={this.handleChange}></input>
+                            <input className='caseRegistration-form-input' type='number' name='lng' value={this.state.lng} onChange={this.handleChange}></input>
                         </label>
 
                         <label className='caseRegistration-form-label'>
@@ -95,7 +109,7 @@ class CaseRegistration extends Component {
         let list = '';
 
         Object.entries(this.props.map).forEach(([key,value]) => {
-            value.forEach(element => { list += element.id + ', '})
+            value.forEach(element => { list += element.id + ':' + element.metadata.type.id + ','})
         });
 
         this.setState({objektListe: list})

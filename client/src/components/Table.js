@@ -1,19 +1,21 @@
 import React from "react";
 import { useTable } from "react-table";
 
-export default function Table({ columns, data, onCaseClick }) {
+export default function Table({ columns, data, onCaseClick, selected }) {
   // Use the useTable Hook to send the columns and data to build the table
   const {
     getTableProps, // table props from react-table
     getTableBodyProps, // table body props from react-table
     headerGroups, // headerGroups, if your table has groupings
     rows, // rows for the table based on the data passed
-    prepareRow // Prepare the row (this function needs to be called for each row before getting the row props)
+    prepareRow, // Prepare the row (this function needs to be called for each row before getting the row props)
+    selectedFlatRows,
+    state: {selectedRowIds}
   } = useTable({
     columns,
-    data
+    data,
   });
-
+  
   /* 
     Render the UI for your table
     - react-table doesn't have UI, it's headless. We just need to put the react-table props from the Hooks, and it will do its magic automatically
@@ -32,8 +34,17 @@ export default function Table({ columns, data, onCaseClick }) {
       <tbody {...getTableBodyProps()}>
         {rows.map((row, i) => {
           prepareRow(row);
+          if(row.cells[0].value === selected){
+            return (
+              <tr className='table-row' onClick={() =>onCaseClick(row.cells[0].value)} {...row.getRowProps({ style: { backgroundColor: 'blue' } })}>
+                {row.cells.map(cell => {
+                  return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+                })}
+              </tr>
+            );
+          }
           return (
-            <tr className='table-row' onClick={onCaseClick} {...row.getRowProps()}>
+            <tr className='table-row' onClick={() =>onCaseClick(row.cells[0].value)} {...row.getRowProps()}>
               {row.cells.map(cell => {
                 return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
               })}

@@ -9,6 +9,7 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
 import MarkerManager from './MarkerManager';
 import ContextMarker from './ContextMarker'
+import red_marker from '../assets/red_marker.png';
 
 /**
  * props:
@@ -65,11 +66,12 @@ class MapView extends Component {
 
           <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleFinishPoly={this.handleFinishPoly}/>
 
-          {this.drawIssueMarkers(this.props.issues)}
+          {this.props.shouldCasesShow && this.drawCaseMarkers(this.props.caseListAndCurrent)}
+          {this.props.shouldCaseObjectsShow && <MarkerManager map={this.props.caseObjects} handleClick= {this.props.handleMarkerClick}/>}
 
 
           <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-            <MarkerManager map={this.props.map} filters={this.props.filters} handleClick= {this.props.handleMarkerClick}/>
+            <MarkerManager map={this.props.map} handleClick= {this.props.handleMarkerClick}/>
 
             {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
@@ -83,7 +85,7 @@ class MapView extends Component {
       showContextMenu: false
     })
     if(button){
-      this.props.handleContextClick(button);
+      this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
     }
   }
 
@@ -93,16 +95,56 @@ class MapView extends Component {
     }
   }
 
-  drawIssueMarkers(issueMarkers){
+  drawCaseMarkers(caseListAndCurrent){
+    let caseList = caseListAndCurrent[0];
+    let currentCase = caseListAndCurrent[1];
+
+    let markers = [];
+    caseList.map((item,index) => {
+      markers.push(
+        <Marker 
+          position={{lat: item.lat, lng: item.lng}} 
+          key={item.id} 
+          icon={this.getIcon(index, 'red')} 
+          onClick={() =>this.props.handleCaseMarkerClick(item.id)} >
+        </Marker>
+      )
+    })
+    if(currentCase){
+      markers.push(<Marker position={{lat: currentCase.lat, lng: currentCase.lng}} key={'currentMarker'} icon={this.getIcon('currentMarker','yellow')} ></Marker>)
+    }
+
     return (
-      issueMarkers.map((item,index) => {
-        return(
-          <Marker position={item.geometry.coordinates} key={index} icon={this.getIcon()} >
-            <Popup>{item.properties.name + ' ' + item.properties.date}</Popup>
-          </Marker>
-        )
-      })
+      markers
     );
+  }
+
+  drawCaseObjects(objects){
+    console.log(objects)
+  }
+
+  getIcon(id, color){
+    const markerHtmlStyles = `
+    background-color: ${color};
+    width: 2rem;
+    height: 2rem;
+    display: block;
+    left: -1.5rem;
+    top: -1.5rem;
+    position: relative;
+    border-radius: 3rem 3rem 0;
+    transform: rotate(45deg);
+    border: 1px solid #FFFFFF`
+
+    const icon = Leaflet.divIcon({
+      className: id,
+      iconAnchor: [0, 24],
+      labelAnchor: [-6, 0],
+      popupAnchor: [0, -36],
+      html: `<span style="${markerHtmlStyles}" />`
+    })
+
+    return icon;
   }
 
   drawRoads(objects){
@@ -150,11 +192,11 @@ class MapView extends Component {
       return acc;
     }, {});
 
-    let data = this.props.filters.map((type, index) => {
-      if(clusterTypes[type.id]) {
+    let data = Object.entries(this.props.map).map(([key, value], index) => {
+      if(clusterTypes[key]) {
         return ({
-          title: type.id,
-          value: clusterTypes[type.id],
+          title: key,
+          value: clusterTypes[key],
           color: this.colorScheme[index%this.colorScheme.length],
           })
       } else {
