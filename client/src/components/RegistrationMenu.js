@@ -83,7 +83,7 @@ class RegMenu extends Component {
     let obj = Datastore.get('vegobjekttyper?inkluder=alle');
     obj = obj.filter(v => (v.id === this.currentObjectID))[0]
     console.log(obj);
-    
+
     if(obj !== undefined && obj !== null) {
       let objProps = this.fetchObjectProperties(obj);
       this.setState({
@@ -227,7 +227,6 @@ class RegMenu extends Component {
                     src={CameraImg}
                     onClick={this.props.openCameraView}/>
             }
-            <br></br>
             <img    src={ConfirmImg}
                     className="CompleteRegButton"
                     onClick={(e) => this.handleDoneClick(e)}/>
