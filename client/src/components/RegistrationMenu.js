@@ -1,7 +1,10 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
 import ExitImg from './../assets/os-x-pngrepo-com.png';
-import CameraImg from './../assets/camera-pngrepo-com.png'
+import CameraImg from './../assets/camera-pngrepo-com.png';
+import TakeNewPhotoImg from './../assets/redo-pngrepo-com.png';
+import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
+import ConfirmImg from  './../assets/checked-pngrepo-com.png';
 
 class RegMenu extends Component {
   constructor(props) {
@@ -79,15 +82,15 @@ class RegMenu extends Component {
   setCurrentVals(objectName) {
     let obj = Datastore.get('vegobjekttyper?inkluder=alle');
     obj = obj.filter(v => (v.id === this.currentObjectID))[0]
-
-      if(obj !== undefined && obj !== null) {
-        let objProps = this.fetchObjectProperties(obj);
-        this.setState({
-          objectProperties : objProps,
-        });
-
-      } else {
-        //invalid object
+    console.log(obj);
+    
+    if(obj !== undefined && obj !== null) {
+      let objProps = this.fetchObjectProperties(obj);
+      this.setState({
+        objectProperties : objProps,
+      });
+    } else {
+      //invalid object
         this.setState({
           objectProperties : [],
         });
@@ -106,6 +109,7 @@ class RegMenu extends Component {
   }
 
   handleSelectCategoryChange(event) {
+
     let val = event.target.value;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
@@ -153,10 +157,10 @@ class RegMenu extends Component {
   processEnteredData() {
     let resultObject = {};
     Object.keys(this.state.objectProperties).forEach((item, i) => {
-      if (this.state.enteredData[i] !== undefined && this.enteredData !=="Velg en verdi") {
+      if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
         resultObject[item] = this.state.enteredData[i];
       } else {
-        resultObject[item] = "ingen verdi oppgitt";
+        resultObject[item] = "";
       }
     });
     return resultObject
@@ -185,8 +189,8 @@ class RegMenu extends Component {
                   <div key={i} className="RegFormUserInput">
                     <label key={i+'l'}>{k}</label>
 
-                    <select key={i+'s'} defaultValue="Velg en verdi" onClick={(e) => this.handleSelectValue(e, i)}>
-                      <option value="Velg en verdi">Velg en verdi</option>
+                    <select key={i+'s'} defaultValue="" onChange={(e) => this.handleSelectValue(e, i)}>
+                      <option value=""></option>
                       {this.state.objectProperties[k].map((v, i) =>
                           <option key={i} value={v}>{v}</option>
                       )}
@@ -195,7 +199,7 @@ class RegMenu extends Component {
                   </div>
                 )
                 else return (
-                  <div key={i} className="regFormUserInput">
+                  <div key={i} className="RegFormUserInput">
                     <label key={i+'l'}>{k}</label>
                     <input type="text" onChange={(e) => this.handleInputChange(e, i)}></input>
                     <br></br>
@@ -206,26 +210,27 @@ class RegMenu extends Component {
 
           }
           <br></br>
-          {this.state.begunCategorySelect && <div className="regFormUserSubmit">
-
+          {this.state.begunCategorySelect && <div className="RegFormUserSubmit">
             {this.props.photo !== null ?
-              <div className="TakenPhoto" >
-                <img src={this.props.photo}/>
+              <div className="PhotoDiv" >
+                <img  src={this.props.photo}
+                      className="TakenPhoto"/>
                 <br></br>
-                <input  type="button"
-                        value="Ta nytt bilde"
+                <img    src={TakeNewPhotoImg}
+                        className="TakeNewPhotoImg"
                         onClick={this.props.openCameraView}/>
-                <input  type="button"
-                        value="Fjern Bilde"
+                <img    src={RemovePhotoImg}
+                        className="RemovePhotoImg"
                         onClick={this.props.clearImageData}/>
               </div> :
-              <input  type="button"
-                      value="Ta bilde"
-                      onClick={this.props.openCameraView}/>
+              <img  className="TakePhotoImg"
+                    src={CameraImg}
+                    onClick={this.props.openCameraView}/>
             }
             <br></br>
-            <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
-
+            <img    src={ConfirmImg}
+                    className="CompleteRegButton"
+                    onClick={(e) => this.handleDoneClick(e)}/>
           </div>
           }
         </div>

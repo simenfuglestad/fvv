@@ -33,30 +33,49 @@ header{
   grid-template-columns: 1fr 1fr 1fr;
 }
 
-.PhotoPreview {
+.PhotoPreviewDiv {
   margin : 0 auto;
   z-index: 1001;
+  position: absolute;
 }
 
-.PhotoPreview img{
+.PhotoPreview {
   text-align: center;
   width: 100vw;
   height: 100vh;
 }
 
 .ConfirmPhotoButton {
-  width : 50%;
+  width : 50px;
+  height: 50px;
+  z-index: 1002;
   position: absolute;
-  bottom : 0vh;
-  bottom : 0vw;
+  bottom: 4vh;
+  left: 43vw;
 }
 
 .RedoPhotoButton {
-  width : 45%;
+  width : 50px;
+  height: 50px;
   position: absolute;
-  bottom : 0vh;
-  left : 50vw
+  bottom: 4vh;
+  left: 56vw;
 }
+.CancelPhotoButton {
+  width : 50px;
+  height: 50px;
+  position: absolute;
+  bottom: 3vh;
+  left: 90vw;
+}
+
+/* .CancelPhotoButtonCamera {
+  width : 50px;
+  height: 50px;
+  position: absolute;
+  bottom: 5vh;
+  left: 90vw;
+} */
 
 .CameraView {
   z-index: 1001;
@@ -64,21 +83,36 @@ header{
   position: absolute;
 }
 
-.CancelPhotoButton {
-  float : right;
-  position: absolute;
-  bottom : 0vw;
-  left: 95vw;
+.TakePhotoImg {
+  width : 100px;
+  height: 100px;
+  height: auto;
+  text-align: center;
+  /* float: right; */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
-.TakenPhoto {
+.PhotoDiv {
   width : 100%;
   /* height : 50%; */
 }
 
-.TakenPhoto img{
+.TakenPhoto{
   width : 100%;
   /* height : 100%;  */
+}
+
+.TakeNewPhotoImg {
+  width: 40px;
+  height: 40px;
+}
+
+.RemovePhotoImg {
+  width: 40px;
+  height: 40px;
+  float: right;
 }
 
 .RegMenu {
@@ -107,13 +141,8 @@ header{
   width:20%;
   display: inline-block;
   padding-top: 2vh;
-  padding-bottom: 1vh;
+  padding-bottom: 2vh;
 }
-
-.RegForm input[type="button"] {
-  display: inline-block;
-}
-
 
 .RegFormUserInput label {
   width : 10vw;
@@ -134,10 +163,18 @@ header{
   text-align: left;
 }
 
-
 .RegSelectMenu {
   width: 70%;
   height: 30px;
+}
+
+.CompleteRegButton {
+  max-width: 50%;
+  height: auto;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .rightMenu{
