@@ -116,11 +116,11 @@ header{
 }
 
 .RegMenu {
-  height: 95vh;
-  width: 30vw;
-  margin-left: 3vw;
+  background-color: white;
+  height: 100vh;
+  width: 400px;
+  overflow-y: scroll;
   z-index: 1000;
-  overflow: visible;
 }
 
 .ExitRegMenu {
@@ -132,8 +132,6 @@ header{
 .RegForm {
   width : 100%;
   height: 100%;
-  background: rgba(30,100,120,0.3);
-  overflow-y: scroll;
 }
 
 .RegForm label {
@@ -195,7 +193,7 @@ header{
 
 .caseRegistration{
   height: 100vh;
-  width: 500px;
+  width: 400px;
   padding: 10px;
   background-color: white;
   overflow: visible;
@@ -240,25 +238,24 @@ header{
   top: 10px;
   right:25px;
   z-index: 1000;
-  min-width: 20vh;
-  max-width: 20vh;
+  min-width: 250px;
+  max-width: 250px;
 }
 
 .searchField{
-  margin: 5px;
   z-index: 1000;
 }
 
 .searchField-input{
   padding: 5px;
   font-size: larger;
-  max-width: 20vh;
+  width: 240px;
 }
 
 .searchfield-choices{
   overflow-y: scroll;
+  width: 250px;
   max-height: 40vh;
-  width:21.31vh;
 }
 
 .searchfield-choice{
@@ -268,15 +265,14 @@ header{
 }
 
 .mapFilter{
-  margin: 5px;
+  margin-top: 5px;
   padding: 5px;
   border-style: solid;
   border-width: 1px;
   background-color: white;
   display: grid;
   z-index: 1000;
-  min-width: inherit;
-  max-width: inherit;
+  width: 240px;
 }
 
 .mapFilter-entry{
@@ -329,7 +325,7 @@ header{
 
 .caseList{
   height: calc(100vh - 20px);
-  width: 600px;
+  width: 400px;
   z-index: 1000;
   background-color: white;
   grid-template-rows: 1fr 14fr;
@@ -358,75 +354,4 @@ header{
 
 table{
   border: 1px solid black;
-}
-
-
-
-/* -----------TOOLTIP-----------*/
-
-/* Tooltip container */
-.tooltip {
-  position: relative;
-  display: block;
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-
-  /* Position the tooltip text */
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-
-  /* Fade in tooltip */
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Tooltip arrow */
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-/*-----------TOOLTIP END-------------*/
-
-/*-----------DropDown Styling---------*/
-
-.dd-wrapper {
-  background-color: #373d47;
-  margin: 10px;
-  margin-right: 20px;
-}
-
-.dd-list {
-  height: 200px;
-  list-style-type: none;
-  padding-inline-start: 20px;
-  overflow: scroll;
-}
-
-.dd-list::-webkit-scrollbar {
-  display: none;
 }
