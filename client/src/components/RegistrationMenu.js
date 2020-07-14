@@ -19,6 +19,7 @@ class RegMenu extends Component {
     };
 
     this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
+    this.typeData = Datastore.get('vegobjekttyper?inkluder=alle')
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -155,14 +156,33 @@ class RegMenu extends Component {
   }
 
   processEnteredData() {
-    let resultObject = {};
-    Object.keys(this.state.objectProperties).forEach((item, i) => {
+    let resultObject = {
+      stedfesting: {
+        punkt:[
+          {
+            posisjon: 'placeholder',
+            veglenkesekvensNvdbId: 'placeholder'
+          }
+        ]
+      },
+      gyldighetsperiode: {
+        startdato: 'placeholder'
+      },
+      typeId: this.currentObjectID,
+      tempId: 'placeholder',
+      egenskaper: []
+    }
+    let properties = [];
+    let temp = null;
+    let curObjectData = this.typeData.filter(v => (v.id === this.currentObjectID))[0];
+
+    console.log(curObjectData)
+    curObjectData.egenskapstyper.forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
-        resultObject[item] = this.state.enteredData[i];
-      } else {
-        resultObject[item] = "";
-      }
+        properties.push({typeId: item.id, verdi: this.state.enteredData[i]})
+      } 
     });
+    resultObject.egenskaper = properties;
     return resultObject
   }
 
