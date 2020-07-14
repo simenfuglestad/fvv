@@ -5,6 +5,7 @@ import CameraImg from './../assets/camera-pngrepo-com.png';
 import TakeNewPhotoImg from './../assets/redo-pngrepo-com.png';
 import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
 import ConfirmImg from  './../assets/checked-pngrepo-com.png';
+import Select from 'react-select';
 
 class RegMenu extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class RegMenu extends Component {
     };
 
     this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
+    this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -29,6 +31,14 @@ class RegMenu extends Component {
     this.abortBtn = React.createRef();
 
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
+  }
+
+  createSelectOptions(objects) {
+    let result = [];
+    objects.forEach((item, i) => {
+      result.push({label : item.name, value: i+1});
+    });
+    return result;
   }
 
   getObjectNames(objects) {
@@ -81,8 +91,7 @@ class RegMenu extends Component {
 
   setCurrentVals(objectName) {
     let obj = Datastore.get('vegobjekttyper?inkluder=alle');
-    obj = obj.filter(v => (v.id === this.currentObjectID))[0]
-    console.log(obj);
+    obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
     if(obj !== undefined && obj !== null) {
       let objProps = this.fetchObjectProperties(obj);
@@ -109,8 +118,7 @@ class RegMenu extends Component {
   }
 
   handleSelectCategoryChange(event) {
-
-    let val = event.target.value;
+    let val = event.label;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
     this.setCurrentVals(val);
@@ -141,7 +149,6 @@ class RegMenu extends Component {
   }
 
   handleDoneClick(event) {
-    console.log(this.state.enteredData)
     if(this.state.enteredData.length !== 0) {
       let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
       this.props.handleDoneReg(processedData);
@@ -169,17 +176,16 @@ class RegMenu extends Component {
   render() {
     return (
       <div className="RegMenu">
-        <select className="RegSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
-            <option value="Velg en kategori">Velg en kategori</option>
-            {this.categoryNamesIDs.map((object, i) =>
-              <option key={i} value={object.name}>{object.name}</option>
-            )}
-        </select>
-
         <img  src={ExitImg}
               className="ExitRegMenu"
-              onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></img>
-
+              onClick={() => {this.handleCloseClick(this.abortBtn)}}
+              ref={this.abortBtn}/>
+        <div className="RegSearchDiv">
+          <Select className="RegSelectMenu"
+                  onChange={this.handleSelectCategoryChange}
+                  placeholder="Trykk her for å starte"
+                  options={this.categoryOptions}/>
+        </div>
 
         <div className="RegForm">
           {this.state.begunCategorySelect &&

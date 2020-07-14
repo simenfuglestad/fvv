@@ -69,6 +69,8 @@ header{
   left: 90vw;
 }
 
+
+
 /* .CancelPhotoButtonCamera {
   width : 50px;
   height: 50px;
@@ -119,7 +121,8 @@ header{
 .ExitRegMenu {
   height : 30px;
   width : 30px;
-  float: right;
+  float:right;
+  z-index: 1001;
 }
 
 .RegForm {
@@ -137,7 +140,6 @@ header{
 
 .RegFormUserInput label {
   width : 10vw;
-
 }
 
 .RegFormUserInput select {
@@ -163,15 +165,15 @@ header{
 }
 
 .RegSelectMenu {
-  width: 70%;
-  height: 30px;
+  width: 50%;
+  height: 100%;
+  font-size: larger;
 }
 
 .CompleteRegButton {
   width:100px;
   max-width: 50%;
   height: auto;
-  /* text-align: center; */
   margin-left: auto;
   margin-right: auto;
   display: block;
