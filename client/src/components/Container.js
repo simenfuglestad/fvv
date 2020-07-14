@@ -93,6 +93,7 @@ class Container extends Component {
           showMarkerInfo={this.state.showMarkerInfo}
           handleFilters={this.props.handleFilters}
           filters={this.props.filters}
+          map={this.props.map}
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
         />
