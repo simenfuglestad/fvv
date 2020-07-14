@@ -69,6 +69,8 @@ header{
   left: 90vw;
 }
 
+
+
 /* .CancelPhotoButtonCamera {
   width : 50px;
   height: 50px;
@@ -81,17 +83,6 @@ header{
   z-index: 1001;
   width : 100%;
   position: absolute;
-}
-
-.TakePhotoImg {
-  width : 100px;
-  height: 100px;
-  height: auto;
-  text-align: center;
-  /* float: right; */
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
 }
 
 .PhotoDiv {
@@ -126,7 +117,8 @@ header{
 .ExitRegMenu {
   height : 30px;
   width : 30px;
-  float: right;
+  float:right;
+  z-index: 1001;
 }
 
 .RegForm {
@@ -148,10 +140,17 @@ header{
 
 .RegFormUserInput select {
   width : 10vw;
+  outline-style: double;
 }
 
 .RegFormUserInput input {
   width : 10vw;
+  border-width: 1px;
+  padding: 0px 0px 0px 0px;
+  /* border-style: solid; */
+  outline-style: double;
+  /* outline-color: black; */
+
 }
 
 .RegFormUserSubmit {
@@ -162,26 +161,29 @@ header{
 }
 
 .RegSelectMenu {
-  width: 70%;
-  height: 30px;
+  width: 50%;
+  height: 100%;
+  font-size: larger;
 }
 
 .CompleteRegButton {
+  width:100px;
   max-width: 50%;
   height: auto;
-  text-align: center;
   margin-left: auto;
   margin-right: auto;
   display: block;
 }
 
-.rightMenu{
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  z-index: 1000;
-  min-width: 20vh;
-  max-width: 20vh;
+.TakePhotoImg {
+  width : 70px;
+  height: 70px;
+  height: auto;
+  /* text-align: center; */
+  /* float: right; */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .ContextMenu{
@@ -238,18 +240,22 @@ header{
   top: 10px;
   right:25px;
   z-index: 1000;
+}
+
+.searchField {
   min-width: 250px;
   max-width: 250px;
 }
 
 .searchField{
   z-index: 1000;
+  width: 100%;
+  padding: 0px 0px 0px 0px;
 }
 
 .searchField-input{
-  padding: 5px;
   font-size: larger;
-  width: 240px;
+  width : 100%;
 }
 
 .searchfield-choices{
@@ -265,14 +271,21 @@ header{
 }
 
 .mapFilter{
+
+  /* margin: 5px; */
+  /* padding: 5px; */
   margin-top: 5px;
-  padding: 5px;
+  padding-top: 2.5px;
+  padding-bottom: 2.5px;
+
   border-style: solid;
   border-width: 1px;
   background-color: white;
   display: grid;
   z-index: 1000;
-  width: 240px;
+
+/*   min-width: inherit; */
+  width: 100%;
 }
 
 .mapFilter-entry{

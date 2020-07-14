@@ -1,64 +1,72 @@
 import React, { Component } from 'react';
-import onClickOutside from 'react-onclickoutside';
+import Select from 'react-select';
 
 class SearchField extends Component {
     constructor(props){
         super(props)
-        this.state= {
-            query: '',
-            filteredData: []
+        this.state = {
+            data : this.props.data,
+            selectOptions : []
         }
+        this.selectOptions = [];
+        this.handleChange = this.handleChange.bind(this);
+    }
 
-        this.handleClickOutside = this.handleClickOutside.bind(this);
+    componentDidUpdate(prevProps, prevState, snapshot) {
+      let data = this.state.data;
+      if(data !== undefined) {
+        let selectOptions = this.createSelectOptions(data);
+        this.selectOptions = selectOptions;
+      }
+    }
+
+    createSelectOptions(data) {
+      let result = [];
+      data.forEach((item, i) => {
+        result.push({label : item.navn, value: i+1});
+      });
+
+      result.sort(function(a, b) {
+        let n = a.label.toLowerCase();
+        let m = b.label.toLowerCase();
+        if (n < m) return -1;
+        else if(n === m) return 0;
+        else return 1;
+      });
+      return result;
+    }
+
+    static getDerivedStateFromProps(props, currentState) {
+      if(props.data !== currentState.data) {
+        return {
+          query : currentState.query,
+          data : props.data
+        };
+      }
+      return null;
+    }
+
+    handleChange(selectedItem) {
+      let data = this.state.data;
+      data.forEach((item, i) => {
+        if(item.navn === selectedItem.label) {
+          this.props.handleFilterSelect(item);
+        }
+      });
     }
 
     render() {
-        return (
-          <div className="searchField">
-            <form>
-              <input
-                className='searchField-input'
-                placeholder="Search for..."
-                value={this.state.query}
-                onChange={this.handleInputChange}
-              />
-            </form>
-            <div className='searchfield-choices'>{this.state.filteredData.map(i => <p key={i.id} className="searchfield-choice" onClick={() => {this.handleSelect(i)}}>{i.navn}</p>)}</div>
-          </div>
-        );
-      }
-
-    handleInputChange = event => {
-        const query = event.target.value;
-
-        this.setState(prevState => {
-          let filteredData = this.props.data.filter(element => {
-            return element.navn.toLowerCase().includes(query.toLowerCase());
-          });
-
-          filteredData.sort(function(a, b) {
-            let n = a.navn.toLowerCase();
-            let m = b.navn.toLowerCase();
-            if (n < m) return -1;
-            else if(n === m) return 0;
-            else return 1;
-         });
-
-          return {
-            query,
-            filteredData
-          };
-        });
-    };
-
-    handleClickOutside(event){
-      this.setState({query: '', filteredData: []});
-    }
-
-    handleSelect(i){
-      this.setState({query: '', filteredData: []});
-      this.props.handleFilterSelect(i);
+      return (
+        <div className="searchField">
+          <Select
+              className="searchField-input"
+              placeholder="Søk etter..."
+              onChange={this.handleChange}
+              options={this.selectOptions}
+            />
+        </div>
+      );
     }
 }
 
-export default onClickOutside(SearchField);
+export default SearchField;
