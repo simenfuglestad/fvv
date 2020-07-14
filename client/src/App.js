@@ -96,7 +96,7 @@ class App extends Component {
   /**
    * Returns a collection of lat,lng points that form a circle around center
    */
-  getCircle(center, radius=5, verts=10){
+  getCircle(center, radius=4, verts=10){
     let headings = [];
     let low = 0;
     let step = (2*Math.PI - low) / verts;

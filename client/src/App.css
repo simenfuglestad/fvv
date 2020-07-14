@@ -107,15 +107,11 @@ header{
 }
 
 .RegMenu {
-  height: 100vh;
-  width: 30vw;
-  margin-left: 0vw;
-  z-index: 1000;
-  /* overflow: visible; */
-  overflow-y: scroll;
   background-color: white;
-  /* background-image: linear-gradient(rgb(204, 242, 255), rgb(0, 191, 255)); */
-  /* background: rgb(0,191,255); */
+  height: 100vh;
+  width: 400px;
+  overflow-y: scroll;
+  z-index: 1000;
 }
 
 .ExitRegMenu {
@@ -199,7 +195,7 @@ header{
 
 .caseRegistration{
   height: 100vh;
-  width: 500px;
+  width: 400px;
   padding: 10px;
   background-color: white;
   overflow: visible;
@@ -244,11 +240,14 @@ header{
   top: 10px;
   right:25px;
   z-index: 1000;
-  min-width: 25vh;
-  max-width: 30vh;
 }
 
 .searchField {
+  min-width: 250px;
+  max-width: 250px;
+}
+
+.searchField{
   z-index: 1000;
   width: 100%;
   padding: 0px 0px 0px 0px;
@@ -261,8 +260,8 @@ header{
 
 .searchfield-choices{
   overflow-y: scroll;
+  width: 250px;
   max-height: 40vh;
-  width:21.31vh;
 }
 
 .searchfield-choice{
@@ -272,19 +271,21 @@ header{
 }
 
 .mapFilter{
+
   /* margin: 5px; */
   /* padding: 5px; */
   margin-top: 5px;
   padding-top: 2.5px;
   padding-bottom: 2.5px;
+
   border-style: solid;
   border-width: 1px;
   background-color: white;
   display: grid;
   z-index: 1000;
-  min-width: inherit;
+
+/*   min-width: inherit; */
   width: 100%;
-  /* max-width: inherit; */
 }
 
 .mapFilter-entry{
@@ -322,9 +323,9 @@ header{
   border-style: solid;
   border-width: 1px;
   background-color: white;
-  margin: 5px;
+  margin-top: 5px;
   z-index: 1000;
-  max-width: 20vw;
+  width: 250px;
 }
 
 .clusterPie{
@@ -337,7 +338,7 @@ header{
 
 .caseList{
   height: calc(100vh - 20px);
-  width: 600px;
+  width: 400px;
   z-index: 1000;
   background-color: white;
   grid-template-rows: 1fr 14fr;
@@ -366,75 +367,4 @@ header{
 
 table{
   border: 1px solid black;
-}
-
-
-
-/* -----------TOOLTIP-----------*/
-
-/* Tooltip container */
-.tooltip {
-  position: relative;
-  display: block;
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-
-  /* Position the tooltip text */
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-
-  /* Fade in tooltip */
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Tooltip arrow */
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-/*-----------TOOLTIP END-------------*/
-
-/*-----------DropDown Styling---------*/
-
-.dd-wrapper {
-  background-color: #373d47;
-  margin: 10px;
-  margin-right: 20px;
-}
-
-.dd-list {
-  height: 200px;
-  list-style-type: none;
-  padding-inline-start: 20px;
-  overflow: scroll;
-}
-
-.dd-list::-webkit-scrollbar {
-  display: none;
 }
