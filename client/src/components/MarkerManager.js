@@ -31,7 +31,6 @@ class MarkerManager extends Component {
                     markers[key] = nextState.markers[key]
                 }
             })
-            console.log(markers)
             this.setState({markers: markers})
             return false;
         }
@@ -51,7 +50,6 @@ class MarkerManager extends Component {
           return []
         }
         let parse = require('wellknown')
-        console.log(objects)
     
         return (objects.map((item, index) => {
           try{
@@ -94,8 +92,6 @@ class MarkerManager extends Component {
         let idIndex = Object.entries(map).findIndex(([key,value]) => {
           return(Number(key) === id)
         })
-
-        console.log(idIndex)
         
         if(id){
           color = this.colorScheme[idIndex%this.colorScheme.length]
