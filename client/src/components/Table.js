@@ -36,7 +36,7 @@ export default function Table({ columns, data, onCaseClick, selected }) {
           prepareRow(row);
           if(row.cells[0].value === selected){
             return (
-              <tr className='table-row' onClick={() =>onCaseClick(row.cells[0].value)} {...row.getRowProps({ style: { backgroundColor: 'blue' } })}>
+              <tr className='table-row' onClick={() =>onCaseClick(row.cells[0].value)} {...row.getRowProps({ style: { backgroundColor: 'lightgray' } })}>
                 {row.cells.map(cell => {
                   return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                 })}

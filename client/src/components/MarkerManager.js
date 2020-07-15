@@ -26,7 +26,7 @@ class MarkerManager extends Component {
           
             Object.entries(nextProps.map).forEach(([key, value]) => {
                 if(nextProps[key] !== value){
-                    markers[key] = this.drawMapObjects(nextProps.map[key], nextProps.map);
+                    markers[key] = this.drawMapObjects(nextProps.map[key], nextProps.filters);
                 } else {
                     markers[key] = nextState.markers[key]
                 }
@@ -45,7 +45,7 @@ class MarkerManager extends Component {
         return(markers);
     }
 
-    drawMapObjects(objects, map){
+    drawMapObjects(objects, filters){
         if(!objects){
           return []
         }
@@ -58,7 +58,7 @@ class MarkerManager extends Component {
             if(geoJSON.type === 'Point'){
               const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
               return (
-                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id, map)} onClick={() => {this.props.handleClick(item)}} >
+                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id, filters)} onClick={() => {this.props.handleClick(item)}} >
                 </Marker>
               );
             } else if(geoJSON.type === 'LineString') {
@@ -87,10 +87,16 @@ class MarkerManager extends Component {
          }));
       }
 
-      getIcon(id, map){
+      getIcon(id, filters){
         let color;
-        let idIndex = Object.entries(map).findIndex(([key,value]) => {
-          return(Number(key) === id)
+        console.log(filters)
+
+        let idIndex = filters.findIndex((filter) => {
+          if(filter.id){
+            return(Number(filter.id) === id)
+          } else {
+            return(Number(filter) === id)
+          }
         })
         
         if(id){

@@ -23,15 +23,6 @@ class MapFilter extends Component {
 
     showFilters(){
         let filters = [...this.props.filters]
-        filters.sort((a,b) => {
-            if(a.id < b.id){
-                return -1;
-            }
-            if(a.id > b.id){
-                return 1;
-            }
-            return 0;
-        })
 
         return(
 

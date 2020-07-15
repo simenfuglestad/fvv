@@ -67,11 +67,16 @@ class MapView extends Component {
           <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleFinishPoly={this.handleFinishPoly}/>
 
           {this.props.shouldCasesShow && this.drawCaseMarkers(this.props.caseListAndCurrent)}
-          {this.props.shouldCaseObjectsShow && <MarkerManager map={this.props.caseObjects} handleClick= {this.props.handleMarkerClick}/>}
+          {
+            this.props.shouldCaseObjectsShow && 
+            <MarkerManager 
+              map={this.props.caseObjects} 
+              handleClick= {this.props.handleMarkerClick} 
+              filters={Object.keys(this.props.caseObjects)}/>}
 
 
           <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
-            <MarkerManager map={this.props.map} handleClick= {this.props.handleMarkerClick}/>
+            <MarkerManager map={this.props.map} handleClick={this.props.handleMarkerClick} filters={this.props.filters}/>
 
             {this.drawRoads(this.props.roads)}
           </MarkerClusterGroup>
@@ -192,11 +197,11 @@ class MapView extends Component {
       return acc;
     }, {});
 
-    let data = Object.entries(this.props.map).map(([key, value], index) => {
-      if(clusterTypes[key]) {
+    let data = this.props.filters.map((filter, index) => {
+      if(clusterTypes[filter.id]) {
         return ({
-          title: key,
-          value: clusterTypes[key],
+          title: filter.id,
+          value: clusterTypes[filter.id],
           color: this.colorScheme[index%this.colorScheme.length],
           })
       } else {

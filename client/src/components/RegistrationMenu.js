@@ -196,16 +196,18 @@ class RegMenu extends Component {
   render() {
     return (
       <div className="RegMenu">
-        <img  src={ExitImg}
-              className="ExitRegMenu"
-              onClick={() => {this.handleCloseClick(this.abortBtn)}}
-              ref={this.abortBtn}/>
+        
         <div className="RegSearchDiv">
           <Select className="RegSelectMenu"
                   onChange={this.handleSelectCategoryChange}
                   placeholder="Trykk her for å starte"
                   options={this.categoryOptions}/>
         </div>
+
+        <img  src={ExitImg}
+              className="ExitRegMenu"
+              onClick={() => {this.handleCloseClick(this.abortBtn)}}
+              ref={this.abortBtn}/>
 
         <div className="RegForm">
           {this.state.begunCategorySelect &&
@@ -236,7 +238,10 @@ class RegMenu extends Component {
 
           }
           <br></br>
-          {this.state.begunCategorySelect && <div className="RegFormUserSubmit">
+        </div>
+        
+        {this.state.begunCategorySelect && 
+          <div className="RegFormUserSubmit">
             {this.props.photo !== null ?
               <div className="PhotoDiv" >
                 <img  src={this.props.photo}
@@ -257,8 +262,8 @@ class RegMenu extends Component {
                     className="CompleteRegButton"
                     onClick={(e) => this.handleDoneClick(e)}/>
           </div>
-          }
-        </div>
+        }
+
       </div>
     )
   }
