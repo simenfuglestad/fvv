@@ -7,12 +7,15 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 5000;
 
+//set limit for accepted filesize
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
+
+//intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  // Do something before request is sent
   console.log(config)
   return config;
 }, function (error) {
-  // Do something with request error
   return Promise.reject(error);
 });
 
@@ -24,6 +27,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //authenticate docker
+/*
 axios.post(
   'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', 
   {'username': 'ap', 'password': 'ap'},
@@ -38,6 +42,7 @@ console.log(response.data);
   console.log('error')
 console.log(error);
 });
+*/
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
@@ -83,10 +88,26 @@ app.post('/api/getroadobjects', (req, res) => {
 app.post('/registerCase', (req, res) => {
   const fs = require("fs"); 
   const cases = require("./data.json"); 
-    
-  // STEP 2: Adding new data to users object 
-  cases.push(req.body); 
-    
+
+  console.log(req.body)
+  if(req.body.id !== undefined){
+    let index = cases.findIndex(curCase =>(curCase.id === req.body.id));
+    cases[index] = req.body;
+  } else {
+    let ids = [];
+    let id = cases.length;
+    cases.forEach(element => {
+      ids.push(element.id)
+    });
+    while (ids.includes(id)) {
+      id += 1
+    }
+  
+    req.body['id'] = id;
+    cases.push(req.body); 
+  }
+
+
   // STEP 3: Writing to a file 
   fs.writeFile("data.json", JSON.stringify(cases), err => { 
      

@@ -22,9 +22,12 @@ class MapFilter extends Component {
     }
 
     showFilters(){
+        let filters = [...this.props.filters]
+
         return(
+
             this.props.filters.map((item) => {
-                const idIndex = this.props.filters.findIndex((filter) => (
+                const idIndex = filters.findIndex((filter) => (
                     filter.id === item.id
                 ));
                 const backgroundColor = this.colorScheme[idIndex%this.colorScheme.length];

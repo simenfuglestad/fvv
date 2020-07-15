@@ -16,12 +16,17 @@ class MarkerManager extends Component {
             return true;
         }
 
+        if(nextProps.map === null){
+          this.setState({markers: {}})
+          return false;
+        }
+
         if(this.props.map !== nextProps.map){
             let markers = {}
           
             Object.entries(nextProps.map).forEach(([key, value]) => {
                 if(nextProps[key] !== value){
-                    markers[key] = this.drawMapObjects(nextProps.map[key]);
+                    markers[key] = this.drawMapObjects(nextProps.map[key], nextProps.filters);
                 } else {
                     markers[key] = nextState.markers[key]
                 }
@@ -40,7 +45,7 @@ class MarkerManager extends Component {
         return(markers);
     }
 
-    drawMapObjects(objects){
+    drawMapObjects(objects, filters){
         if(!objects){
           return []
         }
@@ -53,7 +58,7 @@ class MarkerManager extends Component {
             if(geoJSON.type === 'Point'){
               const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
               return (
-                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id)} onClick={() => {this.props.handleClick(item)}} >
+                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id, filters)} onClick={() => {this.props.handleClick(item)}} >
                 </Marker>
               );
             } else if(geoJSON.type === 'LineString') {
@@ -82,11 +87,17 @@ class MarkerManager extends Component {
          }));
       }
 
-      getIcon(id){
+      getIcon(id, filters){
         let color;
-        let idIndex = this.props.filters.findIndex((filter) => (
-          filter.id === id
-        ))
+        console.log(filters)
+
+        let idIndex = filters.findIndex((filter) => {
+          if(filter.id){
+            return(Number(filter.id) === id)
+          } else {
+            return(Number(filter) === id)
+          }
+        })
         
         if(id){
           color = this.colorScheme[idIndex%this.colorScheme.length]

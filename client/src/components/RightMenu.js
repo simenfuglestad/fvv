@@ -17,6 +17,7 @@ class RightMenu extends Component {
                 <SearchField handleFilterSelect={this.handleFilterSelect} data={this.props.roadObjectTypes}/>
                 <MapFilter 
                     filters={this.props.filters} 
+                    map={this.props.map}
                     handleRemoveFilter={this.handleRemoveFilter}
                     togglePolyFilter = {this.props.togglePolyFilter}
                 />

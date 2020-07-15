@@ -1,5 +1,11 @@
 import React, {Component } from 'react';
 import Datastore from './../Datastore';
+import ExitImg from './../assets/os-x-pngrepo-com.png';
+import CameraImg from './../assets/camera-pngrepo-com.png';
+import TakeNewPhotoImg from './../assets/redo-pngrepo-com.png';
+import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
+import ConfirmImg from  './../assets/checked-pngrepo-com.png';
+import Select from 'react-select';
 
 class RegMenu extends Component {
   constructor(props) {
@@ -14,6 +20,8 @@ class RegMenu extends Component {
     };
 
     this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
+    this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
+    this.typeData = Datastore.get('vegobjekttyper?inkluder=alle')
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -26,10 +34,15 @@ class RegMenu extends Component {
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
-
+  createSelectOptions(objects) {
+    let result = [];
+    objects.forEach((item, i) => {
+      result.push({label : item.name, value: i+1});
+    });
+    return result;
+  }
 
   getObjectNames(objects) {
-    console.log(objects)
     let result = [];
     objects.forEach((item, i) => {
       let o = {};
@@ -79,16 +92,15 @@ class RegMenu extends Component {
 
   setCurrentVals(objectName) {
     let obj = Datastore.get('vegobjekttyper?inkluder=alle');
-    obj = obj.filter(v => (v.id === this.currentObjectID))[0]
+    obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
-    let objProps = this.fetchObjectProperties(obj);
-      if(obj !== undefined && obj !== null) {
-        this.setState({
-          objectProperties : objProps,
-        });
-
-      } else {
-        //invalid object
+    if(obj !== undefined && obj !== null) {
+      let objProps = this.fetchObjectProperties(obj);
+      this.setState({
+        objectProperties : objProps,
+      });
+    } else {
+      //invalid object
         this.setState({
           objectProperties : [],
         });
@@ -107,7 +119,7 @@ class RegMenu extends Component {
   }
 
   handleSelectCategoryChange(event) {
-    let val = event.target.value;
+    let val = event.label;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
     this.setCurrentVals(val);
@@ -151,37 +163,62 @@ class RegMenu extends Component {
   }
 
   processEnteredData() {
-    let resultObject = {};
-    Object.keys(this.state.objectProperties).forEach((item, i) => {
-      if (this.state.enteredData[i] !== undefined && this.enteredData !=="Velg en verdi") {
-        resultObject[item] = this.state.enteredData[i];
-      } else {
-        resultObject[item] = "ingen verdi oppgitt";
-      }
+    let resultObject = {
+      stedfesting: {
+        punkt:[
+          {
+            posisjon: 'placeholder',
+            veglenkesekvensNvdbId: 'placeholder'
+          }
+        ]
+      },
+      gyldighetsperiode: {
+        startdato: 'placeholder'
+      },
+      typeId: this.currentObjectID,
+      tempId: 'placeholder',
+      egenskaper: []
+    }
+    let properties = [];
+    let temp = null;
+    let curObjectData = this.typeData.filter(v => (v.id === this.currentObjectID))[0];
+
+    console.log(curObjectData)
+    curObjectData.egenskapstyper.forEach((item, i) => {
+      if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
+        properties.push({typeId: item.id, verdi: this.state.enteredData[i]})
+      } 
     });
+    resultObject.egenskaper = properties;
     return resultObject
   }
 
   render() {
     return (
-      <div className="regMenu">
-        <select className="regSelectMenu" value={this.state.currentObjectname} onChange={this.handleSelectCategoryChange}>
-            <option value="Velg en kategori">Velg en kategori</option>
-            {this.categoryNamesIDs.map((object, i) =>
-              <option key={i} value={object.name}>{object.name}</option>
-            )}
-        </select>
+      <div className="RegMenu">
+        
+        <div className="RegSearchDiv">
+          <Select className="RegSelectMenu"
+                  onChange={this.handleSelectCategoryChange}
+                  placeholder="Trykk her for å starte"
+                  options={this.categoryOptions}/>
+        </div>
 
-        <div className="regForm">
+        <img  src={ExitImg}
+              className="ExitRegMenu"
+              onClick={() => {this.handleCloseClick(this.abortBtn)}}
+              ref={this.abortBtn}/>
+
+        <div className="RegForm">
           {this.state.begunCategorySelect &&
             <div>
-              {Object.keys(this.state.objectProperties).map((k, i) =>
-                {if(this.state.objectProperties[k].length !== 0) return (
-                  <div key={i} className="regFormUserInput">
+              {Object.keys(this.state.objectProperties).map((k, i) => {
+                if(this.state.objectProperties[k].length !== 0) return (
+                  <div key={i} className="RegFormUserInput">
                     <label key={i+'l'}>{k}</label>
 
-                    <select key={i+'s'} defaultValue="Velg en verdi" onClick={(e) => this.handleSelectValue(e, i)}>
-                      <option value="Velg en verdi">Velg en verdi</option>
+                    <select key={i+'s'} defaultValue="" onChange={(e) => this.handleSelectValue(e, i)}>
+                      <option value=""></option>
                       {this.state.objectProperties[k].map((v, i) =>
                           <option key={i} value={v}>{v}</option>
                       )}
@@ -190,7 +227,7 @@ class RegMenu extends Component {
                   </div>
                 )
                 else return (
-                  <div key={i} className="regFormUserInput">
+                  <div key={i} className="RegFormUserInput">
                     <label key={i+'l'}>{k}</label>
                     <input type="text" onChange={(e) => this.handleInputChange(e, i)}></input>
                     <br></br>
@@ -201,29 +238,32 @@ class RegMenu extends Component {
 
           }
           <br></br>
-          {this.state.begunCategorySelect && <div className="regFormUserSubmit">
-
+        </div>
+        
+        {this.state.begunCategorySelect && 
+          <div className="RegFormUserSubmit">
             {this.props.photo !== null ?
-              <div className="TakenPhoto" >
-                <img src={this.props.photo}/>
+              <div className="PhotoDiv" >
+                <img  src={this.props.photo}
+                      className="TakenPhoto"/>
                 <br></br>
-                <input  type="button"
-                        value="Ta nytt bilde"
+                <img    src={TakeNewPhotoImg}
+                        className="TakeNewPhotoImg"
                         onClick={this.props.openCameraView}/>
-                <input  type="button"
-                        value="Fjern Bilde"
+                <img    src={RemovePhotoImg}
+                        className="RemovePhotoImg"
                         onClick={this.props.clearImageData}/>
               </div> :
-              <input  type="button"
-                      value="Ta bilde"
-                      onClick={this.props.openCameraView}/>
+              <img  className="TakePhotoImg"
+                    src={CameraImg}
+                    onClick={this.props.openCameraView}/>
             }
-            <br></br>
-            <input type="button" value="Fullfør" onClick={(e) => this.handleDoneClick(e)}></input>
-            <input type="button" value="Avbryt" onClick={() => {this.handleCloseClick(this.abortBtn)}} ref={this.abortBtn}></input>
+            <img    src={ConfirmImg}
+                    className="CompleteRegButton"
+                    onClick={(e) => this.handleDoneClick(e)}/>
           </div>
-          }
-        </div>
+        }
+
       </div>
     )
   }

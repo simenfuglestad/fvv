@@ -16,9 +16,9 @@ class Container extends Component {
         isCaseListOpen: false,
         drawing : false,
         isCameraOpen : false,
-        drawing : false,
         currentRegObject : {},
-        objectImage : null
+        objectImage : null,
+        caseData : null,
     }
 
     this.isCameraOpen = false;
@@ -30,7 +30,17 @@ class Container extends Component {
     this.handleDoneReg = this.handleDoneReg.bind(this);
     this.handleOpenCamera = this.handleOpenCamera.bind(this);
     this.handleCloseCamera = this.handleCloseCamera.bind(this);
+    this.handleCaseMarkerClick = this.handleCaseMarkerClick.bind(this);
     this.clearImageData = this.clearImageData.bind(this);
+    this.toggleObjectReg = this.toggleObjectReg.bind(this);
+    this.toggleCaseList = this.toggleCaseList.bind(this);
+    this.toggleCaseReg = this.toggleCaseReg.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    if(prevState.caseData !== this.state.caseData && this.state.caseData !== null){
+      this.props.getCaseObjects(this.state.caseData.objektListe)
+    }
   }
 
   render() {
@@ -38,6 +48,8 @@ class Container extends Component {
       <div
         className="Container"
       >
+        { !this.state.isCaseListOpen && <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+
         {this.state.isCameraOpen &&
           <CameraView
             closeCameraView={this.handleCloseCamera}>
@@ -49,27 +61,39 @@ class Container extends Component {
 
           <RegistrationMenu
             handleDoneReg={this.handleDoneReg}
-            handleClose={this.handleContextClick}
+            handleClose={this.toggleObjectReg}
             openCameraView={this.handleOpenCamera}
             photo={this.state.objectImage}
             clearImageData={this.clearImageData}>
-            >
 
           </RegistrationMenu>
         }
 
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration map={this.props.map} handleClose={this.handleContextClick} registerCase={this.props.registerCase}/>
+          <CaseRegistration 
+            map={this.props.map} 
+            toggleCaseReg={this.toggleCaseReg} 
+            registerCase={this.props.registerCase} 
+            data={this.state.caseData}
+          />
         }
 
-        {this.state.isCaseListOpen && <CaseList caseList={this.props.caseList}/>}
+        { this.state.isCaseListOpen && 
+          <CaseList 
+            caseList={this.props.caseList} 
+            toggleCaseList={this.toggleCaseList}
+            selected={this.state.caseData}
+            selectCase={this.handleCaseMarkerClick}
+          />
+        }
 
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
           showMarkerInfo={this.state.showMarkerInfo}
           handleFilters={this.props.handleFilters}
           filters={this.props.filters}
+          map={this.props.map}
           togglePolyFilter={this.togglePolyFilter}
           handleClickOutside={this.closeDataDisplay}
         />
@@ -81,11 +105,15 @@ class Container extends Component {
           map= {this.props.map}
           filters= {this.props.filters}
           roads={this.props.roads}
-          issues={this.props.issues}
+          caseListAndCurrent={[this.props.caseList, this.state.caseData]}
+          shouldCasesShow={this.state.isCaseListOpen || this.state.isCaseMenuOpen ? true : false}
+          shouldCaseObjectsShow={true}
           drawing={this.state.drawing}
           setPolyFilter={this.setPolyFilter}
+          caseObjects={this.props.caseObjects}
           handleMarkerClick={this.handleMarkerClick}
           handleContextClick={this.handleContextClick}
+          handleCaseMarkerClick={this.handleCaseMarkerClick}
         />
       </div>
     );
@@ -119,14 +147,7 @@ class Container extends Component {
     }
   }
 
-  handleContextClick(event) {
-    if(event.current.value === 'Avbryt'){
-      this.setState(prevState => ({
-        isRegMenuOpen: false,
-        isCaseMenuOpen: false
-      }))
-      return;
-    }
+  handleContextClick(event, latlng) {
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
@@ -136,9 +157,16 @@ class Container extends Component {
     if(event.current.innerHTML === 'Ny Sak'){
       this.setState({
         isCaseMenuOpen :  true,
+        caseData: {lat : latlng[0], lng: latlng[1]}
       })
       return;
     }
+  }
+
+  handleCaseMarkerClick(id){
+    id= Number(id);
+    let clickedCase = this.props.caseList.filter((curCase)=>(curCase.id === id))[0];
+    this.setState({caseData: clickedCase})
   }
 
   handleFinishReg(event) {
@@ -166,7 +194,7 @@ class Container extends Component {
   }
 
   closeDataDisplay(){
-      this.setState({showMarkerInfo: undefined})
+      this.setState({showMarkerInfo: null})
   }
 
   togglePolyFilter(hasPolygon){
@@ -174,6 +202,40 @@ class Container extends Component {
     this.setState({
       drawing: !hasPolygon,
     })
+  }
+
+  toggleObjectReg(){
+    this.setState(prevState => ({isRegMenuOpen: !prevState.isRegMenuOpen}))
+  }
+
+  toggleCaseReg(){
+    if(this.state.isCaseMenuOpen){
+      this.setState({isCaseMenuOpen: false, caseData: null})
+      this.props.getCaseObjects()
+    } else {
+      this.setState({isCaseMenuOpen: true})
+    }
+  }
+    
+
+  toggleCaseList(id = null){
+    if(!this.state.isCaseListOpen){
+      //if opening menu, refresh caselist data
+      this.props.getCaseList()
+    } else {
+      if(id !== null){
+        //if an id was sent open caseReg and fill in data for that id
+        let thisCase = this.props.caseList.filter((e) => (e.id === Number(id)))[0];
+        this.setState({isCaseListOpen: false, caseData: thisCase, isCaseMenuOpen: true})
+        return;
+      } else {
+        this.setState({isCaseListOpen: false, caseData: null})
+        this.props.getCaseObjects();
+        return;
+      }
+    }
+    
+    this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
 }
 

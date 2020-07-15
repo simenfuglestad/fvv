@@ -14,6 +14,7 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
+      caseObjects: {},
     }
 
     this.server = new ServerConnection()
@@ -23,13 +24,15 @@ class App extends Component {
     this.getUserLocation = this.getUserLocation.bind(this);
     this.setPoly = this.setPoly.bind(this);
     this.registerCase = this.registerCase.bind(this);
+    this.getCaseList = this.getCaseList.bind(this);
+    this.getCaseObjects = this.getCaseObjects.bind(this);
   }
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
     this.getRoadObjectTypeData();
     //this.testendring();
-    this.getCaseList();
+    //this.getCaseList();
   }
 
   componentDidUpdate(prevProps,prevState){
@@ -39,18 +42,18 @@ class App extends Component {
         this.removeData();
       }
 
-      // if a filter has been added or the polygon state has changed
+      // if a filter has been added
       if(this.state.filters.length > prevState.filters.length){
         this.state.filters.forEach(filter => {
           let current = this.state.map[filter.id];
           let prev = prevState.map[filter.id];
             if(current !== prev || (current === undefined && prev === undefined )){
-              console.log('fetching data')
               this.fetchData(filter);
             }
         })
       }
 
+      // if the polygon state has changed
       if(this.state.poly !== prevState.poly){
         this.state.filters.forEach(filter => {
         this.fetchData(filter);
@@ -74,6 +77,9 @@ class App extends Component {
           setPoly={this.setPoly}
           registerCase={this.registerCase}
           caseList={this.state.caseList}
+          getCaseList={this.getCaseList}
+          getCaseObjects={this.getCaseObjects}
+          caseObjects={this.state.caseObjects}
         />
     );
   }
@@ -91,7 +97,7 @@ class App extends Component {
   /**
    * Returns a collection of lat,lng points that form a circle around center
    */
-  getCircle(center, radius=5, verts=10){
+  getCircle(center, radius=4, verts=10){
     let headings = [];
     let low = 0;
     let step = (2*Math.PI - low) / verts;
@@ -150,6 +156,7 @@ class App extends Component {
   }
 
   fetchData(filter){
+    console.log('fetching data')
     let id = filter.id;
     
     this.server.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
@@ -175,9 +182,37 @@ class App extends Component {
     this.server.registerCase(newCase)
   }
 
+  async getCaseObjects(objects){
+    if(objects === undefined){
+      this.setState({caseObjects: {}});
+      return;
+    }
+    
+    objects = objects.split(',');
+    let data = {};
+    let promises = [];
+    objects.forEach(element => {
+      if(element !== ''){
+        element = element.split(':');
+        promises.push(this.server.apiCallSingle('vegobjekter/'+ element[1] + '/' + element[0] + '/?inkluder=alle&srid=4326' ));
+      }
+    });
+
+    await Promise.all(promises).then((values) => {
+      values.forEach(value => {
+        if(data[value.metadata.type.id] === undefined){
+          data[value.metadata.type.id] = [value];
+        } else {
+          data[value.metadata.type.id].push(value);
+        }
+        })
+    })
+
+    this.setState({caseObjects: data})
+  }
+
   async getCaseList(){
     let caseList = await this.server.getCaseList()
-
     this.setState({caseList: caseList})
   }
 
