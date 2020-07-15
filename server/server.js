@@ -53,21 +53,36 @@ app.post('/testRegNyttObjekt', (req, res) => {
   console.log("testnytt objekt");
   console.log(req.body);
   console.log(tokenName);
-  console.log(token);
-  let obj = req.body;
-  axios.post('http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
-    { obj },
-    { headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient' }
-    })
-    .then(function(res) {
-      console.log("______got response______:");
-      console.log(res);
-    })
-    .catch(function(err) {
-      console.log("______got error______:");
-      console.log(err);
-    })
-  });
+
+  registerObject()
+});
+
+async function registerObject() {
+  let config = {
+    method : 'post',
+    url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett'
+  }
+
+  let res = await axios(config);
+  console.log(res.status);
+  console.log(res.headers);
+}
+
+  // console.log(token);
+  // let obj = req.body;
+  // axios.post('http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+  //   { obj },
+  //   { headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient' }
+  //   })
+  //   .then(function(res) {
+  //     console.log("______got response______:");
+  //     console.log(res.data);
+  //   })
+  //   .catch(function(err) {
+  //     console.log("______got error______:");
+  //     console.log(err);
+  //   })
+
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
