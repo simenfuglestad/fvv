@@ -71,17 +71,17 @@ class Container extends Component {
 
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration 
-            map={this.props.map} 
-            toggleCaseReg={this.toggleCaseReg} 
-            registerCase={this.props.registerCase} 
+          <CaseRegistration
+            map={this.props.map}
+            toggleCaseReg={this.toggleCaseReg}
+            registerCase={this.props.registerCase}
             data={this.state.caseData}
           />
         }
 
-        { this.state.isCaseListOpen && 
-          <CaseList 
-            caseList={this.props.caseList} 
+        { this.state.isCaseListOpen &&
+          <CaseList
+            caseList={this.props.caseList}
             toggleCaseList={this.toggleCaseList}
             selected={this.state.caseData}
             selectCase={this.handleCaseMarkerClick}
@@ -169,12 +169,6 @@ class Container extends Component {
     this.setState({caseData: clickedCase})
   }
 
-  handleFinishReg(event) {
-    alert("Du har fullført registrering");
-    this.setState({
-      isRegMenuOpen : false,
-    })
-  }
 
   handleDoneReg(newObject) {
     console.log(newObject);
@@ -183,6 +177,7 @@ class Container extends Component {
       isRegMenuOpen : false,
       currentRegObject : newObject
     })
+    this.props.registerObject(newObject);
   }
 
   handleMarkerClick(marker) {
@@ -216,7 +211,7 @@ class Container extends Component {
       this.setState({isCaseMenuOpen: true})
     }
   }
-    
+
 
   toggleCaseList(id = null){
     if(!this.state.isCaseListOpen){
@@ -234,7 +229,7 @@ class Container extends Component {
         return;
       }
     }
-    
+
     this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
 }

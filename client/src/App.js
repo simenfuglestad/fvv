@@ -25,12 +25,18 @@ class App extends Component {
     this.registerCase = this.registerCase.bind(this);
     this.getCaseList = this.getCaseList.bind(this);
     this.getCaseObjects = this.getCaseObjects.bind(this);
+    this.registerObject = this.registerObject.bind(this);
+  }
+
+  registerObject(object) {
+    this.server.pusheNewObjectToNvdb(object);
+    // console.log(object);
   }
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
     this.getRoadObjectTypeData();
-    //this.testendring();
+    // this.testendring();
     //this.getCaseList();
   }
 
@@ -74,6 +80,7 @@ class App extends Component {
           handleFilters={this.handleFilters}
           handleRegistration={this.handleRegistration}
           setPoly={this.setPoly}
+          registerObject={this.registerObject}
           registerCase={this.registerCase}
           caseList={this.state.caseList}
           getCaseList={this.getCaseList}
@@ -156,7 +163,7 @@ class App extends Component {
 
   fetchData(filter){
     let id = filter.id;
-    
+
     this.server.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
       this.setState((prevState) => {
         let newMap = {...prevState.map};
@@ -185,7 +192,7 @@ class App extends Component {
       this.setState({caseObjects: null});
       return;
     }
-    
+
     objects = objects.split(',');
     let data = {};
     let promises = [];

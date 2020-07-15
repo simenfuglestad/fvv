@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //authenticate docker
 /*
 axios.post(
-  'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser', 
+  'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
   {'username': 'ap', 'password': 'ap'},
   { 'Content-Type': 'application/json'})
 .then(response => {
@@ -43,6 +43,31 @@ console.log(response.data);
 console.log(error);
 });
 */
+
+// app.post('/', function (req, res) {
+//    console.log("Got a POST request for the homepage");
+//    res.send('Hello POST');
+// })
+
+app.post('/testRegNyttObjekt', (req, res) => {
+  console.log("testnytt objekt");
+  console.log(req.body);
+  console.log(tokenName);
+  console.log(token);
+  let obj = req.body;
+  axios.post('http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+    { obj },
+    { headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient' }
+    })
+    .then(function(res) {
+      console.log("______got response______:");
+      console.log(res);
+    })
+    .catch(function(err) {
+      console.log("______got error______:");
+      console.log(err);
+    })
+  });
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
@@ -61,7 +86,7 @@ app.post('/testendring', (req, res) => {
         let framdrift = await axios.get(
           response.data[0].src,
           config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-          
+
         status = framdrift.data
         console.log(status)
       }
@@ -72,7 +97,7 @@ app.post('/testendring', (req, res) => {
   console.log('error')
 console.log(error);
 });
-  
+
 })
 
 app.post('/api/getroadobjecttypes', (req, res) => {
@@ -86,8 +111,8 @@ app.post('/api/getroadobjects', (req, res) => {
 });
 
 app.post('/registerCase', (req, res) => {
-  const fs = require("fs"); 
-  const cases = require("./data.json"); 
+  const fs = require("fs");
+  const cases = require("./data.json");
 
   console.log(req.body)
   if(req.body.id !== undefined){
@@ -102,20 +127,20 @@ app.post('/registerCase', (req, res) => {
     while (ids.includes(id)) {
       id += 1
     }
-  
+
     req.body['id'] = id;
-    cases.push(req.body); 
+    cases.push(req.body);
   }
 
 
-  // STEP 3: Writing to a file 
-  fs.writeFile("data.json", JSON.stringify(cases), err => { 
-     
-    // Checking for errors 
-    if (err) throw err;  
-   
-    console.log("Done writing"); // Success 
-  }); 
+  // STEP 3: Writing to a file
+  fs.writeFile("data.json", JSON.stringify(cases), err => {
+
+    // Checking for errors
+    if (err) throw err;
+
+    console.log("Done writing"); // Success
+  });
 
   res.send('success')
 });
@@ -136,4 +161,3 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
-
