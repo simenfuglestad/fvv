@@ -5,6 +5,7 @@ import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
 import CaseList from './CaseList';
 import CameraView from './CameraView';
+import WorkOrderForm from './WorkOrderForm';
 
 
 class Container extends Component {
@@ -88,6 +89,11 @@ class Container extends Component {
           />
         }
 
+        { this.state.isWorkOrderOpen &&
+          <WorkOrderForm addWorkOrder={this.addWorkOrder}/>
+
+        }
+
         <RightMenu
           roadObjectTypes={this.props.roadObjectTypes}
           showMarkerInfo={this.state.showMarkerInfo}
@@ -101,7 +107,7 @@ class Container extends Component {
 
 
         <MapView
-          currentLocation={this.props.currentLocation}
+          currentLocation={this.state.currentLocation ? this.state.currentLocation : this.props.currentLocation}
           map= {this.props.map}
           filters= {this.props.filters}
           roads={this.props.roads}
@@ -166,7 +172,8 @@ class Container extends Component {
   handleCaseMarkerClick(id){
     id= Number(id);
     let clickedCase = this.props.caseList.filter((curCase)=>(curCase.id === id))[0];
-    this.setState({caseData: clickedCase})
+    console.log(clickedCase)
+    this.setState({caseData: clickedCase, currentLocation: {lat: clickedCase.lat, lng: clickedCase.lng}})
   }
 
   handleFinishReg(event) {
@@ -185,8 +192,9 @@ class Container extends Component {
     })
   }
 
-  handleMarkerClick(marker) {
-    this.setState({showMarkerInfo: marker})
+  handleMarkerClick(marker, object) {
+    console.log(marker)
+    this.setState({showMarkerInfo: object})
   }
 
   setPolyFilter(polygon){

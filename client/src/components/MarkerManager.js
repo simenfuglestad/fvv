@@ -58,13 +58,13 @@ class MarkerManager extends Component {
             if(geoJSON.type === 'Point'){
               const point = [geoJSON['coordinates'][0], geoJSON['coordinates'][1]]
               return (
-                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id, filters)} onClick={() => {this.props.handleClick(item)}} >
+                <Marker position={point} key={item.id} icon={this.getIcon(item.metadata.type.id, filters)} onClick={(event) => {this.props.handleClick(event,item)}} >
                 </Marker>
               );
             } else if(geoJSON.type === 'LineString') {
               let latLngList = Array.from(geoJSON.coordinates.map(coords => (coords.slice(0,2))));
               return (
-                <Polyline color='red' positions= {latLngList} key={index}>
+                <Polyline color='red' positions= {latLngList} key={index} onClick={() => {this.props.handleClick(item)}}>
                 </Polyline>
               );
             } else if(geoJSON.type === 'Polygon') {
@@ -89,7 +89,6 @@ class MarkerManager extends Component {
 
       getIcon(id, filters){
         let color;
-        console.log(filters)
 
         let idIndex = filters.findIndex((filter) => {
           if(filter.id){

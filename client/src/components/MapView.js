@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { Map, TileLayer, Marker, Popup, Polyline, Polygon} from 'react-leaflet';
+import { Map, TileLayer, Marker, Polyline} from 'react-leaflet';
 import { PieChart } from 'react-minimal-pie-chart';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import PolygonDrawer from './PolygonDrawer';
@@ -9,7 +9,6 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 import Leaflet from 'leaflet';
 import MarkerManager from './MarkerManager';
 import ContextMarker from './ContextMarker'
-import red_marker from '../assets/red_marker.png';
 
 /**
  * props:
@@ -67,12 +66,11 @@ class MapView extends Component {
           <PolygonDrawer polygon={this.state.polygonPoints} finished={this.state.finished} handleFinishPoly={this.handleFinishPoly}/>
 
           {this.props.shouldCasesShow && this.drawCaseMarkers(this.props.caseListAndCurrent)}
-          {
-            this.props.shouldCaseObjectsShow && 
-            <MarkerManager 
-              map={this.props.caseObjects} 
-              handleClick= {this.props.handleMarkerClick} 
-              filters={Object.keys(this.props.caseObjects)}/>}
+
+          <MarkerManager 
+            map={this.props.caseObjects} 
+            handleClick= {this.props.handleMarkerClick} 
+            filters={Object.keys(this.props.caseObjects)}/>
 
 
           <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
