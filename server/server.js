@@ -20,69 +20,106 @@ axios.interceptors.request.use(function (config) {
 });
 
 const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+
 let token;
 let tokenName;
+getToken();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//authenticate docker
-/*
-axios.post(
-  'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
-  {'username': 'ap', 'password': 'ap'},
-  { 'Content-Type': 'application/json'})
-.then(response => {
-  console.log('success')
-console.log(response.data);
-  token = response.data.token;
-  tokenName = response.data.tokenname;
-})
-.catch(error => {
-  console.log('error')
-console.log(error);
-});
-*/
 
-// app.post('/', function (req, res) {
-//    console.log("Got a POST request for the homepage");
-//    res.send('Hello POST');
-// })
-
-app.post('/testRegNyttObjekt', (req, res) => {
-  console.log("testnytt objekt");
-  console.log(req.body);
-  console.log(tokenName);
-
-  registerObject()
-});
-
-async function registerObject() {
+async function getToken() {
   let config = {
     method : 'post',
-    url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett'
+    url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    headers : {
+      'Content-Type' : 'application/json'
+    },
+    data : {
+      'username' : 'ap',
+      'password' : 'ap'
+    }
   }
 
-  let res = await axios(config);
-  console.log(res.status);
-  console.log(res.headers);
+  try {
+    let res = await axios(config);
+    token = res.data.token;
+    tokenName = res.data.tokenname;
+  } catch(error) {
+    console.log("Error occurred when getting token: " + error);
+  }
 }
 
-  // console.log(token);
-  // let obj = req.body;
-  // axios.post('http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
-  //   { obj },
-  //   { headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient' }
-  //   })
-  //   .then(function(res) {
-  //     console.log("______got response______:");
-  //     console.log(res.data);
-  //   })
-  //   .catch(function(err) {
-  //     console.log("______got error______:");
-  //     console.log(err);
-  //   })
+app.post('/testRegNyttObjekt', (req, res) => {
+  if (token !== undefined && tokenName !==undefined) {
+    console.log(req.body.registrer);
+    let config = {
+      method : 'post',
+      url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+      headers : {
+        'Content-Type'  : 'application/json',
+        'Accept'        : 'application/json', //optional, defaults to content-type if not set
+        'Cookie'        : tokenName + '=' + token,
+        'X-client'      : 'fvv-sysytem',
+        'X-NVDB-DryRun' : true,
+      },
+      data : req.body
+    }
+    registerObject(config);
+  }
+});
 
+async function registerObject(config) {
+  axios(config)
+  .then(function(response) {
+    console.log("Success response:\n " + response);
+  })
+  .catch(function(error){
+    console.log("Error response: \n" + error);
+  })
+}
+//   try {
+//     let res = await axios(config);
+//     console.log(res.status);
+//     console.log(res);
+//   } catch (error) {
+//     console.log("Error occourred when registering new object: " + error);
+//   }
+// }
+  // console.log("testnytt objekt");
+  // console.log("BODY----------- \n" + req);
+
+  // registerObject()
+
+
+//   axios.post(
+//   'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+//   data = req.body,
+//   config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+//   .then(response => {
+//     axios.post(
+//     response.data[1].src,
+//     {},
+//     config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+//     .then(async response => {
+//       let status = 'BEHANDLES'
+//       while (status === 'BEHANDLES') {
+//         let framdrift = await axios.get(
+//           response.data[0].src,
+//           config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
+//
+//         status = framdrift.data
+//         console.log(status)
+//       }
+//       res.send(status)
+//   })
+// })
+// .catch(error => {
+//   console.log('error')
+// console.log(error);
+// });
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
