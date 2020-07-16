@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  console.log(config)
+  // console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
@@ -52,74 +52,128 @@ async function getToken() {
   }
 }
 
-app.post('/testRegNyttObjekt', (req, res) => {
+app.post('/testRegNyttObjekt', async (req, res) => {
   if (token !== undefined && tokenName !==undefined) {
-    console.log(req.body.registrer);
     let config = {
       method : 'post',
       url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
       headers : {
         'Content-Type'  : 'application/json',
-        'Accept'        : 'application/json', //optional, defaults to content-type if not set
         'Cookie'        : tokenName + '=' + token,
-        'X-client'      : 'fvv-sysytem',
+        'X-Client'      : 'fvv-sysytem',
         'X-NVDB-DryRun' : true,
       },
       data : req.body
     }
-    registerObject(config);
+
+    let responseChangeSet = await registerChangeSet(config);
+    config.method = 'post';
+    config.url = responseChangeSet.data[1].src;
+
+    config.data = null;
+    console.log(config);
+    delete config["data"];
+    let command = responseChangeSet.data[1].rel;
+    let startResponse = await postCommand(config, command);
+    console.log(startResponse.data);
+
+    config.method = 'get';
+    config.url = startResponse.data[0].src;
+    console.log(config);
+    let statusProgress;
+    try {
+      let doneStatus = await pollProgress(config);
+      console.log(doneStatus.data);
+    }
+    catch (error) {
+      console.log(error);
+    }
+
   }
 });
 
-async function registerObject(config) {
-  axios(config)
-  .then(function(response) {
-    console.log("Success response:\n " + response);
-  })
-  .catch(function(error){
-    console.log("Error response: \n" + error);
-  })
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
-//   try {
-//     let res = await axios(config);
-//     console.log(res.status);
-//     console.log(res);
-//   } catch (error) {
-//     console.log("Error occourred when registering new object: " + error);
-//   }
-// }
-  // console.log("testnytt objekt");
-  // console.log("BODY----------- \n" + req);
 
-  // registerObject()
+//implement polling calculation to be used by pollProgress here
+function calcPollingTime(timesPolled, startedProcess) {
 
+}
 
-//   axios.post(
-//   'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
-//   data = req.body,
-//   config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-//   .then(response => {
-//     axios.post(
-//     response.data[1].src,
-//     {},
-//     config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-//     .then(async response => {
-//       let status = 'BEHANDLES'
-//       while (status === 'BEHANDLES') {
-//         let framdrift = await axios.get(
-//           response.data[0].src,
-//           config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-//
-//         status = framdrift.data
-//         console.log(status)
-//       }
-//       res.send(status)
-//   })
-// })
-// .catch(error => {
-//   console.log('error')
-// console.log(error);
-// });
+async function pollProgress(config) {
+  try {
+    let startedProcess = false;
+    let statusProgress;
+    let isDone = false;
+    let response;
+    let timesPolled = 0;
+
+    let waitMS; //time to wait between polling in milliseconds
+
+    while(!isDone) {
+      response = await axios(config);
+      waitMS = (timesPolled + 1) + 1000; //replace with calcPollingTime(timesPolled, startedProcess)
+      await sleep(waitMS);
+      switch(response.data) {
+        case "IKKE STARTET" :
+          console.log("NOT STARTED");
+          break;
+        case "BEHANDLES" :
+          startedProcess = true;
+          timesPolled+= 1;
+          console.log("STILL PROCESSING");
+          break;
+        case "VENTER" :
+          console.log("WAITING");
+          break;
+        case "AVVIST" :
+          console.log("REJECTED");
+          isDone = true;
+          break;
+        case "UTFØRT" :
+          console.log("COMPLETED");
+          isDone = true;
+          break;
+        case "UTFØRT_OG_ETTERBEHANDLET" :
+          console.log("COMPLETED AND POSTPROCESSED");
+          isDone = true;
+          break;
+        case "KANSELLERT":
+          console.log("CANCELLED");
+          isDone = true;
+          break;
+        default:
+          throw "Invalid value of response: " + response.data;
+      }
+  }
+    return response;
+  }
+  catch (error) {
+    console.log("Error in pollProgress: \n" + error);
+  }
+}
+
+async function postCommand(config, command) {
+  try {
+    let response = await axios(config);
+    return response;
+  }
+  catch (error) {
+    console.log("Error response postCommand: \n" + error);
+  }
+}
+
+async function registerChangeSet(config) {
+  try {
+    let response = await axios(config);
+    return response;
+  }
+  catch (error) {
+    console.log("Error response registerChangeSet: \n" + error);
+  }
+}
+
 
 //test av innsending av endringssett til docker
 app.post('/testendring', (req, res) => {
