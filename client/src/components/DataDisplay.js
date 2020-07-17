@@ -11,13 +11,30 @@ class DataDisplay extends Component {
                 <p>{Marker.metadata.type.navn}</p>
                 <p>ID: {Marker.id}</p>
                 <p> </p>
-                {Marker.egenskaper.map((egenskap) => {
-                    if(egenskap.verdi){
+                {Marker.egenskaper.map(egenskap => {
+                    if(egenskap.verdi && egenskap.egenskapstype !== 'Geometri'){
                         return <p key={egenskap.id}>{egenskap.navn}: {egenskap.verdi}</p>
                     } else {
                         return;
                     }  
                 })}
+                {Marker.relasjoner.foreldre &&
+                    <label className='DataDisplay-label'>
+                        Foreldre:
+                        {Marker.relasjoner.foreldre.map(relasjon => {
+                            return <p key={relasjon.id}>{relasjon.type.navn}</p>
+                        })}
+                    </label>
+                }
+                {Marker.relasjoner.barn &&
+                    <label className='DataDisplay-label'>
+                        Barn:
+                        {Marker.relasjoner.barn.map(relasjon => {
+                            return <p key={relasjon.id}>{relasjon.type.navn}</p>
+                        })}
+                    </label>
+                }
+               
 
                 <div>
                     <button>Rediger</button>

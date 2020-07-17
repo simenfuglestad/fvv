@@ -1,29 +1,51 @@
 import React, { Component } from 'react';
 import FileBase64 from 'react-file-base64';
+import WorkOrderForm from './WorkOrderForm';
 
 class CaseRegistration extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            addingWorkorder: false,
             saksType: '',
             status: '',
             beskrivelse: '',
             objektListe: '',
+            gjentagende: '',
+            dato: '',
             selectedFiles: [],
             lat: '',
             lng: '',
+            arbeidsordre: [],
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.getObjectsFromFilter = this.getObjectsFromFilter.bind(this);
         this.handleFileSelect = this.handleFileSelect.bind(this);
+        this.getObjectsFromFilter = this.getObjectsFromFilter.bind(this);
+        this.toggleWorkorder = this.toggleWorkorder.bind(this);
+        this.workorderSubmit = this.workorderSubmit.bind(this);
 
         this.abortBtn = React.createRef();
     }
 
     componentDidMount(){
         this.setState({...this.props.data})
+    }
+
+    shouldComponentUpdate(nextProps, nextState){
+        console.log(nextProps)
+        console.log(nextState)
+        if(nextState.objektListe !== this.state.objektListe){
+            this.props.addMarkerCollection(nextState.objektListe, 'caseObjects', true)
+            return false;
+        }
+        if(nextProps.clickedMarker !== this.props.clickedMarker){
+            console.log(nextProps.clickedMarker)
+            this.setState({objektListe: this.addOrRemoveObject(nextProps.clickedMarker.object)})
+            return false;
+        }
+        return true;
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -35,22 +57,34 @@ class CaseRegistration extends Component {
     render(){
 
         return(
+                this.state.addingWorkorder ?
+                <WorkOrderForm toggleWorkorder={this.toggleWorkorder} addWorkorder={this.workorderSubmit}/>
+                :
                 <div className='caseRegistration'>
                     <form className='caseRegistration-form' onSubmit={this.handleSubmit}>
                         <label className='caseRegistration-form-label'>
                             Sakstype:
                             <select className='caseRegistration-form-input' name='saksType' value={this.state.saksType} onChange={this.handleChange}>
                                 <option>-</option>
-                                <option>Skade</option>  
-                                <option>Vedlikehold</option>  
-                                <option>Annet</option>  
+                                <option>Hendelse</option>  
+                                <option>Vedlikehold</option>
+                                <option>planlagt arbeide</option>     
                             </select>
                         </label>
 
                         <label className='caseRegistration-form-label'>
-                            Plassering:
-                            <input className='caseRegistration-form-input' type='number' name='lat' value={this.state.lat} onChange={this.handleChange}></input>
-                            <input className='caseRegistration-form-input' type='number' name='lng' value={this.state.lng} onChange={this.handleChange}></input>
+                            Gjentagende:
+                            <select className='caseRegistration-form-input' name='gjentagende' value={this.state.gjentagende} onChange={this.handleChange}>
+                                <option>-</option>
+                                <option>Ukentlig</option>  
+                                <option>Månedlig</option>
+                                <option>Årlig</option>    
+                            </select>
+                        </label>
+
+                        <label className='caseRegistration-form-label'>
+                            Dato:
+                            <input type='date' name='dato' value={this.state.dato} onChange={this.handleChange}/>
                         </label>
 
                         <label className='caseRegistration-form-label'>
@@ -77,6 +111,7 @@ class CaseRegistration extends Component {
                             <button className='caseRegistration-form-options' onClick={this.getObjectsFromFilter}>Fra kartfilter</button>
                         </label>
 
+                        
                         <div className='caseRegistration-form-files'>
                             filer her
                         </div>
@@ -85,11 +120,52 @@ class CaseRegistration extends Component {
                             <FileBase64 multiple={ true } onDone={ this.handleFileSelect.bind(this) } />
                         </label>
 
+                        <div className='caseRegistration-form-files'>
+                            Arbeidsordre:
+                            {this.state.arbeidsordre.map((item, index) => {
+                                console.log(item)
+                                return(<p key ={index}>{item.arbeidsordretype}</p>)
+                            })}
+                        </div>
+                        <label className='caseRegistration-form-label'>
+                            <button onClick={this.toggleWorkorder}>Legg til arbeidsordre</button>
+                        </label>
+
                         <input type='submit' id='caseSubmit' value='Lagre'/>
                         <input type='button' id='caseAbort' value='Avbryt' onClick={this.props.toggleCaseReg} ref={this.abortBtn}/>
                     </form>
                 </div>
         )
+    }
+
+    addOrRemoveObject(object){
+        let objectList = this.state.objektListe;
+        let newObject = object.id + ':' + object.metadata.type.id;
+
+        objectList = objectList.split(',');
+        console.log(newObject)
+        if(objectList.includes(newObject)){
+            objectList = objectList.filter(item => (item !== newObject))
+        } else {
+            objectList.push(newObject)
+        }
+
+        objectList = objectList.join(',')
+
+        console.log(objectList)
+        return objectList;
+    }
+
+    toggleWorkorder(){
+        this.setState(prevState => ({addingWorkorder: !prevState.addingWorkorder}))
+    }
+
+    workorderSubmit(workorder){
+        console.log(workorder)
+        if(workorder !== undefined){
+            this.setState(prevstate => ({addingWorkorder: false, arbeidsordre: prevstate.arbeidsordre.concat(workorder)}))
+            return;
+        }
     }
 
     handleFileSelect(files){
@@ -127,7 +203,9 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-        this.props.registerCase({...this.state});
+        let state = {...this.state}
+        delete state.addingWorkorder
+        this.props.registerCase(state);
         event.preventDefault();
         this.props.toggleCaseReg();
     }

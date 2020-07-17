@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ColorPicker from './ColorPicker';
 
 class MapFilter extends Component {
     constructor(props){
@@ -27,10 +28,7 @@ class MapFilter extends Component {
         return(
 
             this.props.filters.map((item) => {
-                const idIndex = filters.findIndex((filter) => (
-                    filter.id === item.id
-                ));
-                const backgroundColor = this.colorScheme[idIndex%this.colorScheme.length];
+                const backgroundColor = ColorPicker.get(item.id);
                 return(
                     <div className='mapFilter-entry'  key={item.id}>
                         <div className='mapfilter-entry-colorbox' style={{backgroundColor}}></div>

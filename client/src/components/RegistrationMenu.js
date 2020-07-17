@@ -180,7 +180,6 @@ class RegMenu extends Component {
       egenskaper: []
     }
     let properties = [];
-    let temp = null;
     let curObjectData = this.typeData.filter(v => (v.id === this.currentObjectID))[0];
 
     console.log(curObjectData)

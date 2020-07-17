@@ -15,9 +15,18 @@ class CaseList extends Component {
                   accessor: "saksType"
                 },
                 {
+                  Header: "Gjentas",
+                  accessor: "gjentagende"
+                },
+                {
                   Header: "Status",
                   accessor: "status"
+                },
+                {
+                  Header: "Dato",
+                  accessor: "dato"
                 }
+
               ]
 
       this.selected = null;

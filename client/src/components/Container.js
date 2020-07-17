@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
+import Leaflet from 'leaflet';
+import { PieChart } from 'react-minimal-pie-chart';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
+import ReactDOMServer from 'react-dom/server';
 import MapView from './MapView';
 import RightMenu from './RightMenu';
 import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
 import CaseList from './CaseList';
 import CameraView from './CameraView';
-
+import WorkOrderForm from './WorkOrderForm';
+import MarkerManager from './MarkerManager';
+import ColorPicker from './ColorPicker'
 
 class Container extends Component {
   constructor(props) {
@@ -18,29 +24,53 @@ class Container extends Component {
         isCameraOpen : false,
         currentRegObject : {},
         objectImage : null,
+        markerCollections: {},
+        mapMarkers: {},
         caseData : null,
     }
 
     this.isCameraOpen = false;
-    this.handleMarkerClick = this.handleMarkerClick.bind(this);
+
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
-    this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
+    this.clearImageData = this.clearImageData.bind(this);
+    this.getMarkerClusterIcon = this.getMarkerClusterIcon.bind(this);
+    this.addMarkerCollection = this.addMarkerCollection.bind(this);
+    this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.handleContextClick = this.handleContextClick.bind(this);
     this.handleDoneReg = this.handleDoneReg.bind(this);
     this.handleOpenCamera = this.handleOpenCamera.bind(this);
     this.handleCloseCamera = this.handleCloseCamera.bind(this);
     this.handleCaseMarkerClick = this.handleCaseMarkerClick.bind(this);
-    this.clearImageData = this.clearImageData.bind(this);
+    this.togglePolyFilter = this.togglePolyFilter.bind(this);
     this.toggleObjectReg = this.toggleObjectReg.bind(this);
     this.toggleCaseList = this.toggleCaseList.bind(this);
     this.toggleCaseReg = this.toggleCaseReg.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState){
-    if(prevState.caseData !== this.state.caseData && this.state.caseData !== null){
-      this.props.getCaseObjects(this.state.caseData.objektListe)
+  shouldComponentUpdate(nextProps, nextState){
+    if(nextProps.map !== this.props.map){
+      console.log(nextProps.map)
+      this.setState({mapMarkers: this.getMarkers(nextProps.map, nextProps.filters, true)});
+      return false;
     }
+
+    return true;
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    let typeIds = new Set();
+    for (const typeId of Object.keys(this.props.map)) {
+      typeIds.add(typeId);
+    }
+
+    for (const collection of Object.values(this.state.markerCollections)) {
+      for (const typeId of Object.keys(collection.props.map)) {
+        typeIds.add(typeId);
+      }
+    }
+
+    ColorPicker.removeUnusedIds(typeIds);
   }
 
   render() {
@@ -76,6 +106,8 @@ class Container extends Component {
             toggleCaseReg={this.toggleCaseReg} 
             registerCase={this.props.registerCase} 
             data={this.state.caseData}
+            clickedMarker={this.state.clickedMarker}
+            addMarkerCollection={this.addMarkerCollection}
           />
         }
 
@@ -85,7 +117,12 @@ class Container extends Component {
             toggleCaseList={this.toggleCaseList}
             selected={this.state.caseData}
             selectCase={this.handleCaseMarkerClick}
+            addMarkerCollection={this.addMarkerCollection}
           />
+        }
+
+        { this.state.isWorkOrderOpen &&
+          <WorkOrderForm addWorkOrder={this.addWorkOrder}/>
         }
 
         <RightMenu
@@ -98,25 +135,41 @@ class Container extends Component {
           handleClickOutside={this.closeDataDisplay}
         />
 
-
-
         <MapView
-          currentLocation={this.props.currentLocation}
-          map= {this.props.map}
-          filters= {this.props.filters}
-          roads={this.props.roads}
+          currentLocation={this.state.currentLocation ? this.state.currentLocation : this.props.currentLocation}
           caseListAndCurrent={[this.props.caseList, this.state.caseData]}
           shouldCasesShow={this.state.isCaseListOpen || this.state.isCaseMenuOpen ? true : false}
           shouldCaseObjectsShow={true}
           drawing={this.state.drawing}
+          map={this.state.mapMarkers}
+          markerCollections={this.state.markerCollections}
           setPolyFilter={this.setPolyFilter}
-          caseObjects={this.props.caseObjects}
-          handleMarkerClick={this.handleMarkerClick}
           handleContextClick={this.handleContextClick}
           handleCaseMarkerClick={this.handleCaseMarkerClick}
         />
       </div>
     );
+  }
+
+  async addMarkerCollection(objects, key, checkmark){
+    let newMarkerCollections = {...this.state.markerCollections};
+    let markerObjects = await this.props.getCaseObjects(objects);
+    newMarkerCollections[key] = this.getMarkers(markerObjects, this.props.filters, false, checkmark, 601)
+    console.log(newMarkerCollections)
+    this.setState({markerCollections: newMarkerCollections})
+  }
+
+  getMarkers(markerObjects, filters, clustered = false, checkmark = false, zIndex = 600){
+
+    if(clustered){
+      return(
+        <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
+          <MarkerManager map={markerObjects} filters={filters} handleClick={this.handleMarkerClick} checkmark={checkmark} zIndex={zIndex}/>
+        </MarkerClusterGroup>
+      )
+    } else {
+      return <MarkerManager map={markerObjects} filters={filters} handleClick={this.handleMarkerClick} checkmark={checkmark} zIndex={zIndex}/>
+    }
   }
 
   clearImageData(event) {
@@ -164,9 +217,13 @@ class Container extends Component {
   }
 
   handleCaseMarkerClick(id){
-    id= Number(id);
-    let clickedCase = this.props.caseList.filter((curCase)=>(curCase.id === id))[0];
-    this.setState({caseData: clickedCase})
+    if(!this.state.isCaseMenuOpen){
+      id= Number(id);
+      let clickedCase = this.props.caseList.filter((curCase)=>(curCase.id === id))[0];
+      this.addMarkerCollection(clickedCase.objektListe, 'caseObjects', true)
+
+      this.setState({caseData: clickedCase, currentLocation: {lat: clickedCase.lat, lng: clickedCase.lng}})
+    }
   }
 
   handleFinishReg(event) {
@@ -185,8 +242,9 @@ class Container extends Component {
     })
   }
 
-  handleMarkerClick(marker) {
-    this.setState({showMarkerInfo: marker})
+  handleMarkerClick(marker, object) {
+    console.log(marker)
+    this.setState({showMarkerInfo: object, clickedMarker: {marker: marker, object: object}})
   }
 
   setPolyFilter(polygon){
@@ -210,13 +268,12 @@ class Container extends Component {
 
   toggleCaseReg(){
     if(this.state.isCaseMenuOpen){
-      this.setState({isCaseMenuOpen: false, caseData: null})
+      this.setState({isCaseMenuOpen: false, caseData: null, markerCollections: {}})
       this.props.getCaseObjects()
     } else {
       this.setState({isCaseMenuOpen: true})
     }
   }
-    
 
   toggleCaseList(id = null){
     if(!this.state.isCaseListOpen){
@@ -229,13 +286,63 @@ class Container extends Component {
         this.setState({isCaseListOpen: false, caseData: thisCase, isCaseMenuOpen: true})
         return;
       } else {
-        this.setState({isCaseListOpen: false, caseData: null})
-        this.props.getCaseObjects();
+        this.setState({isCaseListOpen: false, caseData: null, markerCollections: {}})
         return;
       }
     }
     
     this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
+  }
+
+  getMarkerClusterIcon(cluster){
+    var children = cluster.getAllChildMarkers();
+    var childCount = cluster.getChildCount();
+
+    const clusterTypes = children.reduce(function (acc, curr) {
+      const id = curr.options.icon.options.className;
+      if (typeof acc[id] == 'undefined') {
+        acc[id] = 1;
+      } else {
+        acc[id] += 1;
+      }
+
+      return acc;
+    }, {});
+
+    let data = this.props.filters.map((filter, index) => {
+      if(clusterTypes[filter.id]) {
+        return ({
+          title: filter.id,
+          value: clusterTypes[filter.id],
+          color: ColorPicker.get(filter.id),
+          })
+      } else {
+        return;
+      }
+    })
+
+    data = data.filter((item) => (item != null))
+
+
+    const icon = Leaflet.divIcon({
+      className: "my-custom-pin",
+      iconSize: new Leaflet.Point(40, 40),
+      html: ReactDOMServer.renderToString(
+        <PieChart
+          data={data}
+          label={({ dataEntry }) => childCount}
+          labelStyle={{
+            fontSize: '40px',
+            fontFamily: 'sans-serif',
+            fill: 'white',
+            textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
+          }}
+          labelPosition={0}
+        />
+      )
+    })
+
+		return icon;
   }
 }
 

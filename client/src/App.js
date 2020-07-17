@@ -188,6 +188,7 @@ class App extends Component {
       return;
     }
     
+    console.log(objects)
     objects = objects.split(',');
     let data = {};
     let promises = [];
@@ -208,7 +209,7 @@ class App extends Component {
         })
     })
 
-    this.setState({caseObjects: data})
+    return data;
   }
 
   async getCaseList(){
