@@ -164,32 +164,150 @@ class RegMenu extends Component {
 
   processEnteredData() {
     let resultObject = {
-      stedfesting: {
-        punkt:[
+      "registrer": {
+        "vegobjekter": [
           {
-            posisjon: 'placeholder',
-            veglenkesekvensNvdbId: 'placeholder'
+            "stedfesting": {
+              "punkt": [
+                {
+                  "posisjon": 0.3,
+                  "veglenkesekvensNvdbId": 1125766
+                }
+              ]
+            },
+            "gyldighetsperiode": {
+              "startdato": "2013-10-29"
+            },
+            "typeId": this.currentObjectID,
+            "tempId": "placeholder#1",
+            "egenskaper": [
+            ]
           }
         ]
       },
-      gyldighetsperiode: {
-        startdato: 'placeholder'
-      },
-      typeId: this.currentObjectID,
-      tempId: 'placeholder',
-      egenskaper: []
+      "datakatalogversjon": "2.21"
     }
+
     let properties = [];
     let temp = null;
     let curObjectData = this.typeData.filter(v => (v.id === this.currentObjectID))[0];
 
-    console.log(curObjectData)
+    // console.log(curObjectData)
     curObjectData.egenskapstyper.forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
-        properties.push({typeId: item.id, verdi: this.state.enteredData[i]})
-      } 
+        properties.push({typeId: item.id, verdi: [this.state.enteredData[i]]})
+      }
     });
-    resultObject.egenskaper = properties;
+    resultObject.registrer.vegobjekter.egenskaper = properties;
+    // console.log(resultObject);
+  resultObject = {
+  "registrer": {
+    "vegobjekter": [
+      {
+        "stedfesting": {
+          "punkt": [
+            {
+              "posisjon": 0.3,
+              "veglenkesekvensNvdbId": 1125766
+            }
+          ]
+        },
+        "gyldighetsperiode": {
+          "startdato": "2013-10-29"
+        },
+        "typeId": 581,
+        "tempId": "placeholdertempID",
+        "egenskaper": [
+          {
+            "typeId": 5225,
+            "verdi": [
+              "Grevlingtunnelen"
+            ]
+          },
+          {
+            "typeId": 9306,
+            "verdi": [
+              "34343"
+            ]
+          },
+          {
+            "typeId": 9134,
+            "verdi": [
+              "E"
+            ]
+          },
+          {
+            "typeId": 8945,
+            "verdi": [
+              "2000"
+            ]
+          },
+          {
+            "typeId": 3947,
+            "verdi": [
+              "1"
+            ]
+          },
+          {
+            "typeId": 8150,
+            "verdi": [
+              "100"
+            ]
+          },
+          {
+            "typeId": 8151,
+            "verdi": [
+              "50"
+            ]
+          },
+          {
+            "typeId": 9517,
+            "verdi": [
+              "Nei"
+            ]
+          },
+          {
+            "typeId": 9518,
+            "verdi": [
+              "Ja"
+            ]
+          },
+          {
+            "typeId": 9131,
+            "verdi": [
+              "a"
+            ]
+          },
+          {
+            "typeId": 3917,
+            "verdi": [
+              "Ja"
+            ]
+          },
+          {
+            "typeId": 3918,
+            "verdi": [
+              "Ja"
+            ]
+          },
+          {
+            "typeId": 3915,
+            "verdi": [
+              "Ja"
+            ]
+          },
+          {
+            "typeId": 3916,
+            "verdi": [
+              "Ja"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "datakatalogversjon": "2.21"
+}
     return resultObject
   }
 

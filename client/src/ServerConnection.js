@@ -39,10 +39,8 @@ export default class ServerConnection {
       // console.log(res)
     }
 
-    async pusheNewObjectToNvdb(newObject) {
-      console.log('sender nytt objekt');
-      const res = await axios.post('/testRegNyttObjekt', newObject);
-      // console.log(res);
+    async pusheNewObjectToNvdb(newObject, coords) {
+      const res = await axios.post('/registerNewObject', [newObject, coords]);
     }
 
     async registerCase(newCase){

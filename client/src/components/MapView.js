@@ -24,7 +24,7 @@ class MapView extends Component {
       zoom: 15,
       polygonPoints: [],
       finished: false,
-      ontextMenuDetails: {lat : 0, lng : 0},
+      contextMenuDetails: {lat : 0, lng : 0},
       showContextMenu : false,
     }
     this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3'];
@@ -102,10 +102,10 @@ class MapView extends Component {
     let markers = [];
     caseList.map((item,index) => {
       markers.push(
-        <Marker 
-          position={{lat: item.lat, lng: item.lng}} 
-          key={item.id} 
-          icon={this.getIcon(index, 'red')} 
+        <Marker
+          position={{lat: item.lat, lng: item.lng}}
+          key={item.id}
+          icon={this.getIcon(index, 'red')}
           onClick={() =>this.props.handleCaseMarkerClick(item.id)} >
         </Marker>
       )
@@ -168,7 +168,7 @@ class MapView extends Component {
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
       }))
     } else if (this.state.showContextMenu === true) {
-      
+
     }
   }
 

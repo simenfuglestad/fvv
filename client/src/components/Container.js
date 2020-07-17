@@ -19,6 +19,7 @@ class Container extends Component {
         currentRegObject : {},
         objectImage : null,
         caseData : null,
+        regObjectPos : null
     }
 
     this.isCameraOpen = false;
@@ -151,15 +152,14 @@ class Container extends Component {
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
+        regObjectPos : {lat : latlng[0], lng: latlng[1]}
       })
-      return;
     }
-    if(event.current.innerHTML === 'Ny Sak'){
+    else if(event.current.innerHTML === 'Ny Sak'){
       this.setState({
         isCaseMenuOpen :  true,
-        caseData: {lat : latlng[0], lng: latlng[1]}
+        caseData : {lat : latlng[0], lng : latlng[1]}
       })
-      return;
     }
   }
 
@@ -171,13 +171,12 @@ class Container extends Component {
 
 
   handleDoneReg(newObject) {
-    console.log(newObject);
-    alert("Du har fullført registrering");
+    // alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
       currentRegObject : newObject
     })
-    this.props.registerObject(newObject);
+    this.props.registerObject(newObject, this.state.regObjectPos);
   }
 
   handleMarkerClick(marker) {

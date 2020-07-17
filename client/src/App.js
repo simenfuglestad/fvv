@@ -28,8 +28,8 @@ class App extends Component {
     this.registerObject = this.registerObject.bind(this);
   }
 
-  registerObject(object) {
-    this.server.pusheNewObjectToNvdb(object);
+  registerObject(object, coords) {
+    this.server.pusheNewObjectToNvdb(object, coords);
     // console.log(object);
   }
 

@@ -52,8 +52,29 @@ async function getToken() {
   }
 }
 
-app.post('/testRegNyttObjekt', async (req, res) => {
-  if (token !== undefined && tokenName !==undefined) {
+app.post('/api/getroadobjecttypes', (req, res) => {
+    nvdb.apiCallSingle(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+});
+
+app.post('/api/getroadobjects', (req, res) => {
+  nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+});
+
+
+app.post('/registerNewObject', async (req, res) => {
+  let objectData = req.body[0];
+  let objectCoords = req.body[1];
+  console.log(objectCoords);
+  try {
+    let closestRoad = await nvdb.apiCallSingle('posisjon?lat=' + objectCoords.lat + '&lon=' + objectCoords.lng);
+    objectData.registrer.vegobjekter[0].stedfesting.punkt[0].posisjon = closestRoad[0].veglenkesekvens.relativPosisjon; //dig through objects to set relative position
+    objectData.registrer.vegobjekter[0].stedfesting.punkt[0].veglenkesekvensNvdbId = closestRoad[0].veglenkesekvens.veglenkesekvensid; //dig through objects to set proper nvdb road ID
+  }
+  catch (error) {
+    console.log("Error when getting closest road properties: " + error);
+  }
+
+  if (token !== undefined && tokenName !== undefined) {
     let config = {
       method : 'post',
       url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
@@ -61,25 +82,23 @@ app.post('/testRegNyttObjekt', async (req, res) => {
         'Content-Type'  : 'application/json',
         'Cookie'        : tokenName + '=' + token,
         'X-Client'      : 'fvv-sysytem',
-        'X-NVDB-DryRun' : true,
+        'X-NVDB-DryRun' : false,
       },
-      data : req.body
+      data : objectData
     }
 
     let responseChangeSet = await registerChangeSet(config);
-    config.method = 'post';
+    // console.log(responseChangeSet);
+    // config.method = 'post';
     config.url = responseChangeSet.data[1].src;
-
-    config.data = null;
-    console.log(config);
     delete config["data"];
     let command = responseChangeSet.data[1].rel;
+
     let startResponse = await postCommand(config, command);
-    console.log(startResponse.data);
+    // console.log(startResponse.data);
 
     config.method = 'get';
     config.url = startResponse.data[0].src;
-    console.log(config);
     let statusProgress;
     try {
       let doneStatus = await pollProgress(config);
@@ -88,7 +107,6 @@ app.post('/testRegNyttObjekt', async (req, res) => {
     catch (error) {
       console.log(error);
     }
-
   }
 });
 
@@ -96,11 +114,12 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//implement polling calculation to be used by pollProgress here
-function calcPollingTime(timesPolled, startedProcess) {
-
-}
-
+//
+/*
+* Poll progress of changeset
+* Polling time intervals is loosley based on recommendations found at
+* https://apiskriv.vegdata.no/endringssett/introduksjon
+*/
 async function pollProgress(config) {
   try {
     let startedProcess = false;
@@ -108,41 +127,55 @@ async function pollProgress(config) {
     let isDone = false;
     let response;
     let timesPolled = 0;
-
-    let waitMS; //time to wait between polling in milliseconds
+    let waitingTime;
 
     while(!isDone) {
       response = await axios(config);
-      waitMS = (timesPolled + 1) + 1000; //replace with calcPollingTime(timesPolled, startedProcess)
-      await sleep(waitMS);
-      switch(response.data) {
+      statusProgress = response.data;
+      switch(statusProgress) {
         case "IKKE STARTET" :
           console.log("NOT STARTED");
           break;
+
         case "BEHANDLES" :
+        console.log("PROCESSING");
           startedProcess = true;
-          timesPolled+= 1;
-          console.log("STILL PROCESSING");
+          waitingTime = (timesPolled * 1) + 1000;
+          timesPolled+=1;
+          await sleep(waitingTime);
           break;
+
         case "VENTER" :
           console.log("WAITING");
+          if(startedProcess) {
+            waitingTime = (timesPolled * 1) + 60000; //wait >=1min if processing has begun
+          } else {
+            waitingTime = (timesPolled * 1) + 1000;
+          }
+          timesPolled+=1;
+          await sleep(waitingTime);
           break;
+
         case "AVVIST" :
           console.log("REJECTED");
           isDone = true;
           break;
+
         case "UTFØRT" :
           console.log("COMPLETED");
           isDone = true;
           break;
+
         case "UTFØRT_OG_ETTERBEHANDLET" :
           console.log("COMPLETED AND POSTPROCESSED");
           isDone = true;
           break;
+
         case "KANSELLERT":
           console.log("CANCELLED");
           isDone = true;
           break;
+
         default:
           throw "Invalid value of response: " + response.data;
       }
@@ -173,48 +206,6 @@ async function registerChangeSet(config) {
     console.log("Error response registerChangeSet: \n" + error);
   }
 }
-
-
-//test av innsending av endringssett til docker
-app.post('/testendring', (req, res) => {
-  axios.post(
-  'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
-  data = req.body,
-  config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-  .then(response => {
-    axios.post(
-    response.data[1].src,
-    {},
-    config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-    .then(async response => {
-      let status = 'BEHANDLES'
-      while (status === 'BEHANDLES') {
-        let framdrift = await axios.get(
-          response.data[0].src,
-          config = {headers: {Cookie : tokenName + '=' + token, 'X-Client': 'NavnPåDinKlient'}})
-
-        status = framdrift.data
-        console.log(status)
-      }
-      res.send(status)
-  })
-})
-.catch(error => {
-  console.log('error')
-console.log(error);
-});
-
-})
-
-app.post('/api/getroadobjecttypes', (req, res) => {
-    nvdb.apiCallSingle(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
-
-});
-
-app.post('/api/getroadobjects', (req, res) => {
-  nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
-
-});
 
 app.post('/registerCase', (req, res) => {
   const fs = require("fs");
