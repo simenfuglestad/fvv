@@ -33,6 +33,21 @@ class CaseRegistration extends Component {
         this.setState({...this.props.data})
     }
 
+    shouldComponentUpdate(nextProps, nextState){
+        console.log(nextProps)
+        console.log(nextState)
+        if(nextState.objektListe !== this.state.objektListe){
+            this.props.addMarkerCollection(nextState.objektListe, 'caseObjects', true)
+            return false;
+        }
+        if(nextProps.clickedMarker !== this.props.clickedMarker){
+            console.log(nextProps.clickedMarker)
+            this.setState({objektListe: this.addOrRemoveObject(nextProps.clickedMarker.object)})
+            return false;
+        }
+        return true;
+    }
+
     componentDidUpdate(prevProps, prevState){
         if(this.props.data !== prevProps.data){
             this.setState({...this.props.data})
@@ -123,6 +138,24 @@ class CaseRegistration extends Component {
         )
     }
 
+    addOrRemoveObject(object){
+        let objectList = this.state.objektListe;
+        let newObject = object.id + ':' + object.metadata.type.id;
+
+        objectList = objectList.split(',');
+        console.log(newObject)
+        if(objectList.includes(newObject)){
+            objectList = objectList.filter(item => (item !== newObject))
+        } else {
+            objectList.push(newObject)
+        }
+
+        objectList = objectList.join(',')
+
+        console.log(objectList)
+        return objectList;
+    }
+
     toggleWorkorder(){
         this.setState(prevState => ({addingWorkorder: !prevState.addingWorkorder}))
     }
@@ -170,7 +203,9 @@ class CaseRegistration extends Component {
     }
 
     handleSubmit(event){
-        this.props.registerCase({...this.state});
+        let state = {...this.state}
+        delete state.addingWorkorder
+        this.props.registerCase(state);
         event.preventDefault();
         this.props.toggleCaseReg();
     }

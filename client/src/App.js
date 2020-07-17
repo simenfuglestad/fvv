@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import ServerConnection from './ServerConnection'
 import Container from './components/Container'
 import './App.css';
-import MarkerManager from './components/MarkerManager';
-
-const mapContext = React.createContext({});
 
 class App extends Component {
   constructor(props) {
@@ -95,10 +92,6 @@ class App extends Component {
 
     result = result + polygon[0][0] + ' ' + polygon[0][1]
     return result;
-  }
-
-  getMarkers(map, filters){
-    return(<MarkerManager map={map} filters={filters}/>)
   }
 
   /**
@@ -195,6 +188,7 @@ class App extends Component {
       return;
     }
     
+    console.log(objects)
     objects = objects.split(',');
     let data = {};
     let promises = [];
@@ -215,7 +209,7 @@ class App extends Component {
         })
     })
 
-    this.setState({caseObjects: data})
+    return data;
   }
 
   async getCaseList(){
