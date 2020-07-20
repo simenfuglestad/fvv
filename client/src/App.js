@@ -14,8 +14,8 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
+      isLoggedIn: false,
     }
-
     this.server = new ServerConnection()
 
     //bind functions that need a reference to this instance
@@ -26,11 +26,14 @@ class App extends Component {
     this.getCaseList = this.getCaseList.bind(this);
     this.getCaseObjects = this.getCaseObjects.bind(this);
     this.registerObject = this.registerObject.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
   registerObject(object, coords) {
-    this.server.pusheNewObjectToNvdb(object, coords);
-    // console.log(object);
+    console.log(object);
+    let isLoggedIn = this.server.pusheNewObjectToNvdb(object, coords);
+    console.log(isLoggedIn);
   }
 
   componentDidMount() {
@@ -41,6 +44,9 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps,prevState){
+    if (this.state.isLoggedIn !== prevState.isLoggedIn) {
+
+    }
     if(this.state.filters !== prevState.filters || this.state.poly !== prevState.poly){
       //if a filter has been removed
       if(this.state.filters.length < prevState.filters.length) {
@@ -86,8 +92,27 @@ class App extends Component {
           getCaseList={this.getCaseList}
           getCaseObjects={this.getCaseObjects}
           caseObjects={this.state.caseObjects}
+          handleLogin={this.handleLogin}
+          isLoggedIn={this.state.isLoggedIn}
+          handleLogout={this.handleLogout}
         />
     );
+  }
+
+  handleLogout(event) {
+    this.setState({
+      isLoggedIn : false
+    })
+    this.forceUpdate();
+  }
+
+  async handleLogin(loginObject) {
+    let loginstatus = await this.server.login(loginObject.enteredUsername, loginObject.enteredPassword);
+
+    this.setState({
+      isLoggedIn : loginstatus.data,
+    })
+    console.log(this.state.isLoggedIn);
   }
 
   getPolygonString(polygon) {

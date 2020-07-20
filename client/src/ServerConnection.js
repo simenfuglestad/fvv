@@ -36,7 +36,13 @@ export default class ServerConnection {
     async pushChangesToNvdb(changeSet){
       console.log('sender Endringssett')
       const res = await axios.post('/testendring', changeSet);
-      // console.log(res)
+      return res;
+    }
+
+    async login(username, password) {
+      const res = await axios.post('/login', [username, password]);
+      console.log(res);
+      return res;
     }
 
     async pusheNewObjectToNvdb(newObject, coords) {

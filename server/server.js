@@ -23,30 +23,46 @@ const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
 
 let token;
 let tokenName;
-getToken();
+let isAuthenticated;
+// getToken();
 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-async function getToken() {
+app.post('/login', async(req, res) =>{
+  let username = req.body[0];
+  let password = req.body[1];
+  console.log(username + ", " + password);
+  await getToken(username, password);
+  res.send(isAuthenticated);
+});
+
+// async function
+
+async function getToken(username, password) {
   let config = {
     method : 'post',
+    // url : 'https://www.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     headers : {
       'Content-Type' : 'application/json'
     },
     data : {
-      'username' : 'ap',
-      'password' : 'ap'
+      'username' : username,
+      'password' : password
     }
   }
 
   try {
     let res = await axios(config);
+    console.log(res);
     token = res.data.token;
     tokenName = res.data.tokenname;
+    isAuthenticated = res.data.status;
+    console.log(token);
+    console.log(tokenName);
   } catch(error) {
     console.log("Error occurred when getting token: " + error);
   }
@@ -72,15 +88,6 @@ app.post('/getCatalogueVersion', async (reg, res) => {
 
 
 app.post('/registerNewObject', async (req, res) => {
-  try {
-    let veglenkeid = await nvdb.apiCallSingle('vegnett/veglenkesekvenser');
-    console.log(veglenkeid);
-    // let catalogueVersion = await nvdb.apiCallSingle('vegobjekttyper/version');
-    // console.log("catalogueVersion is: " + catalogueVersion);
-  }
-  catch (error) {
-    console.log(error);
-  }
   let objectData = req.body[0];
   let objectCoords = req.body[1];
   try {
