@@ -60,11 +60,29 @@ app.post('/api/getroadobjects', (req, res) => {
   nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 });
 
+app.post('/getCatalogueVersion', async (reg, res) => {
+  try {
+    let catalogueVersion = await nvdb.apiCallSingle('vegobjekttyper/version');
+    console.log(catalogueVersion);
+  }
+  catch (error) {
+    console.log("Error when getting catalogue version: " + error);
+  }
+});
+
 
 app.post('/registerNewObject', async (req, res) => {
+  try {
+    let veglenkeid = await nvdb.apiCallSingle('vegnett/veglenkesekvenser');
+    console.log(veglenkeid);
+    // let catalogueVersion = await nvdb.apiCallSingle('vegobjekttyper/version');
+    // console.log("catalogueVersion is: " + catalogueVersion);
+  }
+  catch (error) {
+    console.log(error);
+  }
   let objectData = req.body[0];
   let objectCoords = req.body[1];
-  console.log(objectCoords);
   try {
     let closestRoad = await nvdb.apiCallSingle('posisjon?lat=' + objectCoords.lat + '&lon=' + objectCoords.lng);
     objectData.registrer.vegobjekter[0].stedfesting.punkt[0].posisjon = closestRoad[0].veglenkesekvens.relativPosisjon; //dig through objects to set relative position
@@ -74,6 +92,11 @@ app.post('/registerNewObject', async (req, res) => {
     console.log("Error when getting closest road properties: " + error);
   }
 
+  let currentDateStr = formatDateStr()
+  console.log(currentDateStr);
+
+  objectData.registrer.vegobjekter[0].gyldighetsperiode.startdato = currentDateStr;
+  console.log(objectData.registrer.vegobjekter);
   if (token !== undefined && tokenName !== undefined) {
     let config = {
       method : 'post',
@@ -109,6 +132,21 @@ app.post('/registerNewObject', async (req, res) => {
     }
   }
 });
+
+function formatDateStr() {
+  let d = new Date();
+  let date = d.getDate();
+  let month = d.getMonth()+1;
+
+  if (date < 10) {
+    date = "0" + date;
+  }
+
+  if (month < 10) {
+    month = "0" + month;
+  }
+  return d.getFullYear() + "-" + month + "-" + date;
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
