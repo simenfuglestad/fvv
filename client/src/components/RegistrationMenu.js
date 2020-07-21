@@ -14,24 +14,33 @@ class RegMenu extends Component {
       currentObjectName : "Velg en kategori",
       currentObjectID : 0,
       enteredData : [],
-      objectProperties : {},
+      objectProperties : [],
       currentValue : "",
       begunCategorySelect : false,
     };
 
-    this.categoryNamesIDs = this.getObjectNames(Datastore.get('vegobjekttyper?inkluder=alle'));
+    //initalizes here if props update before menu is opened
+    this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
+    this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
     this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
-    this.typeData = Datastore.get('vegobjekttyper?inkluder=alle')
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDoneClick = this.handleDoneClick.bind(this);
-    this.handleSelectValue = this.handleSelectValue.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
-
+    this.updateUserSelection = this.updateUserSelection.bind(this);
     this.abortBtn = React.createRef();
 
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
+  }
+
+  //wait for props to update, useful for when users open menu before loading is complete
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.roadObjects !== this.props.roadObjects) {
+      this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
+      this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
+      this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
+      this.setState({}) //forces a re-render
+    }
   }
 
   createSelectOptions(objects) {
@@ -91,7 +100,7 @@ class RegMenu extends Component {
   }
 
   setCurrentVals(objectName) {
-    let obj = Datastore.get('vegobjekttyper?inkluder=alle');
+    let obj = this.roadObjectTypes;
     obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
     if(obj !== undefined && obj !== null) {
@@ -108,7 +117,7 @@ class RegMenu extends Component {
     }
 
   setCurrentObjectID(objectName) {
-    let obj = this.categoryNamesIDs.filter(o =>{
+    let obj = this.getObjectNames(this.roadObjectTypes).filter(o =>{
       return o.name === objectName;
     })[0];
     if(obj !== undefined && obj !== null) {
@@ -133,28 +142,33 @@ class RegMenu extends Component {
     this.setState({ begunCategorySelect : begunCategorySelect })
   }
 
-  updateUserSelection(data, index) {
+  updateUserSelection(input, index) {
+    let data = input.target.value;
     let newEnteredData = [...this.state.enteredData];
-    newEnteredData[index] = data;
-    this.setState(prevState => ({
+    if (input !== "") {
+      newEnteredData[index] = data;
+    } else {
+      newEnteredData[index] = undefined;
+    }
+    this.setState({
       enteredData : newEnteredData
-    }));
-  }
-
-  handleSelectValue(event, i) {
-    this.updateUserSelection(event.target.value, i);
-  }
-
-  handleInputChange(event, i) {
-    this.updateUserSelection(event.target.value, i);
+    });
   }
 
   handleDoneClick(event) {
-    if(this.state.enteredData.length !== 0) {
+    if(this.verifyInput()) {
       let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
       this.props.handleDoneReg(processedData);
     } else {
       alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
+    }
+  }
+
+  verifyInput() {
+    if(this.state.enteredData.find(e => e !== undefined)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -180,13 +194,12 @@ class RegMenu extends Component {
       egenskaper: []
     }
     let properties = [];
-    let curObjectData = this.typeData.filter(v => (v.id === this.currentObjectID))[0];
+    let curObjectData = this.roadObjectTypes.filter(v => (v.id === this.currentObjectID))[0];
 
-    console.log(curObjectData)
     curObjectData.egenskapstyper.forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
         properties.push({typeId: item.id, verdi: this.state.enteredData[i]})
-      } 
+      }
     });
     resultObject.egenskaper = properties;
     return resultObject
@@ -195,10 +208,9 @@ class RegMenu extends Component {
   render() {
     return (
       <div className="RegMenu">
-        
         <div className="RegSearchDiv">
           <Select className="RegSelectMenu"
-                  onChange={this.handleSelectCategoryChange}
+                  onChange={(e) => {this.handleSelectCategoryChange(e)}}
                   placeholder="Trykk her for å starte"
                   options={this.categoryOptions}/>
         </div>
@@ -208,38 +220,35 @@ class RegMenu extends Component {
               onClick={() => {this.handleCloseClick(this.abortBtn)}}
               ref={this.abortBtn}/>
 
-        <div className="RegForm">
-          {this.state.begunCategorySelect &&
-            <div>
-              {Object.keys(this.state.objectProperties).map((k, i) => {
-                if(this.state.objectProperties[k].length !== 0) return (
-                  <div key={i} className="RegFormUserInput">
-                    <label key={i+'l'}>{k}</label>
-
-                    <select key={i+'s'} defaultValue="" onChange={(e) => this.handleSelectValue(e, i)}>
-                      <option value=""></option>
-                      {this.state.objectProperties[k].map((v, i) =>
-                          <option key={i} value={v}>{v}</option>
-                      )}
-                    </select>
-                    <br></br>
-                  </div>
-                )
-                else return (
-                  <div key={i} className="RegFormUserInput">
-                    <label key={i+'l'}>{k}</label>
-                    <input type="text" onChange={(e) => this.handleInputChange(e, i)}></input>
-                    <br></br>
-                  </div>
-                )}
+        {this.state.begunCategorySelect &&
+          <div className="RegForm">
+            {Object.keys(this.state.objectProperties).map((k, i) => {
+              if(this.state.objectProperties[k].length !== 0) return (
+                <div key={i} className="RegFormUserInput">
+                  <label key={i+'l'}>{k}</label>
+                  <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
+                    <option value=""></option>
+                    {this.state.objectProperties[k].map((v, i) =>
+                        <option key={i} value={v}>{v}</option>
+                    )}
+                  </select>
+                  <br></br>
+                </div>
+              )
+              else return (
+                <div key={i} className="RegFormUserInput">
+                  <label key={i+'l'}>{k}</label>
+                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>
+                  <br></br>
+                </div>
               )}
-            </div>
+            )}
+          </div>
 
           }
           <br></br>
-        </div>
-        
-        {this.state.begunCategorySelect && 
+
+        {this.state.begunCategorySelect &&
           <div className="RegFormUserSubmit">
             {this.props.photo !== null ?
               <div className="PhotoDiv" >
