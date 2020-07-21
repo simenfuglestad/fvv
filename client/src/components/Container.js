@@ -12,6 +12,7 @@ import CameraView from './CameraView';
 import WorkOrderForm from './WorkOrderForm';
 import MarkerManager from './MarkerManager';
 import ColorPicker from './ColorPicker'
+import Datastore from './../Datastore';
 
 class Container extends Component {
   constructor(props) {
@@ -90,6 +91,7 @@ class Container extends Component {
           this.state.isRegMenuOpen &&
 
           <RegistrationMenu
+            roadObjects={Datastore.get('vegobjekttyper?inkluder=alle')}
             handleDoneReg={this.handleDoneReg}
             handleClose={this.toggleObjectReg}
             openCameraView={this.handleOpenCamera}
@@ -101,19 +103,19 @@ class Container extends Component {
 
         {
           this.state.isCaseMenuOpen &&
-          <CaseRegistration 
-            map={this.props.map} 
-            toggleCaseReg={this.toggleCaseReg} 
-            registerCase={this.props.registerCase} 
+          <CaseRegistration
+            map={this.props.map}
+            toggleCaseReg={this.toggleCaseReg}
+            registerCase={this.props.registerCase}
             data={this.state.caseData}
             clickedMarker={this.state.clickedMarker}
             addMarkerCollection={this.addMarkerCollection}
           />
         }
 
-        { this.state.isCaseListOpen && 
-          <CaseList 
-            caseList={this.props.caseList} 
+        { this.state.isCaseListOpen &&
+          <CaseList
+            caseList={this.props.caseList}
             toggleCaseList={this.toggleCaseList}
             selected={this.state.caseData}
             selectCase={this.handleCaseMarkerClick}
@@ -290,7 +292,7 @@ class Container extends Component {
         return;
       }
     }
-    
+
     this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
 
