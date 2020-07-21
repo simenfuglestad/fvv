@@ -18,27 +18,28 @@ class RegMenu extends Component {
       currentValue : "",
       begunCategorySelect : false,
     };
-    //initalizes here if props update before menu is actually opened
+
+    //initalizes here if props update before menu is opened
     this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
     this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
     this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDoneClick = this.handleDoneClick.bind(this);
-    this.handleSelectValue = this.handleSelectValue.bind(this);
     this.handleCloseClick = this.handleCloseClick.bind(this);
-
+    this.updateUserSelection = this.updateUserSelection.bind(this);
     this.abortBtn = React.createRef();
 
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
+  //wait for props to update, useful for when users open menu before loading is complete
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.roadObjects !== this.props.roadObjects) {
-      this.roadObjectTypes = this.props.roadObjects;
+      this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
       this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
       this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
+      this.setState({}) //forces a re-render
     }
   }
 
@@ -141,28 +142,33 @@ class RegMenu extends Component {
     this.setState({ begunCategorySelect : begunCategorySelect })
   }
 
-  updateUserSelection(data, index) {
+  updateUserSelection(input, index) {
+    let data = input.target.value;
     let newEnteredData = [...this.state.enteredData];
-    newEnteredData[index] = data;
-    this.setState(prevState => ({
+    if (input !== "") {
+      newEnteredData[index] = data;
+    } else {
+      newEnteredData[index] = undefined;
+    }
+    this.setState({
       enteredData : newEnteredData
-    }));
-  }
-
-  handleSelectValue(event, i) {
-    this.updateUserSelection(event.target.value, i);
-  }
-
-  handleInputChange(event, i) {
-    this.updateUserSelection(event.target.value, i);
+    });
   }
 
   handleDoneClick(event) {
-    if(this.state.enteredData.length !== 0) {
+    if(this.verifyInput()) {
       let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
       this.props.handleDoneReg(processedData);
     } else {
       alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
+    }
+  }
+
+  verifyInput() {
+    if(this.state.enteredData.find(e => e !== undefined)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -220,7 +226,7 @@ class RegMenu extends Component {
               if(this.state.objectProperties[k].length !== 0) return (
                 <div key={i} className="RegFormUserInput">
                   <label key={i+'l'}>{k}</label>
-                  <select key={i+'s'} defaultValue="" onChange={(e) => this.handleSelectValue(e, i)}>
+                  <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
                     <option value=""></option>
                     {this.state.objectProperties[k].map((v, i) =>
                         <option key={i} value={v}>{v}</option>
@@ -232,7 +238,7 @@ class RegMenu extends Component {
               else return (
                 <div key={i} className="RegFormUserInput">
                   <label key={i+'l'}>{k}</label>
-                  <input type="text" onChange={(e) => this.handleInputChange(e, i)}></input>
+                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>
                   <br></br>
                 </div>
               )}
