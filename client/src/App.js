@@ -15,6 +15,7 @@ class App extends Component {
       issues: [],
       caseList: [],
       isLoggedIn: false,
+      failedLogin: null,
     }
     this.server = new ServerConnection()
 
@@ -99,18 +100,20 @@ class App extends Component {
     );
   }
 
-  handleLogout(event) {
+  async handleLogout(event) {
+    let logoutStatus = await this.server.logout();
+    console.log(logoutStatus);
     this.setState({
       isLoggedIn : false
-    })
-    this.forceUpdate();
+    });
+    alert("Du har blitt logget ut");
   }
 
   async handleLogin(loginObject) {
-    let loginstatus = await this.server.login(loginObject.enteredUsername, loginObject.enteredPassword);
+    let loginStatus = await this.server.login(loginObject.enteredUsername, loginObject.enteredPassword);
 
     this.setState({
-      isLoggedIn : loginstatus.data,
+      isLoggedIn : loginStatus.data,
     })
     console.log(this.state.isLoggedIn);
   }
