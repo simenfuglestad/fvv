@@ -5,6 +5,7 @@ import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
 import CaseList from './CaseList';
 import CameraView from './CameraView';
+import LoginView from './LoginView';
 
 
 class Container extends Component {
@@ -23,6 +24,7 @@ class Container extends Component {
     }
 
     this.isCameraOpen = false;
+
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.togglePolyFilter = this.togglePolyFilter.bind(this);
@@ -36,7 +38,9 @@ class Container extends Component {
     this.toggleObjectReg = this.toggleObjectReg.bind(this);
     this.toggleCaseList = this.toggleCaseList.bind(this);
     this.toggleCaseReg = this.toggleCaseReg.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
+
 
   componentDidUpdate(prevProps, prevState){
     if(prevState.caseData !== this.state.caseData && this.state.caseData !== null){
@@ -46,19 +50,25 @@ class Container extends Component {
 
   render() {
     return (
-      <div
-        className="Container"
-      >
-        { !this.state.isCaseListOpen && <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+      <div className="Container">
+        {
+          !this.props.isLoggedIn &&
+          <LoginView handleLogin={this.handleLogin}></LoginView>
+        }
 
-        {this.state.isCameraOpen &&
+        {
+          !this.state.isCaseListOpen && this.props.isLoggedIn &&
+          <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+
+        {
+          this.state.isCameraOpen &&
           <CameraView
             closeCameraView={this.handleCloseCamera}>
           </CameraView>
         }
 
         {
-          this.state.isRegMenuOpen &&
+          this.state.isRegMenuOpen && this.props.isLoggedIn &&
 
           <RegistrationMenu
             handleDoneReg={this.handleDoneReg}
@@ -71,7 +81,7 @@ class Container extends Component {
         }
 
         {
-          this.state.isCaseMenuOpen &&
+          this.state.isCaseMenuOpen && this.props.isLoggedIn &&
           <CaseRegistration
             map={this.props.map}
             toggleCaseReg={this.toggleCaseReg}
@@ -80,7 +90,8 @@ class Container extends Component {
           />
         }
 
-        { this.state.isCaseListOpen &&
+        {
+          this.state.isCaseListOpen && this.props.isLoggedIn &&
           <CaseList
             caseList={this.props.caseList}
             toggleCaseList={this.toggleCaseList}
@@ -89,18 +100,18 @@ class Container extends Component {
           />
         }
 
-        <RightMenu
-          roadObjectTypes={this.props.roadObjectTypes}
-          showMarkerInfo={this.state.showMarkerInfo}
-          handleFilters={this.props.handleFilters}
-          filters={this.props.filters}
-          map={this.props.map}
-          togglePolyFilter={this.togglePolyFilter}
-          handleClickOutside={this.closeDataDisplay}
-        />
-
-
-
+        {
+          this.props.isLoggedIn &&
+          <RightMenu
+            roadObjectTypes={this.props.roadObjectTypes}
+            showMarkerInfo={this.state.showMarkerInfo}
+            handleFilters={this.props.handleFilters}
+            filters={this.props.filters}
+            map={this.props.map}
+            togglePolyFilter={this.togglePolyFilter}
+            handleClickOutside={this.closeDataDisplay}
+          />
+        }
         <MapView
           currentLocation={this.props.currentLocation}
           map= {this.props.map}
@@ -116,8 +127,20 @@ class Container extends Component {
           handleContextClick={this.handleContextClick}
           handleCaseMarkerClick={this.handleCaseMarkerClick}
         />
+        {
+          this.props.isLoggedIn &&
+          <button className="LogoutBtn"
+                  value="Log ut"
+                  onClick={this.props.handleLogout}>{"Log ut"}
+          </button>
+        }
       </div>
     );
+  }
+
+  handleLogin(loginObject) {
+    console.log(loginObject);
+    this.props.handleLogin(loginObject);
   }
 
   clearImageData(event) {
