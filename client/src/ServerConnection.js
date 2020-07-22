@@ -45,6 +45,11 @@ export default class ServerConnection {
       return res;
     }
 
+    async logout() {
+      const res = await axios.post('/logout');
+      return res;
+    }
+
     async pusheNewObjectToNvdb(newObject, coords) {
       const res = await axios.post('/registerNewObject', [newObject, coords]);
     }

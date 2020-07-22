@@ -21,9 +21,9 @@ axios.interceptors.request.use(function (config) {
 
 const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
 
-let token;
-let tokenName;
-let isAuthenticated;
+let token = null;
+let tokenName = null;
+let isAuthenticated = false;
 // getToken();
 
 
@@ -39,7 +39,33 @@ app.post('/login', async(req, res) =>{
   res.send(isAuthenticated);
 });
 
-// async function
+app.post('/logout', async(req, res) => {
+  if(token !== null || tokenName !== null || isAuthenticated !== false) {
+    let config = {
+      method : 'post',
+      url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/logout',
+      headers : {
+        'Content-Type' : 'application/json'
+      },
+      data : {
+        token : token,
+      }
+    }
+    try {
+      let logoutRes = await axios(config);
+      console.log(logoutRes);
+      isAuthenticated = false;
+      token = null;
+      tokenName = null;
+      res.send(isAuthenticated)
+    }
+    catch (error) {
+      console.log("Error occurred when invalidating token:" + error);
+    }
+  } else {
+    res.send(isAuthenticated)
+  }
+})
 
 async function getToken(username, password) {
   let config = {

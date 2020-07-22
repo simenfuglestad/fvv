@@ -23,7 +23,6 @@ class Container extends Component {
         regObjectPos : null
     }
 
-
     this.isCameraOpen = false;
 
     this.handleMarkerClick = this.handleMarkerClick.bind(this);
