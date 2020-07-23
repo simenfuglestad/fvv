@@ -122,6 +122,36 @@ header{
   padding: 5px 0px;
 }
 
+.unspecifiedLabel {
+
+}
+
+.obsoleteLabel {
+  opacity: 0.5;
+}
+
+.unimportantLabel {
+  color: blue;
+}
+
+.optionalLabel {
+  color : green;
+}
+
+.contingentLabel {
+  color: yellow;
+}
+
+.importantLabel {
+  color : orange;
+  /* text-decoration: underline; */
+}
+
+.criticalLabel {
+  color : red;
+  text-decoration: underline;
+}
+
 .RegFormUserSubmit {
   grid-column-start: span 2;
 
@@ -346,4 +376,3 @@ table{
     grid-template-columns: 1fr 2fr;
   }
 }
-
