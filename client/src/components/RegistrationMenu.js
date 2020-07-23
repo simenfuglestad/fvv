@@ -7,6 +7,7 @@ import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
 import ConfirmImg from  './../assets/checked-pngrepo-com.png';
 import Select from 'react-select';
 
+
 class RegMenu extends Component {
   constructor(props) {
     super(props);
@@ -72,31 +73,51 @@ class RegMenu extends Component {
 
   /*
   * Fetches all entries a user can modify during registration
-  * Structed as Object with name as key and list of possible values as value
+  * return: Structed Object with name as key and list of possible values as value
   */
   fetchObjectProperties(obj) {
-    let attributes = obj.egenskapstyper;
+    let inputFields = this.sortInputFields(obj);
+    let properties = inputFields.egenskapstyper;
+
     let result = {};
-    if(attributes !== undefined) {
-      attributes.forEach((item, i) => {
 
-        let name = item["navn"];
+    if(properties !== undefined) {
+      properties.forEach((item, i) => {
+        let propertyName = item["navn"];
+        result[propertyName] = [];
+
         for (var key in item) {
-
-          result[name] = [];
           if (key === "tillatte_verdier") {
             let tmp_list = [];
 
             item[key].forEach((item2, i) => {
               tmp_list.push(item2["verdi"]);
             });
-            result[name] = tmp_list;
+            result[propertyName] = tmp_list;
             break;
           }
         }
       });
     }
     return result;
+  }
+
+  sortInputFields(object) {
+    let importanceLevels = {"PÅKREVD_ABSOLUTT" : 6, "PÅKREVD_IKKE_ABSOLUTT" : 5,
+                            "BETINGET" : 4, "OPSJONELL" : 3, "MINDRE_VIKTIG" : 2,
+                            "HISTORISK" : 1, "IKKE_SATT" : 0};
+
+    let properties = object.egenskapstyper;
+    properties.sort((a, b) => {
+        let importance_a = importanceLevels[a.viktighet];
+        let importance_b = importanceLevels[b.viktighet];
+
+        if(importance_a < importance_b) return 1;
+        else if (importance_a === importance_b) return 0;
+        else return -1;
+    });
+    object.egenskapstyper = properties;
+    return object;
   }
 
   setCurrentVals(objectName) {
@@ -157,8 +178,7 @@ class RegMenu extends Component {
 
   handleDoneClick(event) {
     if(this.verifyInput()) {
-      let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
-      this.props.handleDoneReg(processedData);
+      this.props.handleDoneReg(this.processEnteredData());
     } else {
       alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
     }
