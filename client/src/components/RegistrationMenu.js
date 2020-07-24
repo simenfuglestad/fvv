@@ -13,6 +13,7 @@ class RegMenu extends Component {
     super(props);
     this.state = {
       currentObjectName : "Velg en kategori",
+      currentObject : {},
       currentObjectID : 0,
       enteredData : [],
       objectProperties : {},
@@ -20,6 +21,7 @@ class RegMenu extends Component {
       currentValue : "",
       begunCategorySelect : false,
       NVDBstatus : "",
+      currentPropertyTypes : [],
     };
 
     //initalizes here if props update before menu is opened
@@ -56,10 +58,12 @@ class RegMenu extends Component {
 
   getObjectNames(objects) {
     let result = [];
+    let objNameMap = {};
     objects.forEach((item, i) => {
       let o = {};
       o["name"] = item.navn;
       o["id"] = item.id;
+      o["data"] = item;
       result.push(o);
     });
 
@@ -69,7 +73,7 @@ class RegMenu extends Component {
       if (n < m) return -1;
       else if(n === m) return 0;
       else return 1;
-   });
+    });
     return result;
   }
 
@@ -77,17 +81,17 @@ class RegMenu extends Component {
   * Fetches all entries a user can modify during registration
   * return: Structed Object with name as key and list of possible values as value
   */
-  fetchObjectProperties(obj) {
+  fetchObjectPropertiesAndTypes(obj) {
     console.log(obj);
     let inputFields = this.sortInputFields(obj);
     let properties = inputFields.egenskapstyper;
-
-    let result = {};
+    let nameValues = {};
+    let types = {};
 
     if(properties !== undefined) {
       properties.forEach((item, i) => {
-        let propertyName = item["navn"];
-        result[propertyName] = [];
+        nameValues[item["navn"]] = [];
+        types[item["navn"]] = item.egenskapstype;
 
         for (var key in item) {
           if (key === "tillatte_verdier") {
@@ -96,13 +100,13 @@ class RegMenu extends Component {
             item[key].forEach((item2, i) => {
               tmp_list.push(item2["verdi"]);
             });
-            result[propertyName] = tmp_list;
+            nameValues[item["navn"]] = tmp_list;
             break;
           }
         }
       });
     }
-    return result;
+    return [nameValues, types];
   }
 
 
@@ -154,17 +158,20 @@ class RegMenu extends Component {
     obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
     if(obj !== undefined && obj !== null) {
-      let objProps = this.fetchObjectProperties(obj);
+      let fetchedProperties = this.fetchObjectPropertiesAndTypes(obj);
+      let objProps = fetchedProperties[0];
+      let types = fetchedProperties[1];
       let status = this.formatStatus(obj.status);
-      console.log(status);
       this.setState({
         objectProperties : objProps,
-        NVDBstatus : status
+        NVDBstatus : status,
+        currentPropertyTypes : types
       });
     } else {
       //invalid object
         this.setState({
           objectProperties : [],
+          currentPropertyTypes : []
         });
       }
 
@@ -181,8 +188,8 @@ class RegMenu extends Component {
     }
   }
 
-  handleSelectCategoryChange(event) {
-    let val = event.label;
+  handleSelectCategoryChange(e) {
+    let val = e.label;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
     this.setCurrentProperties(val);
@@ -196,7 +203,7 @@ class RegMenu extends Component {
     this.setState({ begunCategorySelect : begunCategorySelect })
   }
 
-  updateUserSelection(input, index) {
+  updateUserSelection(input, index, obj) {
     let data = input.target.value;
     let newEnteredData = [...this.state.enteredData];
     if (input !== "") {
@@ -209,20 +216,50 @@ class RegMenu extends Component {
     });
   }
 
+
   handleDoneClick(event) {
-    if(this.verifyInput()) {
+    let verifyCheck = this.verifyInput();
+    if(verifyCheck === true) {
       this.props.handleDoneReg(this.processEnteredData());
-    } else {
-      alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
+    }
+    else if(verifyCheck !== false) {
+      alert("Feil i felt '" + verifyCheck[0] + "', må ha verdi av type " + verifyCheck[1]);
+    }
+    else {
+      alert("Ingen verdier er fylt inn, kan ikke registrere tomt objekt.");
     }
   }
 
   verifyInput() {
-    if(this.state.enteredData.find(e => e !== undefined)) {
-      return true;
-    } else {
-      return false;
+    let objPropertyKeys = Object.keys(this.state.objectProperties);
+    for (let i = 0; i < this.state.enteredData.length; i++) {
+      let data = this.state.enteredData[i];
+      if (data !== undefined) {
+        let propertyName = objPropertyKeys[i];
+        let type = this.state.currentPropertyTypes[propertyName];
+        console.log(type);
+        switch(type.toLowerCase()) {
+          case "heltall" :
+            let n = Number(data);
+            if (isNaN(Number(data))) {
+              return [propertyName, "heltall"];
+            }
+          case "flyttall"  :
+            if (isNaN(Number(data))){
+              return [propertyName, "flyttall"];
+            }
+            break;
+          case "tekst" :
+            if (typeof data !== 'string') {
+              return [propertyName, "tekst"];;
+            }
+            break;
+          default :
+        }
+      }
     }
+
+    return true;
   }
 
   handleCloseClick(event) {
@@ -281,7 +318,7 @@ class RegMenu extends Component {
               return (
                 <div key={i} className={"RegFormUserInput"}>
                   {(this.state.objectPropertyImportances[i] === 0) && <label className="unspecifiedLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoletetLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoleteLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 2) && <label className="unimportantLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 3) && <label className="optionalLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 4) && <label className="contingentLabel" key={i+'l'}>{k}</label>}
@@ -295,7 +332,7 @@ class RegMenu extends Component {
                     )}
                   </select>
                   :
-                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>}
+                  <input type="text" onChange={(e) => this.updateUserSelection(e, i, this.state.currentPropertyTypes[k])}></input>}
                   <br></br>
                 </div>
                 )
