@@ -7,6 +7,7 @@ import RemovePhotoImg from './../assets/unchecked-pngrepo-com.png';
 import ConfirmImg from  './../assets/checked-pngrepo-com.png';
 import Select from 'react-select';
 
+
 class RegMenu extends Component {
   constructor(props) {
     super(props);
@@ -14,9 +15,11 @@ class RegMenu extends Component {
       currentObjectName : "Velg en kategori",
       currentObjectID : 0,
       enteredData : [],
-      objectProperties : [],
+      objectProperties : {},
+      objectPropertyImportances : [], //sorted from most to least
       currentValue : "",
       begunCategorySelect : false,
+      NVDBstatus : "",
     };
 
     //initalizes here if props update before menu is opened
@@ -33,7 +36,7 @@ class RegMenu extends Component {
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
-  //wait for props to update, useful for when users open menu before loading is complete
+  //wait for props to update, useful if users open menu before loading is complete
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.roadObjects !== this.props.roadObjects) {
       this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
@@ -72,25 +75,28 @@ class RegMenu extends Component {
 
   /*
   * Fetches all entries a user can modify during registration
-  * Structed as Object with name as key and list of possible values as value
+  * return: Structed Object with name as key and list of possible values as value
   */
   fetchObjectProperties(obj) {
-    let attributes = obj.egenskapstyper;
+    console.log(obj);
+    let inputFields = this.sortInputFields(obj);
+    let properties = inputFields.egenskapstyper;
+
     let result = {};
-    if(attributes !== undefined) {
-      attributes.forEach((item, i) => {
 
-        let name = item["navn"];
+    if(properties !== undefined) {
+      properties.forEach((item, i) => {
+        let propertyName = item["navn"];
+        result[propertyName] = [];
+
         for (var key in item) {
-
-          result[name] = [];
           if (key === "tillatte_verdier") {
             let tmp_list = [];
 
             item[key].forEach((item2, i) => {
               tmp_list.push(item2["verdi"]);
             });
-            result[name] = tmp_list;
+            result[propertyName] = tmp_list;
             break;
           }
         }
@@ -99,14 +105,61 @@ class RegMenu extends Component {
     return result;
   }
 
-  setCurrentVals(objectName) {
+
+  sortInputFields(object) {
+    let importanceLevels = {"PÅKREVD_ABSOLUTT" : 6, "PÅKREVD_IKKE_ABSOLUTT" : 5,
+                            "BETINGET" : 4, "OPSJONELL" : 3, "MINDRE_VIKTIG" : 2,
+                            "HISTORISK" : 1, "IKKE_SATT" : 0};
+
+    let properties = object.egenskapstyper;
+    properties.sort((a, b) => {
+        let importance_a = importanceLevels[a.viktighet];
+        let importance_b = importanceLevels[b.viktighet];
+
+        if(importance_a < importance_b) return 1;
+        else if (importance_a === importance_b) return 0;
+        else return -1;
+    });
+
+    let sortedImportanceVals = [];
+    properties.forEach((item, i) => {
+      sortedImportanceVals.push(importanceLevels[item.viktighet])
+    });
+
+    this.setState({
+      objectPropertyImportances : sortedImportanceVals
+    })
+    object.egenskapstyper = properties;
+    return object;
+  }
+
+  formatStatus(status) {
+    switch(status.toLowerCase()) {
+      case "nvdb, ok" :
+        return "OK";
+        break;
+      case "nvdb, test" :
+        return "TEST";
+        break;
+      case "nvdb, til revisjon" :
+        return "TIL REVISJON";
+        break;
+      default :
+        return status;
+    }
+  }
+
+  setCurrentProperties(objectName) {
     let obj = this.roadObjectTypes;
     obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
     if(obj !== undefined && obj !== null) {
       let objProps = this.fetchObjectProperties(obj);
+      let status = this.formatStatus(obj.status);
+      console.log(status);
       this.setState({
         objectProperties : objProps,
+        NVDBstatus : status
       });
     } else {
       //invalid object
@@ -114,10 +167,11 @@ class RegMenu extends Component {
           objectProperties : [],
         });
       }
+
     }
 
   setCurrentObjectID(objectName) {
-    let obj = this.getObjectNames(this.roadObjectTypes).filter(o =>{
+    let obj = this.categoryNamesIDs.filter(o =>{
       return o.name === objectName;
     })[0];
     if(obj !== undefined && obj !== null) {
@@ -131,7 +185,7 @@ class RegMenu extends Component {
     let val = event.label;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
-    this.setCurrentVals(val);
+    this.setCurrentProperties(val);
 
     let begunCategorySelect;
     if(val ==="Velg en kategori") {
@@ -157,8 +211,7 @@ class RegMenu extends Component {
 
   handleDoneClick(event) {
     if(this.verifyInput()) {
-      let processedData = this.processEnteredData(this.state.enteredData, this.state.objectProperties);
-      this.props.handleDoneReg(processedData);
+      this.props.handleDoneReg(this.processEnteredData());
     } else {
       alert("Du har ikke valgt noen verdier! Fyll inn og prøv igjen.")
     }
@@ -213,6 +266,8 @@ class RegMenu extends Component {
                   onChange={(e) => {this.handleSelectCategoryChange(e)}}
                   placeholder="Trykk her for å starte"
                   options={this.categoryOptions}/>
+          <br></br>
+          {(this.state.NVDBstatus.length > 0) && <label>{"NVDB Status: " + this.state.NVDBstatus}</label>}
         </div>
 
         <img  src={ExitImg}
@@ -223,30 +278,31 @@ class RegMenu extends Component {
         {this.state.begunCategorySelect &&
           <div className="RegForm">
             {Object.keys(this.state.objectProperties).map((k, i) => {
-              if(this.state.objectProperties[k].length !== 0) return (
-                <div key={i} className="RegFormUserInput">
-                  <label key={i+'l'}>{k}</label>
-                  <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
+              return (
+                <div key={i} className={"RegFormUserInput"}>
+                  {(this.state.objectPropertyImportances[i] === 0) && <label className="unspecifiedLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoletetLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 2) && <label className="unimportantLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 3) && <label className="optionalLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 4) && <label className="contingentLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 5) && <label className="importantLabel" key={i+'l'}>{k+"*"}</label>}
+                  {(this.state.objectPropertyImportances[i] === 6) && <label className="criticalLabel" key={i+'l'}>{k+"**"}</label>}
+                  {this.state.objectProperties[k].length !== 0 ?
+                    <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
                     <option value=""></option>
                     {this.state.objectProperties[k].map((v, i) =>
                         <option key={i} value={v}>{v}</option>
                     )}
                   </select>
+                  :
+                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>}
                   <br></br>
                 </div>
-              )
-              else return (
-                <div key={i} className="RegFormUserInput">
-                  <label key={i+'l'}>{k}</label>
-                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>
-                  <br></br>
-                </div>
-              )}
+                )
+              }
             )}
           </div>
-
           }
-          <br></br>
 
         {this.state.begunCategorySelect &&
           <div className="RegFormUserSubmit">
@@ -269,9 +325,9 @@ class RegMenu extends Component {
             <img    src={ConfirmImg}
                     className="CompleteRegButton"
                     onClick={(e) => this.handleDoneClick(e)}/>
+            <br></br>
           </div>
         }
-
       </div>
     )
   }
