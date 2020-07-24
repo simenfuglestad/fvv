@@ -16,14 +16,11 @@ class RegMenu extends Component {
       currentObjectID : 0,
       enteredData : [],
       objectProperties : {},
-      objectPropertyImportances : [],
+      objectPropertyImportances : [], //sorted from most to least
       currentValue : "",
       begunCategorySelect : false,
-
+      NVDBstatus : "",
     };
-    this.importanceLevels = {"PÅKREVD_ABSOLUTT" : 6, "PÅKREVD_IKKE_ABSOLUTT" : 5,
-                            "BETINGET" : 4, "OPSJONELL" : 3, "MINDRE_VIKTIG" : 2,
-                            "HISTORISK" : 1, "IKKE_SATT" : 0};
 
     //initalizes here if props update before menu is opened
     this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
@@ -39,7 +36,7 @@ class RegMenu extends Component {
     this.currentObjectID = -1; //this needs to be outside state or else updating fails
   }
 
-  //wait for props to update, useful for when users open menu before loading is complete
+  //wait for props to update, useful if users open menu before loading is complete
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.roadObjects !== this.props.roadObjects) {
       this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
@@ -81,6 +78,7 @@ class RegMenu extends Component {
   * return: Structed Object with name as key and list of possible values as value
   */
   fetchObjectProperties(obj) {
+    console.log(obj);
     let inputFields = this.sortInputFields(obj);
     let properties = inputFields.egenskapstyper;
 
@@ -135,14 +133,33 @@ class RegMenu extends Component {
     return object;
   }
 
-  setCurrentVals(objectName) {
+  formatStatus(status) {
+    switch(status.toLowerCase()) {
+      case "nvdb, ok" :
+        return "OK";
+        break;
+      case "nvdb, test" :
+        return "TEST";
+        break;
+      case "nvdb, til revisjon" :
+        return "TIL REVISJON";
+        break;
+      default :
+        return status;
+    }
+  }
+
+  setCurrentProperties(objectName) {
     let obj = this.roadObjectTypes;
     obj = obj.filter(v => (v.id === this.currentObjectID))[0];
 
     if(obj !== undefined && obj !== null) {
       let objProps = this.fetchObjectProperties(obj);
+      let status = this.formatStatus(obj.status);
+      console.log(status);
       this.setState({
         objectProperties : objProps,
+        NVDBstatus : status
       });
     } else {
       //invalid object
@@ -168,7 +185,7 @@ class RegMenu extends Component {
     let val = event.label;
     this.setState({currentObjectName : val});
     this.setCurrentObjectID(val);
-    this.setCurrentVals(val);
+    this.setCurrentProperties(val);
 
     let begunCategorySelect;
     if(val ==="Velg en kategori") {
@@ -249,6 +266,8 @@ class RegMenu extends Component {
                   onChange={(e) => {this.handleSelectCategoryChange(e)}}
                   placeholder="Trykk her for å starte"
                   options={this.categoryOptions}/>
+          <br></br>
+          {(this.state.NVDBstatus.length > 0) && <label>{"NVDB Status: " + this.state.NVDBstatus}</label>}
         </div>
 
         <img  src={ExitImg}
@@ -259,41 +278,31 @@ class RegMenu extends Component {
         {this.state.begunCategorySelect &&
           <div className="RegForm">
             {Object.keys(this.state.objectProperties).map((k, i) => {
-              if(this.state.objectProperties[k].length !== 0) return (
+              return (
                 <div key={i} className={"RegFormUserInput"}>
                   {(this.state.objectPropertyImportances[i] === 0) && <label className="unspecifiedLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoletetLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 2) && <label className="unimportantLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 3) && <label className="optionalLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 4) && <label className="contigentLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 4) && <label className="contingentLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 5) && <label className="importantLabel" key={i+'l'}>{k+"*"}</label>}
                   {(this.state.objectPropertyImportances[i] === 6) && <label className="criticalLabel" key={i+'l'}>{k+"**"}</label>}
-                  <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
+                  {this.state.objectProperties[k].length !== 0 ?
+                    <select key={i+'s'} defaultValue="" onChange={(e) => this.updateUserSelection(e, i)}>
                     <option value=""></option>
                     {this.state.objectProperties[k].map((v, i) =>
                         <option key={i} value={v}>{v}</option>
                     )}
                   </select>
+                  :
+                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>}
                   <br></br>
                 </div>
-              )
-              else return (
-                <div key={i} className={"RegFormUserInput"}>
-                  {(this.state.objectPropertyImportances[i] === 0) && <label className="unspecifiedLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoletetLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 2) && <label className="unimportantLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 3) && <label className="optionalLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 4) && <label className="contigentLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 5) && <label className="importantLabel" key={i+'l'}>{k+"*"}</label>}
-                  {(this.state.objectPropertyImportances[i] === 6) && <label className="criticalLabel" key={i+'l'}>{k+"**"}</label>}
-                  <input type="text" onChange={(e) => this.updateUserSelection(e, i)}></input>
-                </div>
-              )}
+                )
+              }
             )}
           </div>
-
           }
-          <br></br>
 
         {this.state.begunCategorySelect &&
           <div className="RegFormUserSubmit">
