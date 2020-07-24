@@ -206,12 +206,14 @@ class Container extends Component {
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
+        isCaseMenuOpen : false,
       })
       return;
     }
     if(event.current.innerHTML === 'Ny Sak'){
       this.setState({
         isCaseMenuOpen :  true,
+        isRegMenuOpen : false,
         caseData: {lat : latlng[0], lng: latlng[1]}
       })
       return;
