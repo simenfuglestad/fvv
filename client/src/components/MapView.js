@@ -26,6 +26,7 @@ class MapView extends Component {
       finished: false,
       contextMenuDetails: {lat : 0, lng : 0},
       showContextMenu : false,
+      isLoggedIn : false,
     }
     this.colorScheme = ['#1f78b4','#33a02c','#e31a1c','#ff7f00','#6a3d9a','#b15928','#ffff99','#cab2d6','#fdbf6f','#fb9a99','#b2df8a','#a6cee3'];
     this.markers = {};
@@ -39,7 +40,7 @@ class MapView extends Component {
 
 
   handleContextMenu(event) {
-    if(!this.props.drawing || this.state.finished) {
+    if((!this.props.drawing || this.state.finished) && this.state.isLoggedIn) {
       let lat = event.latlng.lat;
       let lng = event.latlng.lng;
 
@@ -80,12 +81,16 @@ class MapView extends Component {
     );
   }
 
+
+
   handleContextClick(button){
-    this.setState({
-      showContextMenu: false
-    })
-    if(button){
-      this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
+    if(this.state.isLoggedIn) {
+      this.setState({
+        showContextMenu: false
+      })
+      if(button){
+        this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
+      }
     }
   }
 
@@ -93,6 +98,8 @@ class MapView extends Component {
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
+    else if(prevProps.isLoggedIn !== this.props.isLoggedIn)
+      this.setState({isLoggedIn : true})
   }
 
   drawCaseMarkers(caseListAndCurrent){

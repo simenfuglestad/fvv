@@ -52,6 +52,8 @@ export default class ServerConnection {
 
     async pusheNewObjectToNvdb(newObject, coords) {
       const res = await axios.post('/registerNewObject', [newObject, coords]);
+      console.log(res);
+      return res;
     }
 
     async registerCase(newCase){

@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  console.log(config)
+  // console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
@@ -124,10 +124,8 @@ app.post('/registerNewObject', async (req, res) => {
   }
 
   let currentDateStr = makeDateStr();
-  console.log(currentDateStr);
-
   objectData.registrer.vegobjekter[0].gyldighetsperiode.startdato = currentDateStr;
-  console.log(objectData.registrer.vegobjekter);
+
   if (token !== null && tokenName !== null) {
     let config = {
       method : 'post',
@@ -143,24 +141,40 @@ app.post('/registerNewObject', async (req, res) => {
     console.log("token" + token);
 
     let responseChangeSet = await registerChangeSet(config);
-    // console.log(responseChangeSet);
-    // config.method = 'post';
     config.url = responseChangeSet.data[1].src;
     delete config["data"];
     let command = responseChangeSet.data[1].rel;
 
     let startResponse = await postCommand(config, command);
-    // console.log(startResponse.data);
 
     config.method = 'get';
     config.url = startResponse.data[0].src;
-    let statusProgress;
     try {
       let doneStatus = await pollProgress(config);
       console.log(doneStatus.data);
+      if(doneStatus.data === "AVVIST") {
+        try {
+          config.url = startResponse.data[2].src;
+          let status = await axios(config);
+          console.log(status.data.resultat.vegobjekter[0].feil[0]);
+          let errorMsg = status.data.resultat.vegobjekter[0].feil[0].melding;
+          console.log(errorMsg);
+          res.send(errorMsg);
+
+        } catch (error) {
+          console.log("Error when gettings status:" + error);
+        }
+      } else if (doneStatus.data === "UTFØRT") {
+          res.send("Registrering fullført.");
+      } else if (doneStatus.data === "KANSELLERT") {
+          res.send("Registrering ble avbrutt.");
+      } else {
+        res.send("Fikk uventet svar fra NVDB");
+      }
     }
     catch (error) {
       console.log(error);
+      res.send("Registrerings feilet av ukjent årsak");
     }
   }
 });
@@ -201,6 +215,7 @@ async function pollProgress(config) {
     while(!isDone) {
       response = await axios(config);
       statusProgress = response.data;
+      console.log(statusProgress);
       switch(statusProgress) {
         case "IKKE STARTET" :
           console.log("NOT STARTED");

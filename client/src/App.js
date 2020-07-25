@@ -31,9 +31,9 @@ class App extends Component {
     this.handleLogout = this.handleLogout.bind(this);
   }
 
-  registerObject(object, coords) {
+  async registerObject(object, coords) {
     console.log(object);
-    let isLoggedIn = this.server.pusheNewObjectToNvdb(object, coords);
+    let isLoggedIn = await this.server.pusheNewObjectToNvdb(object, coords);
     console.log(isLoggedIn);
   }
 
