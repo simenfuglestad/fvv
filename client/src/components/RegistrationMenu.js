@@ -216,39 +216,67 @@ class RegMenu extends Component {
     });
   }
 
-
   handleDoneClick(event) {
     let verifyCheck = this.verifyInput();
-    if(verifyCheck === true) {
-      this.props.handleDoneReg(this.processEnteredData());
-    }
-    else if(verifyCheck !== false) {
-      alert("Feil i felt '" + verifyCheck[0] + "', må ha verdi av type " + verifyCheck[1]);
-    }
-    else {
-      alert("Ingen verdier er fylt inn, kan ikke registrere tomt objekt.");
+    switch(verifyCheck) {
+      case true :
+        this.props.handleDoneReg(this.processEnteredData());
+        break;
+      case "MISSING_CRITICAL" :
+        alert("Noen påbudte felt er ikke fylt ut, vennligst se over.");
+        break;
+      case "NO_ENTRIES" :
+        alert("Ingen verdier er fylt inn, kan ikke registrere tomt objekt.");
+        break;
+      default :
+        alert("Feil i felt '" + verifyCheck[0] + "', må ha verdi av type " + verifyCheck[1])
     }
   }
 
+  /*
+  Verify input fields by checking against allowed data types. Returns true if
+  all types are correct, returns name of property with bad input and its
+  required type, or simply returns false if all entries are empty or not attempted to fill in.
+  */
+
   verifyInput() {
+    if(this.state.enteredData.length === 0) {
+      return "NO_ENTRIES";
+    }
+
+    let verifiedCount = 0;
+    let nrOfCriticalProperties = 0;
+    this.state.objectPropertyImportances.forEach((item, i) => {
+      if (item >= 5) {
+        nrOfCriticalProperties++;
+      }
+    });
+
     let objPropertyKeys = Object.keys(this.state.objectProperties);
     for (let i = 0; i < this.state.enteredData.length; i++) {
       let data = this.state.enteredData[i];
-      if (data !== undefined) {
+      if (data !== undefined && data !== "") {
+        if(this.state.objectPropertyImportances[i] >= 5) {
+          verifiedCount++; //count the the right amount of critical properties are filled out
+        }
         let propertyName = objPropertyKeys[i];
         let type = this.state.currentPropertyTypes[propertyName];
-        console.log(type);
         switch(type.toLowerCase()) {
           case "heltall" :
-            let n = Number(data);
-            if (isNaN(Number(data))) {
+            var n = parseFloat(data);
+            if (!Number.isInteger(n) || isNaN(n)) {
               return [propertyName, "heltall"];
             }
-          case "flyttall"  :
-            if (isNaN(Number(data))){
+            break;
+
+          case "flyttall" :
+            var n = parseFloat(data);
+
+            if (Number.isInteger(n) || isNaN(n)) {
               return [propertyName, "flyttall"];
             }
             break;
+
           case "tekst" :
             if (typeof data !== 'string') {
               return [propertyName, "tekst"];;
@@ -259,6 +287,9 @@ class RegMenu extends Component {
       }
     }
 
+    if (verifiedCount < nrOfCriticalProperties) {
+      return "MISSING_CRITICAL";
+    }
     return true;
   }
 
