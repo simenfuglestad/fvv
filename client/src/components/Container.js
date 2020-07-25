@@ -126,6 +126,7 @@ class Container extends Component {
           handleMarkerClick={this.handleMarkerClick}
           handleContextClick={this.handleContextClick}
           handleCaseMarkerClick={this.handleCaseMarkerClick}
+          isLoggedIn={this.props.isLoggedIn}
         />
         {
           this.props.isLoggedIn &&

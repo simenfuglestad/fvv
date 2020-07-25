@@ -10,6 +10,7 @@ class LoginView extends Component {
     this.handleLogin = this.handleLogin.bind(this);
     this.handleUserNameChange = this.handleUserNameChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.handleEnterLogin = this.handleEnterLogin.bind(this);
   }
 
   handleUserNameChange(event) {
@@ -28,7 +29,7 @@ class LoginView extends Component {
     }));
   }
 
-  handleLogin(event) {
+  handleLogin() {
     if(this.state.enteredUsername === "") {
       alert("Skriv inn Brukernavn");
     }
@@ -43,6 +44,12 @@ class LoginView extends Component {
     }
   }
 
+  handleEnterLogin(e) {
+    if(e.charCode === 13) {
+      this.handleLogin();
+    }
+  }
+
   render() {
     return (
       <div className="LoginView">
@@ -54,7 +61,8 @@ class LoginView extends Component {
         <input  onChange={this.handlePasswordChange}
                 value={this.state.enteredPassword}
                 type="password"
-                placeholder="Passord"></input>
+                placeholder="Passord"
+                onKeyPress={this.handleEnterLogin}></input>
         <br/>
         <button onClick={this.handleLogin} value="submit">{"submit"}</button>
       </div>

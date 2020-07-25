@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  // console.log(config)
+  console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
@@ -24,8 +24,6 @@ const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
 let token = null;
 let tokenName = null;
 let isAuthenticated = false;
-// getToken();
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,7 +38,7 @@ app.post('/login', async(req, res) =>{
 });
 
 app.post('/logout', async(req, res) => {
-  if(token !== null || tokenName !== null || isAuthenticated !== false) {
+  if(token !== null || token !== undefined) {
     let config = {
       method : 'post',
       url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/logout',
@@ -70,8 +68,8 @@ app.post('/logout', async(req, res) => {
 async function getToken(username, password) {
   let config = {
     method : 'post',
-    // url : 'https://www.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    // url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     headers : {
       'Content-Type' : 'application/json'
     },
@@ -87,10 +85,10 @@ async function getToken(username, password) {
     token = res.data.token;
     tokenName = res.data.tokenname;
     isAuthenticated = res.data.status;
-    console.log(token);
+    console.log("Got token: " + token);
     console.log(tokenName);
   } catch(error) {
-    console.log("Error occurred when getting token: " + error);
+    console.log("Error occurred when getting token: " + error.stack);
   }
 }
 
@@ -125,23 +123,24 @@ app.post('/registerNewObject', async (req, res) => {
     console.log("Error when getting closest road properties: " + error);
   }
 
-  let currentDateStr = formatDateStr()
+  let currentDateStr = makeDateStr();
   console.log(currentDateStr);
 
   objectData.registrer.vegobjekter[0].gyldighetsperiode.startdato = currentDateStr;
   console.log(objectData.registrer.vegobjekter);
-  if (token !== undefined && tokenName !== undefined) {
+  if (token !== null && tokenName !== null) {
     let config = {
       method : 'post',
       url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
       headers : {
         'Content-Type'  : 'application/json',
         'Cookie'        : tokenName + '=' + token,
-        'X-Client'      : 'fvv-sysytem',
+        'X-Client'      : 'fvv-system',
         'X-NVDB-DryRun' : false,
       },
       data : objectData
     }
+    console.log("token" + token);
 
     let responseChangeSet = await registerChangeSet(config);
     // console.log(responseChangeSet);
@@ -166,7 +165,7 @@ app.post('/registerNewObject', async (req, res) => {
   }
 });
 
-function formatDateStr() {
+function makeDateStr() {
   let d = new Date();
   let date = d.getDate();
   let month = d.getMonth()+1;
@@ -185,7 +184,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//
 /*
 * Poll progress of changeset
 * Polling time intervals is loosley based on recommendations found at
@@ -264,7 +262,7 @@ async function postCommand(config, command) {
     return response;
   }
   catch (error) {
-    console.log("Error response postCommand: \n" + error);
+    console.log("Error response postCommand: " + error);
   }
 }
 
