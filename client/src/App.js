@@ -16,6 +16,8 @@ class App extends Component {
       caseList: [],
       isLoggedIn: false,
       failedLogin: null,
+      caseObjects: {},
+
     }
     this.server = new ServerConnection()
 
@@ -54,18 +56,18 @@ class App extends Component {
         this.removeData();
       }
 
-      // if a filter has been added or the polygon state has changed
+      // if a filter has been added
       if(this.state.filters.length > prevState.filters.length){
         this.state.filters.forEach(filter => {
           let current = this.state.map[filter.id];
           let prev = prevState.map[filter.id];
             if(current !== prev || (current === undefined && prev === undefined )){
-              console.log('fetching data')
               this.fetchData(filter);
             }
         })
       }
 
+      // if the polygon state has changed
       if(this.state.poly !== prevState.poly){
         this.state.filters.forEach(filter => {
         this.fetchData(filter);
@@ -190,6 +192,7 @@ class App extends Component {
   }
 
   fetchData(filter){
+    console.log('fetching data')
     let id = filter.id;
 
     this.server.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
@@ -217,7 +220,7 @@ class App extends Component {
 
   async getCaseObjects(objects){
     if(objects === undefined){
-      this.setState({caseObjects: null});
+      this.setState({caseObjects: {}});
       return;
     }
 
@@ -241,7 +244,7 @@ class App extends Component {
         })
     })
 
-    this.setState({caseObjects: data})
+    return data;
   }
 
   async getCaseList(){

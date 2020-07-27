@@ -5,11 +5,7 @@ class CaseList extends Component {
     constructor(props) {
       super(props);
 
-      this.columns = 
-            [{
-              Header: "Saksliste",
-              // First group columns
-              columns: [
+      this.columns= [
                 {
                   Header: "ID",
                   accessor: "id",
@@ -19,11 +15,19 @@ class CaseList extends Component {
                   accessor: "saksType"
                 },
                 {
+                  Header: "Gjentas",
+                  accessor: "gjentagende"
+                },
+                {
                   Header: "Status",
                   accessor: "status"
+                },
+                {
+                  Header: "Dato",
+                  accessor: "dato"
                 }
+
               ]
-            }]
 
       this.selected = null;
       this.onCaseClick = this.onCaseClick.bind(this);
@@ -43,7 +47,8 @@ class CaseList extends Component {
     render(){
         return(
             <div className='caseList'>
-              <button className='closeCaseListBtn' onClick={() => {this.props.toggleCaseList()}}>X</button>
+              <h2 className='caseList-header'>Saksliste</h2>
+              <button className='caseList-closeBtn' onClick={() => {this.props.toggleCaseList()}}>X</button>
               <Table 
                 columns={this.columns} 
                 data={this.props.caseList} 

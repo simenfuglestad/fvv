@@ -1,6 +1,5 @@
 /**
  * Globally accessible data
- * Not in use yet
  */
 class Datastore {
     constructor(){
