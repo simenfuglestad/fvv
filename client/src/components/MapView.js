@@ -21,7 +21,6 @@ class MapView extends Component {
       finished: false,
       contextMenuDetails: {lat : 0, lng : 0},
       showContextMenu : false,
-      isLoggedIn : false,
     }
 
     this.markers = {};
@@ -33,7 +32,7 @@ class MapView extends Component {
   }
 
   handleContextMenu(event) {
-    if((!this.props.drawing || this.state.finished) && this.state.isLoggedIn) {
+    if((!this.props.drawing || this.state.finished) && this.props.isLoggedIn) {
       let lat = event.latlng.lat;
       let lng = event.latlng.lng;
 
@@ -54,10 +53,10 @@ class MapView extends Component {
         onclick={this.handleClick}
         oncontextmenu={this.handleContextMenu}
         >
-          {this.state.showContextMenu && 
-            <ContextMarker 
-              lat={this.state.contextMenuDetails.lat} 
-              lng={this.state.contextMenuDetails.lng} 
+          {this.state.showContextMenu &&
+            <ContextMarker
+              lat={this.state.contextMenuDetails.lat}
+              lng={this.state.contextMenuDetails.lng}
               handleClick={this.handleContextClick}
             />
           }
@@ -81,13 +80,9 @@ class MapView extends Component {
 
 
   handleContextClick(button){
-    if(this.state.isLoggedIn) {
-      this.setState({
-        showContextMenu: false
-      })
-      if(button){
-        this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
-      }
+    if(button){
+      this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
+      this.setState({showContextMenu : false});
     }
   }
 
@@ -95,8 +90,6 @@ class MapView extends Component {
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
-    else if(prevProps.isLoggedIn !== this.props.isLoggedIn)
-      this.setState({isLoggedIn : true})
   }
 
   drawCaseMarkers(caseListAndCurrent){
@@ -152,8 +145,6 @@ class MapView extends Component {
       this.setState((prevstate) => ({
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
       }))
-    } else if (this.state.showContextMenu === true) {
-
     }
   }
 
