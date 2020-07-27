@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  // console.log(config)
+  console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
@@ -68,8 +68,8 @@ app.post('/logout', async(req, res) => {
 async function getToken(username, password) {
   let config = {
     method : 'post',
-    url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
-    // url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    // url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     headers : {
       'Content-Type' : 'application/json'
     },
@@ -129,16 +129,16 @@ app.post('/registerNewObject', async (req, res) => {
   if (token !== null && tokenName !== null) {
     let config = {
       method : 'post',
-      url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
+      url : 'https://www.utv.vegvesen.no/nvdb/apiskriv/',
+      // url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
       headers : {
         'Content-Type'  : 'application/json',
         'Cookie'        : tokenName + '=' + token,
         'X-Client'      : 'fvv-system',
-        'X-NVDB-DryRun' : false,
+        'X-NVDB-DryRun' : true,
       },
       data : objectData
     }
-    console.log("token" + token);
 
     let responseChangeSet = await registerChangeSet(config);
     config.url = responseChangeSet.data[1].src;
@@ -169,7 +169,7 @@ app.post('/registerNewObject', async (req, res) => {
       } else if (doneStatus.data === "KANSELLERT") {
           res.send("Registrering ble avbrutt.");
       } else {
-        res.send("Fikk uventet svar fra NVDB");
+        res.send("Fikk uventet svar fra NVDB.");
       }
     }
     catch (error) {

@@ -33,8 +33,8 @@ class App extends Component {
 
   async registerObject(object, coords) {
     console.log(object);
-    let isLoggedIn = await this.server.pusheNewObjectToNvdb(object, coords);
-    console.log(isLoggedIn);
+    let res = await this.server.registerObject(object, coords);
+    console.log(res);
   }
 
   componentDidMount() {

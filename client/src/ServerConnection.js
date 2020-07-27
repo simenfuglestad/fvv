@@ -50,7 +50,7 @@ export default class ServerConnection {
       return res;
     }
 
-    async pusheNewObjectToNvdb(newObject, coords) {
+    async registerObject(newObject, coords) {
       const res = await axios.post('/registerNewObject', [newObject, coords]);
       console.log(res);
       return res;
