@@ -78,7 +78,6 @@ class RegMenu extends Component {
   * return: Structed Object with name as key and list of possible values as value
   */
   fetchObjectProperties(obj) {
-    console.log(obj);
     let inputFields = this.sortInputFields(obj);
     let properties = inputFields.egenskapstyper;
 
@@ -231,30 +230,40 @@ class RegMenu extends Component {
 
   processEnteredData() {
     let resultObject = {
-      stedfesting: {
-        punkt:[
+      "registrer": {
+        "vegobjekter": [
           {
-            posisjon: 'placeholder',
-            veglenkesekvensNvdbId: 'placeholder'
+            "stedfesting": {
+              "punkt": [
+                {
+                  "posisjon": 0.3,
+                  "veglenkesekvensNvdbId": 1125766
+                }
+              ]
+            },
+            "gyldighetsperiode": {
+              "startdato": "placeholder#yyyy-mm-dd"
+            },
+            "typeId": this.currentObjectID,
+            "tempId": "placeholder#1",
+            "egenskaper": [
+            ]
           }
         ]
       },
-      gyldighetsperiode: {
-        startdato: 'placeholder'
-      },
-      typeId: this.currentObjectID,
-      tempId: 'placeholder',
-      egenskaper: []
+      "datakatalogversjon": "2.21"
     }
+
     let properties = [];
     let curObjectData = this.roadObjectTypes.filter(v => (v.id === this.currentObjectID))[0];
-
+   
     curObjectData.egenskapstyper.forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
-        properties.push({typeId: item.id, verdi: this.state.enteredData[i]})
+        properties.push({typeId: item.id, verdi: [this.state.enteredData[i]]})
       }
     });
-    resultObject.egenskaper = properties;
+    
+    resultObject.registrer.vegobjekter[0].egenskaper = properties;
     return resultObject
   }
 

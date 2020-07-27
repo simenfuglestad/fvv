@@ -9,10 +9,12 @@ import RegistrationMenu from './RegistrationMenu';
 import CaseRegistration from './CaseRegistration';
 import CaseList from './CaseList';
 import CameraView from './CameraView';
+import LoginView from './LoginView';
 import WorkOrderForm from './WorkOrderForm';
 import MarkerManager from './MarkerManager';
 import ColorPicker from './ColorPicker'
 import Datastore from './../Datastore';
+
 
 class Container extends Component {
   constructor(props) {
@@ -28,10 +30,10 @@ class Container extends Component {
         markerCollections: {},
         mapMarkers: {},
         caseData : null,
+        regObjectPos : null
     }
 
     this.isCameraOpen = false;
-
     this.closeDataDisplay = this.closeDataDisplay.bind(this);
     this.setPolyFilter = this.setPolyFilter.bind(this);
     this.clearImageData = this.clearImageData.bind(this);
@@ -47,6 +49,7 @@ class Container extends Component {
     this.toggleObjectReg = this.toggleObjectReg.bind(this);
     this.toggleCaseList = this.toggleCaseList.bind(this);
     this.toggleCaseReg = this.toggleCaseReg.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState){
@@ -76,19 +79,25 @@ class Container extends Component {
 
   render() {
     return (
-      <div
-        className="Container"
-      >
-        { !this.state.isCaseListOpen && <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+      <div className="Container">
+        {
+          !this.props.isLoggedIn &&
+          <LoginView handleLogin={this.handleLogin}></LoginView>
+        }
 
-        {this.state.isCameraOpen &&
+        {
+          !this.state.isCaseListOpen && this.props.isLoggedIn &&
+          <button className='openCaseListBtn' onClick={this.toggleCaseList}>Saksliste</button>}
+
+        {
+          this.state.isCameraOpen &&
           <CameraView
             closeCameraView={this.handleCloseCamera}>
           </CameraView>
         }
 
         {
-          this.state.isRegMenuOpen &&
+          this.state.isRegMenuOpen && this.props.isLoggedIn &&
 
           <RegistrationMenu
             roadObjects={Datastore.get('vegobjekttyper?inkluder=alle')}
@@ -102,7 +111,7 @@ class Container extends Component {
         }
 
         {
-          this.state.isCaseMenuOpen &&
+          this.state.isCaseMenuOpen && this.props.isLoggedIn &&
           <CaseRegistration
             map={this.props.map}
             toggleCaseReg={this.toggleCaseReg}
@@ -113,7 +122,9 @@ class Container extends Component {
           />
         }
 
-        { this.state.isCaseListOpen &&
+
+        {
+          this.state.isCaseListOpen && this.props.isLoggedIn &&
           <CaseList
             caseList={this.props.caseList}
             toggleCaseList={this.toggleCaseList}
@@ -123,19 +134,22 @@ class Container extends Component {
           />
         }
 
+        {
+          this.props.isLoggedIn &&
+          <RightMenu
+            roadObjectTypes={this.props.roadObjectTypes}
+            showMarkerInfo={this.state.showMarkerInfo}
+            handleFilters={this.props.handleFilters}
+            filters={this.props.filters}
+            map={this.props.map}
+            togglePolyFilter={this.togglePolyFilter}
+            handleClickOutside={this.closeDataDisplay}
+          />
+        }
+
         { this.state.isWorkOrderOpen &&
           <WorkOrderForm addWorkOrder={this.addWorkOrder}/>
         }
-
-        <RightMenu
-          roadObjectTypes={this.props.roadObjectTypes}
-          showMarkerInfo={this.state.showMarkerInfo}
-          handleFilters={this.props.handleFilters}
-          filters={this.props.filters}
-          map={this.props.map}
-          togglePolyFilter={this.togglePolyFilter}
-          handleClickOutside={this.closeDataDisplay}
-        />
 
         <MapView
           currentLocation={this.state.currentLocation ? this.state.currentLocation : this.props.currentLocation}
@@ -148,11 +162,25 @@ class Container extends Component {
           setPolyFilter={this.setPolyFilter}
           handleContextClick={this.handleContextClick}
           handleCaseMarkerClick={this.handleCaseMarkerClick}
+          isLoggedIn={this.props.isLoggedIn}
         />
+        {
+          this.props.isLoggedIn &&
+          <button className="LogoutBtn"
+                  value="Log ut"
+                  onClick={this.props.handleLogout}>{"Log ut"}
+          </button>
+        }
       </div>
     );
   }
 
+
+  handleLogin(loginObject) {
+    console.log(loginObject);
+    this.props.handleLogin(loginObject);
+  }
+          
   async addMarkerCollection(objects, key, checkmark){
     let newMarkerCollections = {...this.state.markerCollections};
     let markerObjects = await this.props.getCaseObjects(objects);
@@ -206,17 +234,17 @@ class Container extends Component {
     if(event.current.innerHTML === 'Nytt Objekt'){
       this.setState({
         isRegMenuOpen :  true,
+        regObjectPos : {lat : latlng[0], lng: latlng[1]},
         isCaseMenuOpen : false,
       })
-      return;
     }
-    if(event.current.innerHTML === 'Ny Sak'){
+    else if(event.current.innerHTML === 'Ny Sak'){
       this.setState({
         isCaseMenuOpen :  true,
+
         isRegMenuOpen : false,
         caseData: {lat : latlng[0], lng: latlng[1]}
       })
-      return;
     }
   }
 
@@ -230,20 +258,14 @@ class Container extends Component {
     }
   }
 
-  handleFinishReg(event) {
-    alert("Du har fullført registrering");
-    this.setState({
-      isRegMenuOpen : false,
-    })
-  }
 
   handleDoneReg(newObject) {
-    console.log(newObject);
-    alert("Du har fullført registrering");
+    // alert("Du har fullført registrering");
     this.setState({
       isRegMenuOpen : false,
       currentRegObject : newObject
     })
+    this.props.registerObject(newObject, this.state.regObjectPos);
   }
 
   handleMarkerClick(marker, object) {
@@ -297,7 +319,7 @@ class Container extends Component {
 
     this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
-
+  
   getMarkerClusterIcon(cluster){
     var children = cluster.getAllChildMarkers();
     var childCount = cluster.getChildCount();

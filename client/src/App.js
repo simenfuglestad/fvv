@@ -14,9 +14,11 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
+      isLoggedIn: false,
+      failedLogin: null,
       caseObjects: {},
-    }
 
+    }
     this.server = new ServerConnection()
 
     //bind functions that need a reference to this instance
@@ -26,16 +28,28 @@ class App extends Component {
     this.registerCase = this.registerCase.bind(this);
     this.getCaseList = this.getCaseList.bind(this);
     this.getCaseObjects = this.getCaseObjects.bind(this);
+    this.registerObject = this.registerObject.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
+  }
+
+  async registerObject(object, coords) {
+    console.log(object);
+    let res = await this.server.registerObject(object, coords);
+    console.log(res);
   }
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.getUserLocation)
     this.getRoadObjectTypeData();
-    //this.testendring();
+    // this.testendring();
     //this.getCaseList();
   }
 
   componentDidUpdate(prevProps,prevState){
+    if (this.state.isLoggedIn !== prevState.isLoggedIn) {
+
+    }
     if(this.state.filters !== prevState.filters || this.state.poly !== prevState.poly){
       //if a filter has been removed
       if(this.state.filters.length < prevState.filters.length) {
@@ -75,13 +89,35 @@ class App extends Component {
           handleFilters={this.handleFilters}
           handleRegistration={this.handleRegistration}
           setPoly={this.setPoly}
+          registerObject={this.registerObject}
           registerCase={this.registerCase}
           caseList={this.state.caseList}
           getCaseList={this.getCaseList}
           getCaseObjects={this.getCaseObjects}
           caseObjects={this.state.caseObjects}
+          handleLogin={this.handleLogin}
+          isLoggedIn={this.state.isLoggedIn}
+          handleLogout={this.handleLogout}
         />
     );
+  }
+
+  async handleLogout(event) {
+    let logoutStatus = await this.server.logout();
+    console.log(logoutStatus);
+    this.setState({
+      isLoggedIn : false
+    });
+    alert("Du har blitt logget ut");
+  }
+
+  async handleLogin(loginObject) {
+    let loginStatus = await this.server.login(loginObject.enteredUsername, loginObject.enteredPassword);
+
+    this.setState({
+      isLoggedIn : loginStatus.data,
+    })
+    console.log(this.state.isLoggedIn);
   }
 
   getPolygonString(polygon) {
@@ -158,7 +194,7 @@ class App extends Component {
   fetchData(filter){
     console.log('fetching data')
     let id = filter.id;
-    
+
     this.server.apiCall('vegobjekter/' + id + '?inkluder=alle&srid=4326&polygon=' + this.state.poly).then((value) => {
       this.setState((prevState) => {
         let newMap = {...prevState.map};
@@ -187,8 +223,7 @@ class App extends Component {
       this.setState({caseObjects: {}});
       return;
     }
-    
-    console.log(objects)
+
     objects = objects.split(',');
     let data = {};
     let promises = [];

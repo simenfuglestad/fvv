@@ -20,14 +20,14 @@ export default class ServerConnection {
 
       let data = res.data
       console.log(data)
-  
+
       Datastore.add(request, data)
       return data;
     }
 
     async apiCallSingle(request){
       const res = await axios.post('/api/getroadobjecttypes', {'request': request});
-  
+
       let data = res.data;
       Datastore.add(request, data);
       return data;
@@ -36,7 +36,24 @@ export default class ServerConnection {
     async pushChangesToNvdb(changeSet){
       console.log('sender Endringssett')
       const res = await axios.post('/testendring', changeSet);
-      console.log(res)
+      return res;
+    }
+
+    async login(username, password) {
+      const res = await axios.post('/login', [username, password]);
+      console.log(res);
+      return res;
+    }
+
+    async logout() {
+      const res = await axios.post('/logout');
+      return res;
+    }
+
+    async registerObject(newObject, coords) {
+      const res = await axios.post('/registerNewObject', [newObject, coords]);
+      console.log(res);
+      return res;
     }
 
     async registerCase(newCase){

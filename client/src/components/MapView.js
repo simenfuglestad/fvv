@@ -21,6 +21,7 @@ class MapView extends Component {
       finished: false,
       contextMenuDetails: {lat : 0, lng : 0},
       showContextMenu : false,
+      isLoggedIn : false,
     }
 
     this.markers = {};
@@ -32,7 +33,7 @@ class MapView extends Component {
   }
 
   handleContextMenu(event) {
-    if(!this.props.drawing || this.state.finished) {
+    if((!this.props.drawing || this.state.finished) && this.state.isLoggedIn) {
       let lat = event.latlng.lat;
       let lng = event.latlng.lng;
 
@@ -75,12 +76,16 @@ class MapView extends Component {
     );
   }
 
+
+
   handleContextClick(button){
-    this.setState({
-      showContextMenu: false
-    })
-    if(button){
-      this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
+    if(this.state.isLoggedIn) {
+      this.setState({
+        showContextMenu: false
+      })
+      if(button){
+        this.props.handleContextClick(button, [this.state.contextMenuDetails.lat, this.state.contextMenuDetails.lng]);
+      }
     }
   }
 
@@ -88,6 +93,8 @@ class MapView extends Component {
     if(prevProps.drawing !== this.props.drawing){
       this.setState({polygonPoints: [], finished: false})
     }
+    else if(prevProps.isLoggedIn !== this.props.isLoggedIn)
+      this.setState({isLoggedIn : true})
   }
 
   drawCaseMarkers(caseListAndCurrent){
@@ -97,10 +104,10 @@ class MapView extends Component {
     let markers = [];
     caseList.map((item,index) => {
       markers.push(
-        <Marker 
-          position={{lat: item.lat, lng: item.lng}} 
-          key={item.id} 
-          icon={this.getIcon(index, 'red')} 
+        <Marker
+          position={{lat: item.lat, lng: item.lng}}
+          key={item.id}
+          icon={this.getIcon(index, 'red')}
           onClick={() =>this.props.handleCaseMarkerClick(item.id)} >
         </Marker>
       )
@@ -144,7 +151,7 @@ class MapView extends Component {
         polygonPoints: prevstate.polygonPoints.concat([[event.latlng.lat, event.latlng.lng]])
       }))
     } else if (this.state.showContextMenu === true) {
-      
+
     }
   }
 
