@@ -5,19 +5,25 @@ class SearchField extends Component {
     constructor(props){
         super(props)
         this.state= {
-          data : [],
           selectOptions : []
         }
         this.handleChange = this.handleChange.bind(this);
     }
 
-    componentDidUpdate(prevProps, prevState) {
-      if(prevProps.data !== this.props.data) {
+    componentDidMount(){
+      this.setState({
+        selectOptions : this.createSelectOptions(this.props.data)
+      })
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+      if(nextProps.data !== this.props.data) {
         this.setState({
-          data : this.props.data,
-          selectOptions : this.createSelectOptions(this.props.data)
+          selectOptions : this.createSelectOptions(nextProps.data)
         })
+        return false;
       }
+      return true;
     }
 
     createSelectOptions(data) {

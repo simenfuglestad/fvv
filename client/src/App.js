@@ -14,7 +14,7 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
-      isLoggedIn: false,
+      isLoggedIn: true,
       failedLogin: null,
       caseObjects: {},
 
