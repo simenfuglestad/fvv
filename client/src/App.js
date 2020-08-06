@@ -7,7 +7,6 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      nvdbEndpoint: 'https://nvdbapiles-v3.atlas.vegvesen.no/',
       currentLocation: { lat: 60.0084857, lng:11.0648648 },
       map: {},
       filters: [],
@@ -23,7 +22,7 @@ class App extends Component {
 
     //bind functions that need a reference to this instance
     this.handleFilters = this.handleFilters.bind(this);
-    this.getUserLocation = this.getUserLocation.bind(this);
+    this.setUserLocation = this.setUserLocation.bind(this);
     this.setPoly = this.setPoly.bind(this);
     this.registerCase = this.registerCase.bind(this);
     this.getCaseList = this.getCaseList.bind(this);
@@ -40,16 +39,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    navigator.geolocation.getCurrentPosition(this.getUserLocation)
+    navigator.geolocation.getCurrentPosition(this.setUserLocation)
     this.getRoadObjectTypeData();
-    // this.testendring();
-    //this.getCaseList();
   }
 
   componentDidUpdate(prevProps,prevState){
-    if (this.state.isLoggedIn !== prevState.isLoggedIn) {
-
-    }
     if(this.state.filters !== prevState.filters || this.state.poly !== prevState.poly){
       //if a filter has been removed
       if(this.state.filters.length < prevState.filters.length) {
@@ -87,7 +81,6 @@ class App extends Component {
           issues={this.state.issues}
           roadObjectTypes={this.state.roadObjectTypes}
           handleFilters={this.handleFilters}
-          handleRegistration={this.handleRegistration}
           setPoly={this.setPoly}
           registerObject={this.registerObject}
           registerCase={this.registerCase}
@@ -120,6 +113,7 @@ class App extends Component {
     console.log(this.state.isLoggedIn);
   }
 
+  // formats a polygon of form [[0,0],[0,0]] to a string representation
   getPolygonString(polygon) {
     let result = '';
     polygon.forEach(point => {
@@ -135,6 +129,7 @@ class App extends Component {
    */
   getCircle(center, radius=4, verts=10){
     let headings = [];
+    let points = []
     let low = 0;
     let step = (2*Math.PI - low) / verts;
 
@@ -145,7 +140,6 @@ class App extends Component {
 
     radius = radius / 6371;
     center = {lat: center.lat*(Math.PI/180), lng: center.lng*(Math.PI/180)}
-    let points = []
 
     headings.forEach(heading => {
       let lng;
@@ -161,19 +155,20 @@ class App extends Component {
     return points;
   }
 
-  getUserLocation(position){
+  setUserLocation(position){
     this.setState({
       currentLocation: {lat: position.coords.latitude, lng: position.coords.longitude},
       poly: this.getPolygonString(this.getCircle({lat: position.coords.latitude, lng: position.coords.longitude}))
     })
   }
 
+  //set mapfilter polygon to given polygon. if no polygon set filter to radius around user location
   setPoly(polygon){
     if(polygon){
       polygon = this.getPolygonString(polygon)
       this.setState({poly: polygon})
     } else {
-      navigator.geolocation.getCurrentPosition(this.getUserLocation)
+      navigator.geolocation.getCurrentPosition(this.setUserLocation)
     }
   }
 
@@ -251,123 +246,6 @@ class App extends Component {
     let caseList = await this.server.getCaseList()
     this.setState({caseList: caseList})
   }
-
-  async testendring(){
-    const testobjekt ={
-      "registrer": {
-        "vegobjekter": [
-          {
-            "stedfesting": {
-              "punkt": [
-                {
-                  "posisjon": 0.3,
-                  "veglenkesekvensNvdbId": 1125766
-                }
-              ]
-            },
-            "gyldighetsperiode": {
-              "startdato": "2013-10-29"
-            },
-            "typeId": 581,
-            "tempId": "tunnel#1",
-            "egenskaper": [
-              {
-                "typeId": 5225,
-                "verdi": [
-                  "Grevlingtunnelen"
-                ]
-              },
-              {
-                "typeId": 9306,
-                "verdi": [
-                  "34343"
-                ]
-              },
-              {
-                "typeId": 9134,
-                "verdi": [
-                  "E"
-                ]
-              },
-              {
-                "typeId": 8945,
-                "verdi": [
-                  "2000"
-                ]
-              },
-              {
-                "typeId": 3947,
-                "verdi": [
-                  "1"
-                ]
-              },
-              {
-                "typeId": 8150,
-                "verdi": [
-                  "100"
-                ]
-              },
-              {
-                "typeId": 8151,
-                "verdi": [
-                  "50"
-                ]
-              },
-              {
-                "typeId": 9517,
-                "verdi": [
-                  "Nei"
-                ]
-              },
-              {
-                "typeId": 9518,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 9131,
-                "verdi": [
-                  "a"
-                ]
-              },
-              {
-                "typeId": 3917,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3918,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3915,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3916,
-                "verdi": [
-                  "Ja"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "kontekst": "<![CDATA[Testcase 00: Gyldig vegobjekt]]>",
-      "datakatalogversjon": "2.21"
-    }
-
-    this.server.pushChangesToNvdb(testobjekt);
-
-  }
-
-
 }
 
 export default App;

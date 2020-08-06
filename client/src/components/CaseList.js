@@ -1,4 +1,4 @@
-import React, { Component, useRef } from 'react';
+import React, { Component } from 'react';
 import Table from './Table';
 
 class CaseList extends Component {

@@ -190,7 +190,6 @@ class Container extends Component {
   }
 
   getMarkers(markerObjects, filters, clustered = false, checkmark = false, zIndex = 600){
-
     if(clustered){
       return(
         <MarkerClusterGroup spiderfyOnMaxZoom={true} disableClusteringAtZoom={18} iconCreateFunction={this.getMarkerClusterIcon}>
@@ -342,9 +341,8 @@ class Container extends Component {
           value: clusterTypes[filter.id],
           color: ColorPicker.get(filter.id),
           })
-      } else {
-        return;
       }
+      return null;
     })
 
     data = data.filter((item) => (item != null))

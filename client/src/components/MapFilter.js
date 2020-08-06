@@ -23,10 +23,7 @@ class MapFilter extends Component {
     }
 
     showFilters(){
-        let filters = [...this.props.filters]
-
         return(
-
             this.props.filters.map((item) => {
                 const backgroundColor = ColorPicker.get(item.id);
                 return(

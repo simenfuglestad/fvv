@@ -57,7 +57,7 @@ export default class ServerConnection {
     }
 
     async registerCase(newCase){
-      const res = await axios.post('/registerCase', newCase);
+      await axios.post('/registerCase', newCase);
     }
 
     async getCaseList(){

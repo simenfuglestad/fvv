@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import FileBase64 from 'react-file-base64';
 
 class WorkOrderForm extends Component {
     constructor(props) {

@@ -14,9 +14,9 @@ class DataDisplay extends Component {
                 {Marker.egenskaper.map(egenskap => {
                     if(egenskap.verdi && egenskap.egenskapstype !== 'Geometri'){
                         return <p key={egenskap.id}>{egenskap.navn}: {egenskap.verdi}</p>
-                    } else {
-                        return;
-                    }  
+                    }
+
+                    return null;  
                 })}
                 {Marker.relasjoner.foreldre &&
                     <label className='DataDisplay-label'>

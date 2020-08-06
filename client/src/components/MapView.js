@@ -97,7 +97,7 @@ class MapView extends Component {
     let currentCase = caseListAndCurrent[1];
 
     let markers = [];
-    caseList.map((item,index) => {
+    caseList.forEach((item,index) => {
       markers.push(
         <Marker
           position={{lat: item.lat, lng: item.lng}}

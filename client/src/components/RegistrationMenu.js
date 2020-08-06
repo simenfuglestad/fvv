@@ -282,7 +282,8 @@ class RegMenu extends Component {
         <img  src={ExitImg}
               className="ExitRegMenu"
               onClick={() => {this.handleCloseClick(this.abortBtn)}}
-              ref={this.abortBtn}/>
+              ref={this.abortBtn}
+              alt="exit"/>
 
         {this.state.begunCategorySelect &&
           <div className="RegForm">

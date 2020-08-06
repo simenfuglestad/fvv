@@ -104,14 +104,6 @@ class MarkerManager extends Component {
 
   getIcon(id, filters, checkmark){
     let color;
-
-    let idIndex = filters.findIndex((filter) => {
-      if(filter.id){
-        return(Number(filter.id) === id)
-      } else {
-        return(Number(filter) === id)
-      }
-    })
     
     if(id){
       color = ColorPicker.get(id)
