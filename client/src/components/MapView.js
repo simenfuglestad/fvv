@@ -43,8 +43,6 @@ class MapView extends Component {
   }
 
   render() {
-    console.log(this.props.isLoggedIn)
-    console.log(this.state.showContextMenu)
     return (
         <Map
         center={this.props.currentLocation}

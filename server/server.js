@@ -13,13 +13,14 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  console.log(config)
+  // console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
 });
 
-const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+const nvdb = new apiGateway("https://nvdbapiles-v3.test.atlas.vegvesen.no/");
+// const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
 
 let token = null;
 let tokenName = null;
@@ -32,7 +33,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/login', async(req, res) =>{
   let username = req.body[0];
   let password = req.body[1];
-  console.log(username + ", " + password);
   await getToken(username, password);
   res.send(isAuthenticated);
 });
@@ -41,7 +41,7 @@ app.post('/logout', async(req, res) => {
   if(token !== null || token !== undefined) {
     let config = {
       method : 'post',
-      url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/logout',
+      url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/logout',
       headers : {
         'Content-Type' : 'application/json'
       },
@@ -69,7 +69,8 @@ async function getToken(username, password) {
   let config = {
     method : 'post',
     // url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
-    url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    // url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
+    url : 'https://www.test.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
     headers : {
       'Content-Type' : 'application/json'
     },
@@ -81,7 +82,7 @@ async function getToken(username, password) {
 
   try {
     let res = await axios(config);
-    console.log(res);
+    // console.log(res);
     token = res.data.token;
     tokenName = res.data.tokenname;
     isAuthenticated = res.data.status;
@@ -114,10 +115,20 @@ app.post('/getCatalogueVersion', async (reg, res) => {
 app.post('/registerNewObject', async (req, res) => {
   let objectData = req.body[0];
   let objectCoords = req.body[1];
+  let geometry;
+  let newObjID;
   try {
     let closestRoad = await nvdb.apiCallSingle('posisjon?lat=' + objectCoords.lat + '&lon=' + objectCoords.lng);
+    console.log(closestRoad);
+    geometry = closestRoad[0].geometri; //bruk dette til å registrere?
+    console.log(geometry);
+    console.log(geometry.wkt);
+    // let g = {"typeId" : 4780, "verdi" : }
+    // objectData.registrer.vegobjekter[0].egenskaper.push({"typeId" : 4780, "verdi": ["kommune=4601;srid=5973;"+geometry.wkt]})
     objectData.registrer.vegobjekter[0].stedfesting.punkt[0].posisjon = closestRoad[0].veglenkesekvens.relativPosisjon; //dig through objects to set relative position
     objectData.registrer.vegobjekter[0].stedfesting.punkt[0].veglenkesekvensNvdbId = closestRoad[0].veglenkesekvens.veglenkesekvensid; //dig through objects to set proper nvdb road ID
+    console.log(objectData.registrer.vegobjekter[0].egenskaper);
+    console.log("found veglenkesekvensid");
   }
   catch (error) {
     console.log("Error when getting closest road properties: " + error);
@@ -129,18 +140,21 @@ app.post('/registerNewObject', async (req, res) => {
   if (token !== null && tokenName !== null) {
     let config = {
       method : 'post',
-      url : 'https://www.utv.vegvesen.no/nvdb/apiskriv/',
+      url : 'https://www.test.vegvesen.no/nvdb/apiskriv/rest/v3/endringssett',
+      // url : 'https://www.utv.vegvesen.no/nvdb/apiskriv/rest/v3/endringssett',
+
       // url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
       headers : {
         'Content-Type'  : 'application/json',
         'Cookie'        : tokenName + '=' + token,
         'X-Client'      : 'fvv-system',
-        'X-NVDB-DryRun' : true,
+        'X-NVDB-DryRun' : false,
       },
       data : objectData
     }
-
+    console.log();
     let responseChangeSet = await registerChangeSet(config);
+    console.log(responseChangeSet.data);
     config.url = responseChangeSet.data[1].src;
     delete config["data"];
     let command = responseChangeSet.data[1].rel;
@@ -165,7 +179,37 @@ app.post('/registerNewObject', async (req, res) => {
           console.log("Error when gettings status:" + error);
         }
       } else if (doneStatus.data === "UTFØRT") {
-          res.send("Registrering fullført.");
+          try {
+          //   config.url = startResponse.data[2].src;
+          //   let status = await axios(config);
+          //   // console.log(status.data.resultat.notabener);
+          //   // console.log(status.data.resultat.advarsler);
+          //   console.log(status.data.resultat.vegobjekter);
+          //   console.log(status.data.resultat.vegobjekter[0].nvdbId);
+          //   // newObjID = status.data.resultat.vegobjekter[0].nvdbId;
+          //   newObjID = 1008940427;
+          //   let flag = false;
+          //   let time = 5000;
+          //   while(!flag) {
+          //     console.log("Sleeping for " + time + "ms");
+          //     await sleep(time);
+          //     try {
+          //       let idRes = await nvdb.apiCallSingle('vegobjekt?id='+newObjID);
+          //       console.log(idRes);
+          //       console.log(idRes);
+          //       flag = true;
+          //     }
+          //     catch (error) {
+          //       console.log(error.response.status);
+          //       time+=1;
+          //     }
+          //   }
+
+            res.send("Registrering fullført.");
+          } catch (error) {
+            console.log("Error getting status on success");
+          }
+
       } else if (doneStatus.data === "KANSELLERT") {
           res.send("Registrering ble avbrutt.");
       } else {
@@ -215,7 +259,6 @@ async function pollProgress(config) {
     while(!isDone) {
       response = await axios(config);
       statusProgress = response.data;
-      console.log(statusProgress);
       switch(statusProgress) {
         case "IKKE STARTET" :
           console.log("NOT STARTED");
@@ -224,7 +267,7 @@ async function pollProgress(config) {
         case "BEHANDLES" :
         console.log("PROCESSING");
           startedProcess = true;
-          waitingTime = (timesPolled * 1) + 1000;
+          waitingTime = (timesPolled * 2) + 1000;
           timesPolled+=1;
           await sleep(waitingTime);
           break;
@@ -246,7 +289,7 @@ async function pollProgress(config) {
           break;
 
         case "UTFØRT" :
-          console.log("COMPLETED");
+          // console.log("COMPLETED");
           isDone = true;
           break;
 

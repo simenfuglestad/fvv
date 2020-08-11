@@ -105,7 +105,8 @@ class Container extends Component {
             handleClose={this.toggleObjectReg}
             openCameraView={this.handleOpenCamera}
             photo={this.state.objectImage}
-            clearImageData={this.clearImageData}>
+            clearImageData={this.clearImageData}
+            objectPos={this.state.regObjectPos}>
 
           </RegistrationMenu>
         }
@@ -177,10 +178,9 @@ class Container extends Component {
 
 
   handleLogin(loginObject) {
-    console.log(loginObject);
     this.props.handleLogin(loginObject);
   }
-          
+
   async addMarkerCollection(objects, key, checkmark){
     let newMarkerCollections = {...this.state.markerCollections};
     let markerObjects = await this.props.getCaseObjects(objects);
@@ -319,7 +319,7 @@ class Container extends Component {
 
     this.setState(prevState => ({isCaseListOpen: !prevState.isCaseListOpen}))
   }
-  
+
   getMarkerClusterIcon(cluster){
     var children = cluster.getAllChildMarkers();
     var childCount = cluster.getChildCount();

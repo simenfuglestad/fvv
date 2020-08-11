@@ -14,7 +14,7 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
-      isLoggedIn: true,
+      isLoggedIn: false,
       failedLogin: null,
       caseObjects: {},
 
@@ -251,123 +251,6 @@ class App extends Component {
     let caseList = await this.server.getCaseList()
     this.setState({caseList: caseList})
   }
-
-  async testendring(){
-    const testobjekt ={
-      "registrer": {
-        "vegobjekter": [
-          {
-            "stedfesting": {
-              "punkt": [
-                {
-                  "posisjon": 0.3,
-                  "veglenkesekvensNvdbId": 1125766
-                }
-              ]
-            },
-            "gyldighetsperiode": {
-              "startdato": "2013-10-29"
-            },
-            "typeId": 581,
-            "tempId": "tunnel#1",
-            "egenskaper": [
-              {
-                "typeId": 5225,
-                "verdi": [
-                  "Grevlingtunnelen"
-                ]
-              },
-              {
-                "typeId": 9306,
-                "verdi": [
-                  "34343"
-                ]
-              },
-              {
-                "typeId": 9134,
-                "verdi": [
-                  "E"
-                ]
-              },
-              {
-                "typeId": 8945,
-                "verdi": [
-                  "2000"
-                ]
-              },
-              {
-                "typeId": 3947,
-                "verdi": [
-                  "1"
-                ]
-              },
-              {
-                "typeId": 8150,
-                "verdi": [
-                  "100"
-                ]
-              },
-              {
-                "typeId": 8151,
-                "verdi": [
-                  "50"
-                ]
-              },
-              {
-                "typeId": 9517,
-                "verdi": [
-                  "Nei"
-                ]
-              },
-              {
-                "typeId": 9518,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 9131,
-                "verdi": [
-                  "a"
-                ]
-              },
-              {
-                "typeId": 3917,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3918,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3915,
-                "verdi": [
-                  "Ja"
-                ]
-              },
-              {
-                "typeId": 3916,
-                "verdi": [
-                  "Ja"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "kontekst": "<![CDATA[Testcase 00: Gyldig vegobjekt]]>",
-      "datakatalogversjon": "2.21"
-    }
-
-    this.server.pushChangesToNvdb(testobjekt);
-
-  }
-
-
 }
 
 export default App;

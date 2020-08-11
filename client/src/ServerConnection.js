@@ -41,7 +41,6 @@ export default class ServerConnection {
 
     async login(username, password) {
       const res = await axios.post('/login', [username, password]);
-      console.log(res);
       return res;
     }
 
@@ -53,7 +52,7 @@ export default class ServerConnection {
     async registerObject(newObject, coords) {
       const res = await axios.post('/registerNewObject', [newObject, coords]);
       console.log(res);
-      return res;
+      return res.data;
     }
 
     async registerCase(newCase){

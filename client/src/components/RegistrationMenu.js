@@ -44,6 +44,10 @@ class RegMenu extends Component {
       this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
       this.setState({}) //forces a re-render
     }
+    else if(prevProps.objectPos !== this.props.objectPos) {
+      console.log("updated object pos");
+      console.log(this.props.objectPos);
+    }
   }
 
   createSelectOptions(objects) {
@@ -78,6 +82,7 @@ class RegMenu extends Component {
   * return: Structed Object with name as key and list of possible values as value
   */
   fetchObjectProperties(obj) {
+    console.log(obj);
     let inputFields = this.sortInputFields(obj);
     let properties = inputFields.egenskapstyper;
 
@@ -236,8 +241,8 @@ class RegMenu extends Component {
             "stedfesting": {
               "punkt": [
                 {
-                  "posisjon": 0.3,
-                  "veglenkesekvensNvdbId": 1125766
+                  "posisjon": "#pos_placeholder",
+                  "veglenkesekvensNvdbId": "#ID_placeholder"
                 }
               ]
             },
@@ -256,13 +261,22 @@ class RegMenu extends Component {
 
     let properties = [];
     let curObjectData = this.roadObjectTypes.filter(v => (v.id === this.currentObjectID))[0];
-   
+    console.log(curObjectData);
+    let geoPropIDs = [];
     curObjectData.egenskapstyper.forEach((item, i) => {
+      if (item.navn.toLowerCase().startsWith("geometri")) {
+        geoPropIDs.push(item.id);
+        console.log(item.id);
+        console.log(item.navn);
+        // properties.push("")
+      }
+      // console.log(item);
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
+        // console.log("Verdi : " + this.state.enteredData[i] + "har ID " + item.id);
         properties.push({typeId: item.id, verdi: [this.state.enteredData[i]]})
       }
     });
-    
+
     resultObject.registrer.vegobjekter[0].egenskaper = properties;
     return resultObject
   }
