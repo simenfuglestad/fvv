@@ -12,8 +12,6 @@ class RegMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentObjectName : "Velg en kategori",
-      currentObjectID : 0,
       enteredData : [],
       objectProperties : {},
       objectPropertyImportances : [], //sorted from most to least
@@ -24,8 +22,9 @@ class RegMenu extends Component {
 
     //initalizes here if props update before menu is opened
     this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
-    this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
-    this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
+    this.categoryNamesToIDs = null;
+    this.categoryOptions = null;
+    this.initData(this.roadObjectTypes);
 
     this.handleSelectCategoryChange = this.handleSelectCategoryChange.bind(this);
     this.handleDoneClick = this.handleDoneClick.bind(this);
@@ -40,37 +39,28 @@ class RegMenu extends Component {
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.roadObjects !== this.props.roadObjects) {
       this.roadObjectTypes = Datastore.get('vegobjekttyper?inkluder=alle');
-      this.categoryNamesIDs = this.getObjectNames(this.roadObjectTypes);
-      this.categoryOptions = this.createSelectOptions(this.categoryNamesIDs);
+      this.initData(this.roadObjectTypes);
       this.setState({}) //forces a re-render
     }
   }
 
-  createSelectOptions(objects) {
-    let result = [];
+  initData(objects) {
+    let namesToIDs = {};
+    let categoryOptions = [];
     objects.forEach((item, i) => {
-      result.push({label : item.name, value: i+1});
-    });
-    return result;
-  }
+      namesToIDs[item["navn"]] = item["id"];
+      categoryOptions.push({label : item["navn"], value : i+1});
 
-  getObjectNames(objects) {
-    let result = [];
-    objects.forEach((item, i) => {
-      let o = {};
-      o["name"] = item.navn;
-      o["id"] = item.id;
-      result.push(o);
     });
-
-    result.sort(function(a, b) {
-      let n = a.name.toLowerCase();
-      let m = b.name.toLowerCase();
+    categoryOptions.sort(function(a, b) {
+      let n = a.label.toLowerCase();
+      let m = b.label.toLowerCase();
       if (n < m) return -1;
       else if(n === m) return 0;
       else return 1;
    });
-    return result;
+    this.categoryNamesToIDs = namesToIDs;
+    this.categoryOptions = categoryOptions;
   }
 
   /*
@@ -86,18 +76,14 @@ class RegMenu extends Component {
     if(properties !== undefined) {
       properties.forEach((item, i) => {
         let propertyName = item["navn"];
-        result[propertyName] = [];
-
-        for (var key in item) {
-          if (key === "tillatte_verdier") {
-            let tmp_list = [];
-
-            item[key].forEach((item2, i) => {
-              tmp_list.push(item2["verdi"]);
-            });
-            result[propertyName] = tmp_list;
-            break;
-          }
+        if (item["tillatte_verdier"]) {
+          let allowed_vals = [];
+          item["tillatte_verdier"].forEach((item2, i) => {
+            allowed_vals.push(item2["verdi"]);
+          });
+          result[propertyName] = allowed_vals;
+        } else {
+          result[propertyName] = [];
         }
       });
     }
@@ -112,8 +98,8 @@ class RegMenu extends Component {
 
     let properties = object.egenskapstyper;
     properties.sort((a, b) => {
-        let importance_a = importanceLevels[a.viktighet];
-        let importance_b = importanceLevels[b.viktighet];
+        let importance_a = importanceLevels[a["viktighet"]];
+        let importance_b = importanceLevels[b["viktighet"]];
 
         if(importance_a < importance_b) return 1;
         else if (importance_a === importance_b) return 0;
@@ -122,7 +108,7 @@ class RegMenu extends Component {
 
     let sortedImportanceVals = [];
     properties.forEach((item, i) => {
-      sortedImportanceVals.push(importanceLevels[item.viktighet])
+      sortedImportanceVals.push(importanceLevels[item["viktighet"]])
     });
 
     this.setState({
@@ -133,29 +119,20 @@ class RegMenu extends Component {
   }
 
   formatStatus(status) {
-    switch(status.toLowerCase()) {
-      case "nvdb, ok" :
-        return "OK";
-        break;
-      case "nvdb, test" :
-        return "TEST";
-        break;
-      case "nvdb, til revisjon" :
-        return "TIL REVISJON";
-        break;
-      default :
-        return status;
+    if (status.toLowerCase().startsWith("nvdb")) {
+      return status.slice(6); //kutt "nvdb, " fra statusfelt
+    } else {
+      return "UKJENT"
     }
   }
 
   setCurrentProperties(objectName) {
-    let obj = this.roadObjectTypes;
-    obj = obj.filter(v => (v.id === this.currentObjectID))[0];
-
+    let obj = this.roadObjectTypes.filter(v => (v.id === this.currentObjectID))[0];
+    console.log(this.currentObjectID);
+    console.log(obj);
     if(obj !== undefined && obj !== null) {
       let objProps = this.fetchObjectProperties(obj);
       let status = this.formatStatus(obj.status);
-      console.log(status);
       this.setState({
         objectProperties : objProps,
         NVDBstatus : status
@@ -166,24 +143,11 @@ class RegMenu extends Component {
           objectProperties : [],
         });
       }
-
     }
-
-  setCurrentObjectID(objectName) {
-    let obj = this.categoryNamesIDs.filter(o =>{
-      return o.name === objectName;
-    })[0];
-    if(obj !== undefined && obj !== null) {
-      this.currentObjectID = obj.id;
-    } else {
-      this.currentObjectID = -1;
-    }
-  }
 
   handleSelectCategoryChange(event) {
     let val = event.label;
-    this.setState({currentObjectName : val});
-    this.setCurrentObjectID(val);
+    this.currentObjectID = this.categoryNamesToIDs[val];
     this.setCurrentProperties(val);
 
     let begunCategorySelect;
@@ -216,6 +180,7 @@ class RegMenu extends Component {
     }
   }
 
+  //Verify that at least one field is not empty, placeholder for better validation
   verifyInput() {
     if(this.state.enteredData.find(e => e !== undefined)) {
       return true;
@@ -256,13 +221,13 @@ class RegMenu extends Component {
 
     let properties = [];
     let curObjectData = this.roadObjectTypes.filter(v => (v.id === this.currentObjectID))[0];
-   
+
     curObjectData.egenskapstyper.forEach((item, i) => {
       if (this.state.enteredData[i] !== undefined && this.state.enteredData[i] !=="") {
         properties.push({typeId: item.id, verdi: [this.state.enteredData[i]]})
       }
     });
-    
+
     resultObject.registrer.vegobjekter[0].egenskaper = properties;
     return resultObject
   }
@@ -280,6 +245,7 @@ class RegMenu extends Component {
         </div>
 
         <img  src={ExitImg}
+              alt={"Close"}
               className="ExitRegMenu"
               onClick={() => {this.handleCloseClick(this.abortBtn)}}
               ref={this.abortBtn}/>
@@ -290,7 +256,7 @@ class RegMenu extends Component {
               return (
                 <div key={i} className={"RegFormUserInput"}>
                   {(this.state.objectPropertyImportances[i] === 0) && <label className="unspecifiedLabel" key={i+'l'}>{k}</label>}
-                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoletetLabel" key={i+'l'}>{k}</label>}
+                  {(this.state.objectPropertyImportances[i] === 1) && <label className="obsoleteLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 2) && <label className="unimportantLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 3) && <label className="optionalLabel" key={i+'l'}>{k}</label>}
                   {(this.state.objectPropertyImportances[i] === 4) && <label className="contingentLabel" key={i+'l'}>{k}</label>}
@@ -318,20 +284,25 @@ class RegMenu extends Component {
             {this.props.photo !== null ?
               <div className="PhotoDiv" >
                 <img  src={this.props.photo}
+                      alt={"Userphoto goes here"}
                       className="TakenPhoto"/>
                 <br></br>
                 <img    src={TakeNewPhotoImg}
+                        alt={"Bring up camera"}
                         className="TakeNewPhotoImg"
                         onClick={this.props.openCameraView}/>
                 <img    src={RemovePhotoImg}
+                        alt={"Remove"}
                         className="RemovePhotoImg"
                         onClick={this.props.clearImageData}/>
               </div> :
               <img  className="TakePhotoImg"
+                    alt={"Bring up camera"}
                     src={CameraImg}
                     onClick={this.props.openCameraView}/>
             }
             <img    src={ConfirmImg}
+                    alt={"Confirm Registration"}
                     className="CompleteRegButton"
                     onClick={(e) => this.handleDoneClick(e)}/>
             <br></br>
@@ -341,5 +312,4 @@ class RegMenu extends Component {
     )
   }
 }
-
 export default RegMenu;
