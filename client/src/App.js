@@ -13,7 +13,7 @@ class App extends Component {
       roads: [],
       issues: [],
       caseList: [],
-      isLoggedIn: true,
+      isLoggedIn: false,
       failedLogin: null,
       caseObjects: {},
 
@@ -34,8 +34,12 @@ class App extends Component {
 
   async registerObject(object, coords) {
     console.log(object);
-    let res = await this.server.registerObject(object, coords);
+    let res = await this.server.initRegisterObject(object, coords);
     console.log(res);
+    let done = false;
+    // while(!done){
+      // let regStatus = this.server.pollRegProgress(res)
+    // }
   }
 
   componentDidMount() {

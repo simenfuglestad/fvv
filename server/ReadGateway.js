@@ -3,12 +3,12 @@ const axios = require('axios');
 /**
  * Responsible for sending out api calls and storing responses
  */
-class ApiGateway {
+class ReadGateway {
     constructor(endpoint){
         this.endpoint = endpoint;
     }
 
-    async apiCall(request){
+    async getNVDBObjects(request){
 
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
 
@@ -21,7 +21,7 @@ class ApiGateway {
       return data;
     }
 
-    async apiCallSingle(request){
+    async getSingleNVDBObject(request){
       let res = await axios.get(this.endpoint + request, {headers: {'Accept': 'application/vnd.vegvesen.nvdb-v3-rev1+json'}});
 
       let data = res.data;
@@ -29,4 +29,4 @@ class ApiGateway {
     }
 }
 
-module.exports = ApiGateway;
+module.exports = ReadGateway;

@@ -50,10 +50,14 @@ export default class ServerConnection {
       return res;
     }
 
-    async registerObject(newObject, coords) {
-      const res = await axios.post('/registerNewObject', [newObject, coords]);
-      console.log(res);
-      return res;
+    async initRegisterObject(newObject, coords) {
+      const res = await axios.post('/initRegObj', [newObject, coords]);
+      return res.data;
+    }
+
+    async pollRegProgress(pollingURL) {
+      const res = await axios.post('/pollRegProgress', pollingURL);
+      return res.data;
     }
 
     async registerCase(newCase){

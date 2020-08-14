@@ -1,7 +1,10 @@
+const utilities = require('./Utilities');
+const authentication = require('./AuthenticationGateway');
+const readGateway = require('./ReadGateway');
+const writeGateway = require('./WriteGateway')
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const apiGateway = require('./ApiGateway');
 const path = require('path');
 
 const app = express();
@@ -13,13 +16,18 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 //intercept all outgoing requests for logging purposes
 axios.interceptors.request.use(function (config) {
-  console.log(config)
+  // console.log(config)
   return config;
 }, function (error) {
   return Promise.reject(error);
 });
 
-const nvdb = new apiGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+let changesetURL = "https://www.test.vegvesen.no/nvdb/apiskriv/rest/v3/endringssett";
+
+const utils = new utilities();
+const auth = new authentication("https://www.test.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/");
+const rdGateway = new readGateway("https://nvdbapiles-v3.atlas.vegvesen.no/")
+const wrGateway = new writeGateway(changesetURL);
 
 let token = null;
 let tokenName = null;
@@ -28,81 +36,45 @@ let isAuthenticated = false;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.post('/login', async(req, res) =>{
   let username = req.body[0];
   let password = req.body[1];
-  console.log(username + ", " + password);
-  await getToken(username, password);
-  res.send(isAuthenticated);
+  try {
+    let loginObject = await auth.getToken(username, password);
+    token = loginObject.token;
+    tokenName = loginObject.tokenName;
+    res.send(loginObject.isAuthenticated);
+  }
+  catch(error) {
+    res.send(false);
+    console.log("An error occurred when logging in: " + error);
+  }
 });
 
 app.post('/logout', async(req, res) => {
-  if(token !== null || token !== undefined) {
-    let config = {
-      method : 'post',
-      url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/logout',
-      headers : {
-        'Content-Type' : 'application/json'
-      },
-      data : {
-        token : token,
-      }
-    }
-    try {
-      let logoutRes = await axios(config);
-      console.log(logoutRes);
-      isAuthenticated = false;
-      token = null;
-      tokenName = null;
-      res.send(isAuthenticated)
-    }
-    catch (error) {
-      console.log("Error occurred when invalidating token:" + error);
-    }
-  } else {
-    res.send(isAuthenticated)
+  try {
+    let logout = await auth.invalidateToken(token)
+    isAuthenticated = false;
+    token = null;
+    tokenName = null;
+    res.send(isAuthenticated);
+  }
+  catch (error) {
+    console.log("Error occurred when invalidating token: " + error);
   }
 })
 
-async function getToken(username, password) {
-  let config = {
-    method : 'post',
-    // url : 'http://localhost:8010/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
-    url : 'https://www.utv.vegvesen.no/ws/no/vegvesen/ikt/sikkerhet/aaa/autentiser',
-    headers : {
-      'Content-Type' : 'application/json'
-    },
-    data : {
-      'username' : username,
-      'password' : password
-    }
-  }
-
-  try {
-    let res = await axios(config);
-    console.log(res);
-    token = res.data.token;
-    tokenName = res.data.tokenname;
-    isAuthenticated = res.data.status;
-    console.log("Got token: " + token);
-    console.log(tokenName);
-  } catch(error) {
-    console.log("Error occurred when getting token: " + error.stack);
-  }
-}
-
 app.post('/api/getroadobjecttypes', (req, res) => {
-    nvdb.apiCallSingle(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+    rdGateway.getSingleNVDBObject(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 });
 
 app.post('/api/getroadobjects', (req, res) => {
-  nvdb.apiCall(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
+  rdGateway.getNVDBObject(req.body.request).then(data => {res.send(data)}).catch(e => {console.log(e)})
 });
 
 app.post('/getCatalogueVersion', async (reg, res) => {
   try {
-    let catalogueVersion = await nvdb.apiCallSingle('vegobjekttyper/version');
+    let catalogueVersion = await rdGateway.getSingleNVDBObject('vegobjekttyper/version');
     console.log(catalogueVersion);
   }
   catch (error) {
@@ -111,185 +83,43 @@ app.post('/getCatalogueVersion', async (reg, res) => {
 });
 
 
-app.post('/registerNewObject', async (req, res) => {
+app.post('/pollRegisterStatus', async (req, res) => {
+  console.log(req.data);
+  // let done = false;
+  // while(!done){
+  //   let status = await queryProgress(statusQueryOptions.fremdrift);
+  //   if (status.includes("UTFØRT") || status.includes("AVVIST")) {
+  //     done = true;
+  //     res.send("Registrering avsluttet med status" + status);
+  //   } else if(status.includes("BEHANDLES")) {
+  //
+  //   }
+});
+
+app.post('/initRegObj', async (req, res) => {
   let objectData = req.body[0];
   let objectCoords = req.body[1];
   try {
-    let closestRoad = await nvdb.apiCallSingle('posisjon?lat=' + objectCoords.lat + '&lon=' + objectCoords.lng);
+    const closestRoad = await rdGateway.getSingleNVDBObject('posisjon?lat=' + objectCoords.lat + '&lon=' + objectCoords.lng);
     objectData.registrer.vegobjekter[0].stedfesting.punkt[0].posisjon = closestRoad[0].veglenkesekvens.relativPosisjon; //dig through objects to set relative position
     objectData.registrer.vegobjekter[0].stedfesting.punkt[0].veglenkesekvensNvdbId = closestRoad[0].veglenkesekvens.veglenkesekvensid; //dig through objects to set proper nvdb road ID
-  }
-  catch (error) {
-    console.log("Error when getting closest road properties: " + error);
-  }
 
-  let currentDateStr = makeDateStr();
-  objectData.registrer.vegobjekter[0].gyldighetsperiode.startdato = currentDateStr;
+    const currentDateStr = utils.makeDateStr();
+    objectData.registrer.vegobjekter[0].gyldighetsperiode.startdato = currentDateStr;
 
-  if (token !== null && tokenName !== null) {
-    let config = {
-      method : 'post',
-      url : 'https://www.utv.vegvesen.no/nvdb/apiskriv/',
-      // url : 'http://localhost:8010/nvdb/apiskriv/rest/v3/endringssett',
-      headers : {
-        'Content-Type'  : 'application/json',
-        'Cookie'        : tokenName + '=' + token,
-        'X-Client'      : 'fvv-system',
-        'X-NVDB-DryRun' : true,
-      },
-      data : objectData
+    if (token !== null && tokenName !== null) {
+      const commands = await wrGateway.registerChangeset(objectData, changesetURL, false, tokenName, token);
+      const statusQueryOptions = await wrGateway.giveCommand(commands.start);
+      res.send(statusQueryOptions);
+    } else {
+      res.send("Unable to register, require login")
     }
-
-    let responseChangeSet = await registerChangeSet(config);
-    config.url = responseChangeSet.data[1].src;
-    delete config["data"];
-    let command = responseChangeSet.data[1].rel;
-
-    let startResponse = await postCommand(config, command);
-
-    config.method = 'get';
-    config.url = startResponse.data[0].src;
-    try {
-      let doneStatus = await pollProgress(config);
-      console.log(doneStatus.data);
-      if(doneStatus.data === "AVVIST") {
-        try {
-          config.url = startResponse.data[2].src;
-          let status = await axios(config);
-          console.log(status.data.resultat.vegobjekter[0].feil[0]);
-          let errorMsg = status.data.resultat.vegobjekter[0].feil[0].melding;
-          console.log(errorMsg);
-          res.send(errorMsg);
-
-        } catch (error) {
-          console.log("Error when gettings status:" + error);
-        }
-      } else if (doneStatus.data === "UTFØRT") {
-          res.send("Registrering fullført.");
-      } else if (doneStatus.data === "KANSELLERT") {
-          res.send("Registrering ble avbrutt.");
-      } else {
-        res.send("Fikk uventet svar fra NVDB.");
-      }
+  } catch(error) {
+      console.log("Error occurred in initRegObj: " + error.stack);
+      res.send("Failed to start registration");
     }
-    catch (error) {
-      console.log(error);
-      res.send("Registrerings feilet av ukjent årsak");
-    }
-  }
 });
 
-function makeDateStr() {
-  let d = new Date();
-  let date = d.getDate();
-  let month = d.getMonth()+1;
-
-  if (date < 10) {
-    date = "0" + date;
-  }
-
-  if (month < 10) {
-    month = "0" + month;
-  }
-  return d.getFullYear() + "-" + month + "-" + date;
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/*
-* Poll progress of changeset
-* Polling time intervals is loosley based on recommendations found at
-* https://apiskriv.vegdata.no/endringssett/introduksjon
-*/
-async function pollProgress(config) {
-  try {
-    let startedProcess = false;
-    let statusProgress;
-    let isDone = false;
-    let response;
-    let timesPolled = 0;
-    let waitingTime;
-
-    while(!isDone) {
-      response = await axios(config);
-      statusProgress = response.data;
-      console.log(statusProgress);
-      switch(statusProgress) {
-        case "IKKE STARTET" :
-          console.log("NOT STARTED");
-          break;
-
-        case "BEHANDLES" :
-        console.log("PROCESSING");
-          startedProcess = true;
-          waitingTime = (timesPolled * 1) + 1000;
-          timesPolled+=1;
-          await sleep(waitingTime);
-          break;
-
-        case "VENTER" :
-          console.log("WAITING");
-          if(startedProcess) {
-            waitingTime = (timesPolled * 1) + 60000; //wait >=1min if processing has begun
-          } else {
-            waitingTime = (timesPolled * 1) + 1000;
-          }
-          timesPolled+=1;
-          await sleep(waitingTime);
-          break;
-
-        case "AVVIST" :
-          console.log("REJECTED");
-          isDone = true;
-          break;
-
-        case "UTFØRT" :
-          console.log("COMPLETED");
-          isDone = true;
-          break;
-
-        case "UTFØRT_OG_ETTERBEHANDLET" :
-          console.log("COMPLETED AND POSTPROCESSED");
-          isDone = true;
-          break;
-
-        case "KANSELLERT":
-          console.log("CANCELLED");
-          isDone = true;
-          break;
-
-        default:
-          throw "Invalid value of response: " + response.data;
-      }
-  }
-    return response;
-  }
-  catch (error) {
-    console.log("Error in pollProgress: \n" + error);
-  }
-}
-
-async function postCommand(config, command) {
-  try {
-    let response = await axios(config);
-    return response;
-  }
-  catch (error) {
-    console.log("Error response postCommand: " + error);
-  }
-}
-
-async function registerChangeSet(config) {
-  try {
-    let response = await axios(config);
-    return response;
-  }
-  catch (error) {
-    console.log("Error response registerChangeSet: \n" + error);
-  }
-}
 
 app.post('/registerCase', (req, res) => {
   const fs = require("fs");
